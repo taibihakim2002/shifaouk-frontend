@@ -48,7 +48,7 @@ export default function Header() {
           <h1 className="text-lg font-[600] text-primaryColor">شفائك</h1>
         </div>
         <div className="flex items-center justify-between">
-          <ul className="hidden md:flex gap-10 text-sm">
+          <ul className="hidden md:flex gap-10 text-sm 2xl:text-[17px]">
             {menu.map((ele) => (
               <li className="hover:text-primary-500 flex gap-2 items-center">
                 <a href={ele.link}>{ele.title}</a>
@@ -57,10 +57,10 @@ export default function Header() {
           </ul>
         </div>
         <div className="hidden md:flex gap-2">
-          <Button theme={flowbit.button} color="primary" pill size="sm">
+          <Button theme={flowbit.button} color="primary" pill size="md">
             تسجيل الدخول
           </Button>
-          <Button theme={flowbit.button} color="primary" pill outline size="sm">
+          <Button theme={flowbit.button} color="primary" pill outline size="md">
             انشاء حساب
           </Button>
         </div>
