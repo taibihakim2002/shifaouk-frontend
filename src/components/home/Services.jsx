@@ -36,7 +36,7 @@ const services = [
 
 export default function Services() {
   return (
-    <div className="py-16 bg-primary-100">
+    <div className="py-16 bg-primary-50">
       <SectionHeader sectionTitle="خدماتنا" icon={Stethoscope} />
       <div className="container grid grid-cols-1 md:grid-cols-2 gap-12 lg:px-20">
         {services.map((ele) => {

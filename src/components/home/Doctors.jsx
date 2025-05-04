@@ -31,7 +31,7 @@ const doctors = [
 ];
 export default function Doctors() {
   return (
-    <div className="py-16 bg-primary-100">
+    <div className="py-16 bg-primary-50">
       <SectionHeader sectionTitle="اطبائنا المميزون" icon={Stethoscope} />
       <div className="container grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10 mb-10">
         {doctors.map((ele) => (
