@@ -43,8 +43,8 @@ export default function Doctors() {
             />
             <div className="absolute w-full h-32 bottom-0 left-0 bg-gradient-to-t from-primaryColor to-transparent"></div>
             <div className="relative z-10 flex flex-col justify-end items-center  h-full py-5">
-              <h3 className="text-[18px] text-whiteColor  mb-3">{ele.name}</h3>
-              <div className="flex justify-between w-full px-5 text-sm text-whiteColor">
+              <h3 className="text-[18px] text-white  mb-3">{ele.name}</h3>
+              <div className="flex justify-between w-full px-5 text-sm text-white">
                 <p className=" ">{ele.description}</p>
                 <div className="flex gap-1 items-center justify-center">
                   <Star className="text-yellow-300" size={15} strokeWidth={3} />

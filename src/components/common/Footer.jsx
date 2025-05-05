@@ -8,13 +8,7 @@ import {
   FooterTitle,
   FooterCopyright,
 } from "flowbite-react";
-import {
-  BsDribbble,
-  BsFacebook,
-  BsGithub,
-  BsInstagram,
-  BsTwitter,
-} from "react-icons/bs";
+import { BsFacebook, BsInstagram, BsTwitter } from "react-icons/bs";
 import flowbit from "../../config/flowbit";
 
 export default function Footer() {

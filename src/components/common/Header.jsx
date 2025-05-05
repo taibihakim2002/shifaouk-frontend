@@ -9,7 +9,8 @@ import {
   WholeWord,
 } from "lucide-react";
 import { useState } from "react";
-
+import LoginBtn from "./LoginBtn";
+import RegisterBtn from "./RegisterBtn";
 const menu = [
   {
     title: "الرئيسية",
@@ -57,12 +58,8 @@ export default function Header() {
           </ul>
         </div>
         <div className="hidden md:flex gap-2">
-          <Button theme={flowbit.button} color="primary" pill size="md">
-            تسجيل الدخول
-          </Button>
-          <Button theme={flowbit.button} color="primary" pill outline size="md">
-            انشاء حساب
-          </Button>
+          <LoginBtn />
+          <RegisterBtn />
         </div>
         <div className="md:hidden">
           <button onClick={() => setIsOpen(true)}>
@@ -90,18 +87,8 @@ export default function Header() {
                 </ul>
               </div>
               <div className="flex gap-2 justify-center">
-                <Button theme={flowbit.button} color="primary" pill size="sm">
-                  تسجيل الدخول
-                </Button>
-                <Button
-                  theme={flowbit.button}
-                  color="primary"
-                  pill
-                  outline
-                  size="sm"
-                >
-                  انشاء حساب
-                </Button>
+                <LoginBtn />
+                <RegisterBtn />
               </div>
             </DrawerItems>
           </Drawer>

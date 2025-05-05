@@ -7,11 +7,13 @@ import DoctorHome from "../pages/dashboard/doctor/DoctorHome";
 import AdminHome from "../pages/dashboard/admin/AdminHome";
 import PatientHome from "../pages/dashboard/patient/PatientHome";
 import store from "../data/store";
+import PublicRoutes from "./PublicRoutes";
+import PrivateRoutes from "./PrivateRoutes";
 
 export default function AppRoutes() {
   return (
     <Routes>
-      <Route path={PATHS.HOME} element={<Home />} />
+      <Route path="/*" element={<PublicRoutes />} />
       <Route path={PATHS.DASHBOARD} element={<DashboardLayout />}>
         {/* Must Change || it is not best practises to add conditions inside routes element */}
         {store.userRole === "admin" && (
@@ -30,6 +32,7 @@ export default function AppRoutes() {
           </>
         )}
       </Route>
+      <Route element={<PrivateRoutes />}></Route>
       <Route path={PATHS.NOTFOUND} element={<NotFound />} />
     </Routes>
   );

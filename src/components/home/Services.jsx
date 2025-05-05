@@ -43,17 +43,15 @@ export default function Services() {
           const Icon = ele.icon;
           return (
             <div
-              className={`w-full h-72 justify-center flex items-start flex-col gap-7 rounded-lg shadow-sm hover:-translate-y-3 transition ${
+              className={`w-full h-72 justify-center flex items-start flex-col gap-7 rounded-lg shadow-sm hover:border hover:border-primaryColor hover:-translate-y-3 transition ${
                 ele.isSpecific
-                  ? "bg-primaryColor text-whiteColor shadow-lg"
-                  : "bg-whiteColor text-darkColor"
+                  ? "bg-primaryColor text-white shadow-lg"
+                  : "bg-white text-darkColor"
               }   p-10`}
             >
               <div
                 className={`p-5 rounded-full flex items-center justify-center text-primaryColor ${
-                  ele.isSpecific
-                    ? "bg-whiteColor "
-                    : "border border-primaryColor"
+                  ele.isSpecific ? "bg-white " : "border border-primaryColor"
                 } `}
               >
                 <Icon size={30} />

@@ -10,7 +10,6 @@ import Stats from "../components/home/Stats";
 export default function Home() {
   return (
     <>
-      <Header />
       <Hero />
       <Stats />
       <Services />

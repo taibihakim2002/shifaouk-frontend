@@ -21,8 +21,8 @@ export default {
       padding: "20px"
     },
     colors: {
-      whiteColor: "#ffffff",
-      primaryColor: "#008cff",
+      white: "#ffffff",
+      primaryColor: "#048CFF",
       darkColor: "#000000",
       grayColor: "9babba",
       secondaryColor: "#234a6b",

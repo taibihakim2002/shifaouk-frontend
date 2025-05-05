@@ -8,12 +8,10 @@ const stats = [
 export default function Stats() {
   return (
     <div className="bg-primaryColor py-10">
-      <div className="container grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
+      <div className="container grid grid-cols-2  lg:grid-cols-4 gap-10">
         {stats.map((ele) => (
           <div className="flex flex-col gap-3 items-center justify-center">
-            <h3 className="text-whiteColor font-bold text-[40px]">
-              {ele.value}
-            </h3>
+            <h3 className="text-white font-bold text-[40px]">{ele.value}</h3>
             <p className="text-gray-300  text-md">{ele.title}</p>
           </div>
         ))}
