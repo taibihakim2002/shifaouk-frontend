@@ -52,7 +52,7 @@ export default function Hero() {
             <p className="text-center text-gray-400 2xl:text-lg">
               +
               <spam>
-                <CountUp end={100} duration={2} />{" "}
+                <CountUp end={100} duration={2} />
               </spam>
               طبيب متاح للاستشارة
             </p>

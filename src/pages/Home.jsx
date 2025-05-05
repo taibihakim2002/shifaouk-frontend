@@ -1,5 +1,6 @@
 import Footer from "../components/common/Footer";
 import Header from "../components/common/Header";
+import Blogs from "../components/home/Blogs";
 import Categories from "../components/home/Categories";
 import Doctors from "../components/home/Doctors";
 import FAQ from "../components/home/FAQ";
@@ -16,6 +17,7 @@ export default function Home() {
       <Categories />
       <Doctors />
       <FAQ />
+      <Blogs />
       <Footer />
     </>
   );

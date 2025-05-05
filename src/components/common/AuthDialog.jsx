@@ -1,18 +1,12 @@
-import {
-  Button,
-  Checkbox,
-  Label,
-  Modal,
-  ModalBody,
-  ModalHeader,
-  TextInput,
-} from "flowbite-react";
-
-import flowbit from "../../config/flowbit";
+import { Modal, ModalBody } from "flowbite-react";
 import { IoClose } from "react-icons/io5";
+import { motion } from "framer-motion";
+
 import Login from "../auth/Login";
 import Register from "../auth/Register";
+import RegisterSuccess from "../auth/RegisterSuccess";
 import useAuthModalStore from "../../store/authModalStore";
+import flowbit from "../../config/flowbit";
 
 export default function AuthDialog() {
   const { isOpen, modalType, closeModal } = useAuthModalStore();
@@ -20,24 +14,31 @@ export default function AuthDialog() {
   return (
     <Modal
       show={isOpen}
+      onClose={closeModal}
+      size="4xl"
       theme={flowbit.authDialog}
-      onClose={() => closeModal()}
-      size={"4xl"}
     >
       <ModalBody className="p-0">
-        <div className="w-full h-full relative">
+        <motion.div
+          initial={{ opacity: 0, y: -30 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -30 }}
+          transition={{ duration: 0.3 }}
+          className="w-full h-full relative"
+        >
           <button
             className="text-sm p-0 m-0 outline-none border-none absolute top-2 left-2 z-50"
-            onClick={() => closeModal()}
+            onClick={closeModal}
           >
             <IoClose size={20} />
           </button>
+
           <div className="overflow-hidden">
             {modalType === "login" && <Login />}
             {modalType === "register" && <Register />}
-            {/* {dialogType === "registerSuccess" && <RegisterSuccess />} */}
+            {modalType === "registerSuccess" && <RegisterSuccess />}
           </div>
-        </div>
+        </motion.div>
       </ModalBody>
     </Modal>
   );

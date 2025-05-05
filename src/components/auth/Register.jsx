@@ -4,7 +4,7 @@ import useAuthModalStore from "../../store/authModalStore";
 export default function Register() {
   const { openModal } = useAuthModalStore();
   return (
-    <div className="flex relative" dir="rtl">
+    <div className="flex relative items-center" dir="rtl">
       <div className="flex flex-col items-center w-full lg:w-1/2 p-10">
         <img
           src="/logo.png"
@@ -100,6 +100,7 @@ export default function Register() {
             color="primary"
             type="submit"
             className="mb-4"
+            onClick={() => openModal("registerSuccess")}
           >
             انشاء حساب
           </Button>
