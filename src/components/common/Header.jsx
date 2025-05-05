@@ -49,7 +49,7 @@ export default function Header() {
           <h1 className="text-lg font-[600] text-primaryColor">شفائك</h1>
         </div>
         <div className="flex items-center justify-between">
-          <ul className="hidden md:flex gap-10 text-sm 2xl:text-[17px]">
+          <ul className="hidden md:flex gap-10 text-sm md:text-md 2xl:text-[20px]">
             {menu.map((ele) => (
               <li className="hover:text-primary-500 flex gap-2 items-center">
                 <a href={ele.link}>{ele.title}</a>

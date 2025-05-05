@@ -5,7 +5,7 @@ import useAuthModalStore from "../../store/authModalStore";
 export default function Login() {
   const { openModal } = useAuthModalStore();
   return (
-    <div className="flex relative" dir="rtl">
+    <div className="flex relative items-center" dir="rtl">
       <div className="flex flex-col items-center w-full lg:w-1/2 p-10">
         <img
           src="/logo.png"

@@ -14,7 +14,7 @@ export default {
       md: "768px",
       lg: "992px",
       xl: "1200px",
-      '2xl': '1550px',
+      '2xl': '1536px',
     },
     container: {
       center: true,
@@ -31,11 +31,12 @@ export default {
       sans: ["Cairo", "sans-serif"],
     },
     fontSize: {
-      sm: '14px',  // Overriding the small font size
-      base: '18px', // Overriding the base (default) font size
-      lg: '20px',   // Overriding the large font size
-      xl: '24px',   // Overriding the extra-large font size
+      sm: '0.875rem',  // أصغر حجم
+      base: '1rem',    // الحجم الأساسي
+      lg: '1.125rem',  // الحجم الكبير
+      xl: '1.5rem',    // الحجم الإضافي
     },
+
     extend: {},
   },
   plugins: [flowbiteReact],
