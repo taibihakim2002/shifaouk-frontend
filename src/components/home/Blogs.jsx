@@ -48,12 +48,12 @@ const blogs = [
 
 export default function Blogs() {
   return (
-    <div className="py-16">
+    <div className="py-16 bg-primary-50">
       <SectionHeader sectionTitle="اخر المقالات" icon={GrArticle} />
       <div className="container grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
         {blogs.map((ele, index) => (
           <div
-            className="flex flex-col gap-3 group border border-secondaryColor p-5 rounded-lg"
+            className="flex flex-col gap-3 group  p-5 rounded-xl bg-white"
             key={index}
           >
             <img
