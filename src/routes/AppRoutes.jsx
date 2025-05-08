@@ -9,11 +9,13 @@ import PatientHome from "../pages/dashboard/patient/PatientHome";
 import store from "../data/store";
 import PublicRoutes from "./PublicRoutes";
 import PrivateRoutes from "./PrivateRoutes";
+import Profile from "../pages/Profile";
 
 export default function AppRoutes() {
   return (
     <Routes>
       <Route path="/*" element={<PublicRoutes />} />
+      <Route path="/*" element={<PrivateRoutes />} />
       <Route path={PATHS.DASHBOARD} element={<DashboardLayout />}>
         {/* Must Change || it is not best practises to add conditions inside routes element */}
         {store.userRole === "admin" && (
@@ -32,7 +34,9 @@ export default function AppRoutes() {
           </>
         )}
       </Route>
-      <Route element={<PrivateRoutes />}></Route>
+      <Route element={<PrivateRoutes />}>
+        <Route path="/profile" element={<Profile />} />
+      </Route>
       <Route path={PATHS.NOTFOUND} element={<NotFound />} />
     </Routes>
   );

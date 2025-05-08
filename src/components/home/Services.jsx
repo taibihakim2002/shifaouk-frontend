@@ -38,7 +38,7 @@ export default function Services() {
   return (
     <div className="py-16 bg-primary-50">
       <SectionHeader sectionTitle="خدماتنا" icon={Stethoscope} />
-      <div className="container grid grid-cols-1 md:grid-cols-2 gap-12 lg:px-20">
+      <div className="container grid grid-cols-1 md:grid-cols-2 gap-7 lg:px-32  rounded-xl">
         {services.map((ele) => {
           const Icon = ele.icon;
           return (

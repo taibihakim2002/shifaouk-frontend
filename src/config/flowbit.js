@@ -126,4 +126,107 @@ const footer = {
     }
 }
 
-export default { button, drawer, footer }
+const input = {
+    "base": "flex",
+    "addon": "inline-flex items-center rounded-l-md border border-r-0 border-gray-300 bg-gray-200 px-3 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-600 dark:text-gray-400",
+    "field": {
+        "base": "relative w-full",
+        "icon": {
+            "base": "pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3",
+            "svg": "h-5 w-5 text-gray-500 dark:text-gray-400"
+        },
+        "rightIcon": {
+            "base": "pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3",
+            "svg": "h-5 w-5 text-gray-500 dark:text-gray-400"
+        },
+        "input": {
+            "base": "block w-full border focus:outline-none focus:ring-1 disabled:cursor-not-allowed disabled:opacity-50",
+            "sizes": {
+                "sm": "p-2 sm:text-xs",
+                "md": "p-2.5 text-sm",
+                "lg": "p-4 sm:text-base"
+            },
+            "colors": {
+                "primary": "border-primaryColor bg-gray-50 text-gray-900 placeholder-gray-500 focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-primary-500 dark:focus:ring-primary-500",
+                "gray": "border-gray-300 bg-gray-50 text-gray-900 placeholder-gray-500 focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-primary-500 dark:focus:ring-primary-500",
+                "info": "border-cyan-500 bg-cyan-50 text-cyan-900 placeholder-cyan-700 focus:border-cyan-500 focus:ring-cyan-500 dark:border-cyan-400 dark:bg-cyan-100 dark:focus:border-cyan-500 dark:focus:ring-cyan-500",
+                "failure": "border-red-500 bg-red-50 text-red-900 placeholder-red-700 focus:border-red-500 focus:ring-red-500 dark:border-red-400 dark:bg-red-100 dark:focus:border-red-500 dark:focus:ring-red-500",
+                "warning": "border-yellow-500 bg-yellow-50 text-yellow-900 placeholder-yellow-700 focus:border-yellow-500 focus:ring-yellow-500 dark:border-yellow-400 dark:bg-yellow-100 dark:focus:border-yellow-500 dark:focus:ring-yellow-500",
+                "success": "border-green-500 bg-green-50 text-green-900 placeholder-green-700 focus:border-green-500 focus:ring-green-500 dark:border-green-400 dark:bg-green-100 dark:focus:border-green-500 dark:focus:ring-green-500"
+            },
+            "withRightIcon": {
+                "on": "pr-10",
+                "off": ""
+            },
+            "withIcon": {
+                "on": "pl-10",
+                "off": ""
+            },
+            "withAddon": {
+                "on": "rounded-r-lg",
+                "off": "rounded-lg"
+            },
+            "withShadow": {
+                "on": "shadow-sm dark:shadow-sm-light",
+                "off": ""
+            }
+        }
+    }
+}
+const tab = {
+    "base": "flex flex-col gap-2",
+    "tablist": {
+        "base": "flex text-center",
+        "variant": {
+            "default": "flex-wrap border-b border-gray-200 dark:border-gray-700",
+            "underline": "-mb-px flex-wrap border-b border-gray-200 dark:border-gray-700",
+            "pills": "flex-wrap space-x-2 text-sm font-medium text-gray-500 dark:text-gray-400",
+            "fullWidth": "grid w-full grid-flow-col divide-x divide-gray-200 rounded-none text-sm font-medium shadow dark:divide-gray-700 dark:text-gray-400"
+        },
+        "tabitem": {
+            "base": "flex items-center justify-center rounded-t-lg p-4 text-sm font-medium first:ms-0 focus:outline-none disabled:cursor-not-allowed disabled:text-gray-400 disabled:dark:text-gray-500",
+            "variant": {
+                "default": {
+                    "base": "rounded-t-lg",
+                    "active": {
+                        "on": "bg-gray-100 text-primaryColor dark:bg-gray-800 dark:text-primary-500",
+                        "off": "text-gray-500 hover:bg-gray-50 hover:text-gray-600 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-300"
+                    }
+                },
+                "underline": {
+                    "base": "rounded-t-lg",
+                    "active": {
+                        "on": "rounded-t-lg border-b-2 border-primaryColor text-primary-600 dark:border-primary-500 dark:text-primary-500",
+                        "off": "border-b-2 border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-600 dark:text-gray-400 dark:hover:text-gray-300"
+                    }
+                },
+                "pills": {
+                    "base": "",
+                    "active": {
+                        "on": "rounded-lg bg-primary-600 text-white",
+                        "off": "rounded-lg hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-800 dark:hover:text-white"
+                    }
+                },
+                "fullWidth": {
+                    "base": "ml-0 flex w-full rounded-none first:ml-0",
+                    "active": {
+                        "on": "rounded-none bg-gray-100 p-4 text-gray-900 dark:bg-gray-700 dark:text-white",
+                        "off": "rounded-none bg-white hover:bg-gray-50 hover:text-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700 dark:hover:text-white"
+                    }
+                }
+            },
+            "icon": "me-2 h-5 w-5"
+        }
+    },
+    "tabitemcontainer": {
+        "base": "",
+        "variant": {
+            "default": "",
+            "underline": "",
+            "pills": "",
+            "fullWidth": ""
+        }
+    },
+    "tabpanel": "py-3"
+}
+export default { button, drawer, footer, input, tab }

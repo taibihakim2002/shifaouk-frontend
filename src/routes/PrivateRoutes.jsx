@@ -1,3 +1,15 @@
+import { Route, Routes } from "react-router-dom";
+import Header from "../components/common/Header";
+import Profile from "../pages/Profile";
+
 export default function PrivateRoutes() {
-  return <div>PrivateRoutes</div>;
+  return (
+    <>
+      <Header />
+
+      <Routes>
+        <Route path="/profile" element={<Profile />} />
+      </Routes>
+    </>
+  );
 }
