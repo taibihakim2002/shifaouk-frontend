@@ -1,6 +1,7 @@
 import { Button } from "flowbite-react";
 import { Star } from "lucide-react";
 import flowbit from "../../config/flowbit";
+import { Link } from "react-router-dom";
 
 export default function DoctorCard({ ele, key }) {
   return (
@@ -20,13 +21,14 @@ export default function DoctorCard({ ele, key }) {
             <p className="text-yellow-300 font-bold">{ele.rating}</p>
           </div>
         </div>
+
         <Button
           theme={flowbit.button}
           color="primary"
           className="w-full"
           size="sm"
         >
-          إستشر الان
+          <Link to="/doctors"> إستشر الان</Link>
         </Button>
       </div>
     </div>
