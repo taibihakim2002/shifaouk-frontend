@@ -3,9 +3,10 @@ import flowbit from "../../config/flowbit";
 import { motion } from "framer-motion";
 import CountUp from "react-countup";
 import { Typewriter } from "react-simple-typewriter";
+import { Link } from "react-router-dom";
 export default function Hero() {
   return (
-    <div className="hero flex items-center">
+    <div className="hero flex items-center relative">
       <div className="container flex flex-col md:flex-row items-center md:gap-5 justify-between py-5 md:py-20">
         <div className="order-2 md:order-1 w-full lg:w-[60%] text-center md:text-start">
           <h2 className="text-[25px] md:text-[40px] 2xl:text-[50px] w-[70%] md:w-full text-center m-auto md:text-start  font-bold mb-3 md:mb-7">
@@ -26,14 +27,16 @@ export default function Hero() {
             من الاستشارة الى التخطيط والعلاجـ لتتخذ قرارات مدروسة لتعزيز رفاهيتك
             صحتك تستحق الاهتمام اجعلها اولويتك وابدأ التغيير الان
           </p>
-          <Button
-            theme={flowbit.button}
-            color="primary"
-            className="w-full md:w-fit"
-            size="lg"
-          >
-            ابحث عن طبيب
-          </Button>
+          <Link to="/doctors" className="w-full md:w-fit">
+            <Button
+              theme={flowbit.button}
+              color="primary"
+              className="w-full  md:w-fit"
+              size="lg"
+            >
+              ابحث عن طبيب
+            </Button>
+          </Link>
         </div>
         <div className="order-1 md:order-2 w-full lg:w-[30%] flex items-center justify-center flex-col gap-2 mb-5 md:mb-0">
           <motion.div

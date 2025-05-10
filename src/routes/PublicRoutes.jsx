@@ -4,6 +4,7 @@ import Header from "../components/common/Header";
 import AuthDialog from "../components/common/AuthDialog";
 import Doctors from "../pages/Doctors";
 import Profile from "../pages/Profile";
+import Footer from "../components/common/Footer";
 
 export default function PublicRoutes() {
   return (
@@ -14,6 +15,7 @@ export default function PublicRoutes() {
         <Route path="/" element={<Home />} />
         <Route path="/doctors" element={<Doctors />} />
       </Routes>
+      <Footer />
     </>
   );
 }

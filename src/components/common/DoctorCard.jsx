@@ -22,14 +22,16 @@ export default function DoctorCard({ ele, key }) {
           </div>
         </div>
 
-        <Button
-          theme={flowbit.button}
-          color="primary"
-          className="w-full"
-          size="sm"
-        >
-          <Link to="/doctors"> إستشر الان</Link>
-        </Button>
+        <Link to={ele.link} className="w-full">
+          <Button
+            theme={flowbit.button}
+            color="primary"
+            className="w-full"
+            size="sm"
+          >
+            إستشر الان
+          </Button>
+        </Link>
       </div>
     </div>
   );

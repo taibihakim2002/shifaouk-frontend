@@ -14,17 +14,17 @@ export default {
       md: "768px",
       lg: "992px",
       xl: "1200px",
-      // '2xl': '1536px',
+
     },
     container: {
       center: true,
-      padding: "20px"
+      padding: "20px",
     },
     colors: {
       white: "#ffffff",
       primaryColor: "#048CFF",
       darkColor: "#000000",
-      grayColor: "9babba",
+      grayColor: "#9babba",
       secondaryColor: "#234a6b",
     },
     fontFamily: {

@@ -7,12 +7,15 @@ import {
   Tabs,
   Textarea,
 } from "flowbite-react";
-import { Camera, Save } from "lucide-react";
+import { Camera, Save, Timer } from "lucide-react";
 import flowbit from "../config/flowbit";
 import { BiSave } from "react-icons/bi";
 import { HiAdjustments, HiClipboardList, HiUserCircle } from "react-icons/hi";
 import { MdDashboard } from "react-icons/md";
 import BlogCard from "../components/common/BlogCard";
+import { GiDoctorFace } from "react-icons/gi";
+import { FaUserDoctor } from "react-icons/fa6";
+import { GrSchedule } from "react-icons/gr";
 
 const reviews = [
   {
@@ -116,7 +119,7 @@ const blogs = [
 export default function Profile() {
   return (
     <div>
-      <div className="container">
+      <div className="container pb-16">
         <div className="w-full h-64 relative">
           <img
             src="/imgs/blogs/stock.webp"
@@ -155,9 +158,44 @@ export default function Profile() {
             theme={flowbit.tab}
           >
             <TabItem active title="معلومات عامة" icon={HiUserCircle}>
-              <h3 className="text-xl font-bold text-primaryColor mb-5 text-center">
+              <h3 className="text-xl font-bold text-primaryColor mb-10 text-center">
                 معلومات عامة
               </h3>
+              <div className="md:flex gap-10">
+                <div className="w-full h-72 md:w-72 md:h-96">
+                  <img
+                    src="/doctor1.jpg"
+                    alt="Doctor Image"
+                    className="object-cover w-full h-full"
+                  />
+                </div>
+                <div className="w-fit p-5 flex flex-col gap-6 items-start">
+                  <div className="flex gap-5 justify-center items-center">
+                    <FaUserDoctor size={27} className="text-primaryColor" />
+                    <p className="font-bold text-lg text-gray-500 hover:text-darkColor">
+                      د. طيبي عبد الحكيم
+                    </p>
+                  </div>
+                  <div className="flex gap-5 justify-center items-center">
+                    <FaUserDoctor size={27} className="text-primaryColor" />
+                    <p className="font-bold text-lg text-gray-500 hover:text-darkColor">
+                      طبيب الامراض القلبية
+                    </p>
+                  </div>
+                  <div className="flex gap-5 justify-center items-center">
+                    <Timer size={27} className="text-primaryColor" />
+                    <p className="font-bold text-lg text-gray-500 hover:text-darkColor">
+                      +12 سنة خبرة في مجال الامراض القلبية
+                    </p>
+                  </div>
+                  <div className="flex gap-5 justify-center items-center">
+                    <GrSchedule size={27} className="text-primaryColor" />
+                    <p className="font-bold text-lg text-gray-500 hover:text-darkColor">
+                      أوقات العمل غير معروفة
+                    </p>
+                  </div>
+                </div>
+              </div>
             </TabItem>
             <TabItem title="مقالات طبية" icon={MdDashboard}>
               <h3 className="text-xl font-bold text-primaryColor text-center mb-5">
