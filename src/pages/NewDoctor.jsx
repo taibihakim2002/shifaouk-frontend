@@ -133,7 +133,9 @@ export default function NewDoctor() {
               >
                 1
               </h4>
-              <span className={`w-32 h-[6px] bg-primaryColor -ms-2`}></span>
+              <span
+                className={`w-16 md:w-32  h-[6px] bg-primaryColor -ms-2`}
+              ></span>
               <h4
                 className={`p-2 w-7 h-7 flex justify-center items-center text-white rounded-full ${
                   step >= 2 ? "bg-primaryColor" : "bg-gray-500"
@@ -142,7 +144,7 @@ export default function NewDoctor() {
                 2
               </h4>
               <span
-                className={`w-32 h-[6px] ${
+                className={`w-16  md:w-32 h-[6px] ${
                   step >= 2 ? "bg-primaryColor" : "bg-gray-500"
                 } -ms-2`}
               ></span>
@@ -154,7 +156,7 @@ export default function NewDoctor() {
                 3
               </h4>
               <span
-                className={`w-32 h-[6px] ${
+                className={`w-16  md:w-32 h-[6px] ${
                   step >= 3 ? "bg-primaryColor" : "bg-gray-500"
                 } -ms-2`}
               ></span>
