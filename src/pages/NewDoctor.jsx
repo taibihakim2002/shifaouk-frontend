@@ -185,7 +185,7 @@ export default function NewDoctor() {
                     required
                   />
                 </div>
-                <div className="flex flex-col gap-2" dir="rtl">
+                <div className="flex flex-col gap-2">
                   <Label htmlFor="email">البريد الالكتروني</Label>
                   <TextInput
                     id="email"
@@ -195,7 +195,7 @@ export default function NewDoctor() {
                     required
                   />
                 </div>
-                <div className="flex flex-col gap-2" dir="rtl">
+                <div className="flex flex-col gap-2">
                   <Label htmlFor="phone">رقم الهاتف</Label>
                   <TextInput
                     id="phone"
@@ -257,11 +257,11 @@ export default function NewDoctor() {
               <h3 className="text-gray-600 font-bold mb-5">
                 المعلومات المهنية
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-7">
-                <div className="flex flex-col gap-2 col-span-2">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-y-5 md:gap-5 mb-7">
+                <div className="flex flex-col gap-2 w-full md:col-span-2">
                   <Label htmlFor="spec">التخصص </Label>
                   <select
-                    className="border p-1 rounded-md bg-gray-50 text-gray-900 border-gray-300 "
+                    className="border w-f p-1 rounded-md bg-gray-50 text-gray-900 border-gray-300 "
                     id="spec"
                     required
                     defaultValue=""
@@ -272,7 +272,7 @@ export default function NewDoctor() {
                     ))}
                   </select>
                 </div>
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-2 col-span-2 md:col-span-1">
                   <Label htmlFor="exper">سنوات الخبرة</Label>
                   <TextInput
                     id="exper"
@@ -281,7 +281,7 @@ export default function NewDoctor() {
                     required
                   />
                 </div>
-                <div className="flex flex-col gap-2" dir="rtl">
+                <div className=" flex flex-col gap-2">
                   <Label htmlFor="workplace">مكان العمل الحالي</Label>
                   <TextInput
                     id="workplace"
