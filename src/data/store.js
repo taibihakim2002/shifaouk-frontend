@@ -1,5 +1,5 @@
 const store = {
-    userRole: "doctor"
+    userRole: "admin"
 }
 
 export default store;

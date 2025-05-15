@@ -20,6 +20,7 @@ import { useState } from "react";
 import LoginBtn from "./LoginBtn";
 import RegisterBtn from "./RegisterBtn";
 import { Link } from "react-router-dom";
+import Logo from "./Logo";
 const menu = [
   {
     title: "الرئيسية",
@@ -54,10 +55,7 @@ export default function Header() {
   return (
     <div className="w-full flex items-center h-[80px]">
       <div className="container flex justify-between items-center pb-3 border-b border-b-gray-100">
-        <div className="flex gap-4 items-center">
-          <img className="w-12" src="/logo.png" alt="Logo" />
-          <h1 className="text-lg font-[600] text-primaryColor">شفائك</h1>
-        </div>
+        <Logo />
         <div className="hidden md:flex items-center justify-between">
           <ul className="flex md:gap-5 lg:gap-10  text-sm md:text-md 2xl:text-[20px]">
             {menu.map((ele) => (

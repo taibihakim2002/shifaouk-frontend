@@ -9,11 +9,12 @@ import PatientHome from "../pages/dashboard/patient/PatientHome";
 import store from "../data/store";
 import PublicRoutes from "./PublicRoutes";
 import PrivateRoutes from "./PrivateRoutes";
-import Profile from "../pages/Profile";
+import NewDoctor from "../pages/NewDoctor";
 
 export default function AppRoutes() {
   return (
     <Routes>
+      <Route path="/new-doctor" element={<NewDoctor />} />
       <Route path="/*" element={<PublicRoutes />} />
       <Route path="/*" element={<PrivateRoutes />} />
       <Route path={PATHS.DASHBOARD} element={<DashboardLayout />}>
@@ -34,9 +35,7 @@ export default function AppRoutes() {
           </>
         )}
       </Route>
-      <Route element={<PrivateRoutes />}>
-        <Route path="/profile" element={<Profile />} />
-      </Route>
+
       <Route path={PATHS.NOTFOUND} element={<NotFound />} />
     </Routes>
   );
