@@ -455,7 +455,7 @@ export default function NewDoctor() {
                 تم استلام طلبك بنجاح وسيتم مراجعته خلال 24-48 ساعة
               </p>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
-                <div className="border shadow-md rounded-lg p-5 text-center">
+                <div className="border shadow-md rounded-lg p-5 text-center hover:bg-[#d9efff] transition">
                   <div className="p-3 w-20 h-20 flex justify-center items-center bg-[#afdeff] m-auto rounded-full mb-3">
                     <MdEmail size={40} className="text-[#0D99FF]" />
                   </div>
@@ -466,7 +466,7 @@ export default function NewDoctor() {
                     تم إرسال رابط التفعيل إلى بريدك الإلكتروني
                   </p>
                 </div>
-                <div className="border shadow-md rounded-lg p-5 text-center">
+                <div className="border shadow-md rounded-lg p-5 text-center hover:bg-[#fef4de] transition">
                   <div className="p-3 w-20 h-20 flex justify-center items-center bg-[#f7e3b6] m-auto rounded-full mb-3">
                     <IoDocumentTextOutline
                       size={40}
@@ -478,7 +478,7 @@ export default function NewDoctor() {
                     سيتم التحقق من شهاداتك ومؤهلاتك الطبية{" "}
                   </p>
                 </div>
-                <div className="border shadow-md rounded-lg p-5 text-center">
+                <div className="border shadow-md rounded-lg p-5 text-center hover:bg-[#d8ffe9] transition">
                   <div className="p-3 w-20 h-20 flex justify-center items-center bg-[#b3f8d0] m-auto rounded-full mb-3">
                     <FaRegCheckCircle size={40} className="text-[#25A85C]" />
                   </div>

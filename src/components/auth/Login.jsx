@@ -74,7 +74,7 @@ export default function Login() {
         <img
           src="/authModal.png"
           alt="Image"
-          className="max-w-full max-h-[700px] object-cover"
+          className="max-w-full w-full max-h-[700px] object-cover"
         />
       </div>
     </div>

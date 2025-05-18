@@ -1,4 +1,4 @@
-import { Route, Routes } from "react-router-dom";
+import { Outlet, Route, Routes } from "react-router-dom";
 import Home from "../pages/Home";
 import Header from "../components/common/Header";
 import AuthDialog from "../components/common/AuthDialog";
@@ -11,10 +11,7 @@ export default function PublicRoutes() {
     <>
       <Header />
       <AuthDialog />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/doctors" element={<Doctors />} />
-      </Routes>
+      <Outlet />
       <Footer />
     </>
   );

@@ -7,7 +7,12 @@ import {
 
 import { useLocation } from "react-router-dom";
 import flowbit from "../../../config/flowbit";
-import { sidebarItems } from "../../../data/sidebarItems";
+import {
+  sidebarAdminItems,
+  sidebarDoctorItems,
+  sidebarPatientItems,
+} from "../../../data/sidebarItems";
+import store from "../../../data/store";
 
 export default function DashSide() {
   const location = useLocation();
@@ -24,20 +29,51 @@ export default function DashSide() {
       </div>
       <SidebarItems>
         <SidebarItemGroup>
-          {sidebarItems.map((ele, index) => (
-            <SidebarItem
-              key={index}
-              href={ele.href}
-              icon={ele.icon}
-              label={ele.label || ""}
-              labelColor={ele.labelColor || ""}
-              active={
-                location.pathname.split("/")[2] === ele.href.split("/")[2]
-              }
-            >
-              {ele.title}
-            </SidebarItem>
-          ))}
+          {store.userRole == "admin" &&
+            sidebarAdminItems.map((ele, index) => (
+              <SidebarItem
+                key={index}
+                href={ele.href}
+                icon={ele.icon}
+                label={ele.label || ""}
+                labelColor={ele.labelColor || ""}
+                active={
+                  location.pathname.split("/")[2] === ele.href.split("/")[2]
+                }
+              >
+                {ele.title}
+              </SidebarItem>
+            ))}
+          {store.userRole == "doctor" &&
+            sidebarDoctorItems.map((ele, index) => (
+              <SidebarItem
+                key={index}
+                href={ele.href}
+                icon={ele.icon}
+                label={ele.label || ""}
+                labelColor={ele.labelColor || ""}
+                active={
+                  location.pathname.split("/")[2] === ele.href.split("/")[2]
+                }
+              >
+                {ele.title}
+              </SidebarItem>
+            ))}
+          {store.userRole == "patient" &&
+            sidebarPatientItems.map((ele, index) => (
+              <SidebarItem
+                key={index}
+                href={ele.href}
+                icon={ele.icon}
+                label={ele.label || ""}
+                labelColor={ele.labelColor || ""}
+                active={
+                  location.pathname.split("/")[2] === ele.href.split("/")[2]
+                }
+              >
+                {ele.title}
+              </SidebarItem>
+            ))}
         </SidebarItemGroup>
       </SidebarItems>
     </Sidebar>

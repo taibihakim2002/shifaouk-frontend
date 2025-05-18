@@ -15,7 +15,7 @@ export default function AuthDialog() {
     <Modal
       show={isOpen}
       onClose={closeModal}
-      size="4xl"
+      size="5xl"
       theme={flowbit.authDialog}
     >
       <ModalBody className="p-0">

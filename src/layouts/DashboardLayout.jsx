@@ -2,6 +2,8 @@ import { Outlet } from "react-router-dom";
 import DashHeader from "../components/dashboard/layouts/DashHeader";
 import DashSide from "../components/dashboard/layouts/DashSide";
 
+
+
 export default function DashboardLayout() {
   return (
     <div className="w-full min-h-screen">
