@@ -11,17 +11,17 @@ import {
   TableHeadCell,
   TableRow,
 } from "flowbite-react";
+import DashPageHeader from "../../../components/dashboard/common/DashPageHeader";
 
 export default function PatientHistory() {
   return (
     <div>
-      <div className="mb-10">
-        <div className="flex items-center mb-4 gap-5 ">
-          <FaHistory size={33} />
-          <h2 className="text-xl text-gray-600 font-bold">السجل الطبي </h2>
-        </div>
-        <p className="ps-10 text-lg text-gray-400">قم بادارة سجلك الطبي</p>
-      </div>
+      <DashPageHeader
+        Icon={FaHistory}
+        title="السجل الطبي"
+        description="قم بادارة سجلك الطبي"
+      />
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-10">
         <div className="p-5 border rounded-lg shadow-lg">
           <div className="flex gap-5 justify-between items-center mb-5">

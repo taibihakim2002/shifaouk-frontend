@@ -19,7 +19,7 @@ export default function PatientHome() {
   return (
     <div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-10">
-        <div className="p-3 border rounded-lg">
+        <div className="p-5 border rounded-lg">
           <div className="flex gap-5 items-center mb-5">
             <div className="p-2 bg-[#a3ffc9] rounded-lg">
               <IoCheckmarkCircleSharp size={30} className="text-[#25A85C]" />
@@ -30,7 +30,7 @@ export default function PatientHome() {
             <h3 className="text-[35px] font-bold">12</h3>
           </div>
         </div>
-        <div className="p-3 border rounded-lg">
+        <div className="p-5 border rounded-lg">
           <div className="flex gap-5 items-center mb-5">
             <div className="p-2 bg-[#b2dcff] rounded-lg">
               <FaWallet size={30} className="text-[#008CFF]" />
@@ -42,7 +42,7 @@ export default function PatientHome() {
             <HiOutlineCurrencyDollar size={30} className="text-[#008CFF]" />
           </div>
         </div>
-        <div className="p-3 border rounded-lg">
+        <div className="p-5 border rounded-lg">
           <div className="flex gap-5 items-center mb-5">
             <div className="p-2 bg-[#e7c8ff] rounded-lg">
               <FaUserDoctor size={30} className="text-[#960DFF]" />
@@ -55,7 +55,7 @@ export default function PatientHome() {
         </div>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-10 mb-10">
-        <div className="p-5 border rounded-lg md:col-span-2">
+        <div className="p-8 border rounded-lg md:col-span-2">
           <h2 className="text-xl text-gray-600 font-bold mb-5">
             الاستشارات القادمة
           </h2>
@@ -77,7 +77,7 @@ export default function PatientHome() {
               <Button
                 theme={flowbit.button}
                 color="light"
-                className="text-primaryColor gap-3"
+                className="text-primaryColor gap-3 z-40"
               >
                 <FaVideo size={22} className="text-primaryColor" />
                 <span>انضم الان</span>

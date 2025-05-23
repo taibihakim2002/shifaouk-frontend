@@ -1,6 +1,11 @@
 import { GrArticle } from "react-icons/gr";
 import SectionHeader from "../common/SectionHeader";
 import BlogCard from "../common/BlogCard";
+import { Swiper, SwiperSlide } from "swiper/react";
+import "swiper/css";
+import "swiper/css/navigation";
+import { Navigation, Pagination } from "swiper/modules";
+import "swiper/css/pagination";
 
 const blogs = [
   {
@@ -51,10 +56,25 @@ export default function Blogs() {
   return (
     <div className="py-16 bg-primary-50">
       <SectionHeader sectionTitle="اخر المقالات" icon={GrArticle} />
-      <div className="container grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-        {blogs.map((ele, index) => (
-          <BlogCard ele={ele} key={index} />
-        ))}
+      <div className="container">
+        <Swiper
+          modules={[Navigation, Pagination]}
+          navigation
+          spaceBetween={20}
+          breakpoints={{
+            0: { slidesPerView: 1 },
+            640: { slidesPerView: 2 },
+            1024: { slidesPerView: 3 },
+          }}
+          pagination={{ clickable: true }}
+          className="mb-5 blogs-swiper "
+        >
+          {blogs.map((ele, index) => (
+            <SwiperSlide key={index}>
+              <BlogCard ele={ele} />
+            </SwiperSlide>
+          ))}
+        </Swiper>
       </div>
     </div>
   );

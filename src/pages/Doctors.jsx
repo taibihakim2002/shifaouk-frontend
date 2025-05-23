@@ -34,26 +34,6 @@ export default function Doctors() {
   return (
     <div>
       <div className="container py-16">
-        <div className="mb-16 w-full flex justify-center items-center gap-4">
-          <TextInput
-            theme={flowbit.input}
-            color="primary"
-            className="w-[500px]"
-            id="search"
-            type="text"
-            rightIcon={Search}
-            placeholder="ابحث عن طبيب..."
-            required
-          />
-          <Button
-            theme={flowbit.button}
-            color="primary"
-            className="flex lg:hidden hover:text-white px-2 "
-            outline
-          >
-            <Filter size={18} />
-          </Button>
-        </div>
         <div className="flex gap-10">
           <div className="hidden lg:flex flex-col lg:w-96 border shadow-md rounded-xl p-4">
             <h3 className="font-bold text-lg mb-7">فلاتر البحث</h3>
@@ -114,10 +94,32 @@ export default function Doctors() {
               </select>
             </div>
           </div>
-          <div className="w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10 mb-10">
-            {doctors.map((ele, index) => (
-              <DoctorCard ele={ele} key={index} />
-            ))}
+          <div className="w-full">
+            <div className="mb-16 w-full flex justify-center items-center gap-4">
+              <TextInput
+                theme={flowbit.input}
+                color="primary"
+                className="w-[500px]"
+                id="search"
+                type="text"
+                rightIcon={Search}
+                placeholder="ابحث عن طبيب..."
+                required
+              />
+              <Button
+                theme={flowbit.button}
+                color="primary"
+                className="flex lg:hidden hover:text-white px-2 "
+                outline
+              >
+                <Filter size={18} />
+              </Button>
+            </div>
+            <div className="w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10 mb-10">
+              {doctors.map((ele, index) => (
+                <DoctorCard ele={ele} key={index} />
+              ))}
+            </div>
           </div>
         </div>
       </div>

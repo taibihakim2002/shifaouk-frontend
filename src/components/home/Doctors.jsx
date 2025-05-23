@@ -5,6 +5,12 @@ import flowbit from "../../config/flowbit";
 import { Link } from "react-router-dom";
 import DoctorCard from "../common/DoctorCard";
 
+import { Swiper, SwiperSlide } from "swiper/react";
+import "swiper/css";
+import "swiper/css/navigation";
+import { Navigation, Pagination } from "swiper/modules";
+import "swiper/css/pagination";
+
 const doctors = [
   {
     name: "معاوية احمد",
@@ -34,22 +40,48 @@ const doctors = [
     link: "/profile",
     rating: 3.5,
   },
+  {
+    name: "محمدي اسامة",
+    description: "أخصائي امراض الرئة",
+    image: "doctor5.jpg",
+    link: "/profile",
+    rating: 3.5,
+  },
 ];
+
 export default function Doctors() {
   return (
     <div className="py-16 bg-primary-50">
       <SectionHeader sectionTitle="اطبائنا المميزون" icon={Stethoscope} />
-      <div className="container grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10 mb-10">
-        {doctors.map((ele, index) => (
-          <DoctorCard ele={ele} key={index} />
-        ))}
-      </div>
-      <div className="flex justify-center">
-        <Link to="/doctors">
-          <Button theme={flowbit.button} color="primary" pill size="md">
-            عرض المزيد
-          </Button>
-        </Link>
+
+      <div className="container">
+        <Swiper
+          modules={[Navigation, Pagination]}
+          navigation
+          spaceBetween={20}
+          breakpoints={{
+            0: { slidesPerView: 1 },
+            640: { slidesPerView: 2 },
+            1024: { slidesPerView: 3 },
+            1280: { slidesPerView: 4 },
+          }}
+          pagination={{ clickable: true }}
+          className="mb-5 "
+        >
+          {doctors.map((ele, index) => (
+            <SwiperSlide key={index}>
+              <DoctorCard ele={ele} />
+            </SwiperSlide>
+          ))}
+        </Swiper>
+
+        <div className="flex justify-center">
+          <Link to="/doctors">
+            <Button theme={flowbit.button} color="primary" pill size="md">
+              عرض المزيد
+            </Button>
+          </Link>
+        </div>
       </div>
     </div>
   );

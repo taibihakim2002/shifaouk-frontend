@@ -9,6 +9,7 @@ const useApiRequest = () => {
         setLoading(true);
         setError("");
         try {
+
             const response = await apiCall();
             setData(response.data);
             return response.data;

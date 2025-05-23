@@ -5,6 +5,7 @@ import { BsCamera } from "react-icons/bs";
 import { MdDelete } from "react-icons/md";
 import { HiMail } from "react-icons/hi";
 import { Phone } from "lucide-react";
+import DashPageHeader from "../../../components/dashboard/common/DashPageHeader";
 
 const stats = [
   { id: 1, name: "أدرار" },
@@ -69,17 +70,11 @@ const stats = [
 export default function PatientProfile() {
   return (
     <div>
-      <div className="mb-10">
-        <div className="flex items-center mb-4 gap-5 ">
-          <FaUserAlt size={33} />
-          <h2 className="text-xl text-gray-600 font-bold">
-            تعديل الملف الشخصي
-          </h2>
-        </div>
-        <p className="ps-10 text-lg text-gray-400">
-          قم بتعديل معلوماتك الشخصية والطبية
-        </p>
-      </div>
+      <DashPageHeader
+        Icon={FaUserAlt}
+        title=" تعديل الملف الشخصي"
+        description="قم بتعديل معلوماتك الشخصية "
+      />
       <div className="flex flex-col gap-2 col-span-2">
         <Label htmlFor="spec">الصورة الشخصية </Label>
         <div className="border rounded-lg p-4 flex flex-col items-center md:flex-row gap-5 mb-5">

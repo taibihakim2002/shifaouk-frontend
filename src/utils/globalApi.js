@@ -9,6 +9,7 @@ const axiosClient = axios.create({
     headers: {
         "x-api-key": TOKEN,
     },
+    withCredentials: true
 });
 
 

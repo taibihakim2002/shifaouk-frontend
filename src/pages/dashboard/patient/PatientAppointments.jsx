@@ -6,6 +6,7 @@ import { IoDocumentText } from "react-icons/io5";
 import { TiDelete } from "react-icons/ti";
 import { MdDateRange, MdDone } from "react-icons/md";
 import { PiInfoFill } from "react-icons/pi";
+import DashPageHeader from "../../../components/dashboard/common/DashPageHeader";
 const spec = [
   { label: "الطب العام", value: "general_medicine" },
   { label: "طب الأطفال", value: "pediatrics" },
@@ -36,16 +37,13 @@ const spec = [
 export default function PatientAppointments() {
   return (
     <div>
-      <div className="mb-10">
-        <div className="flex items-center mb-4 gap-5 ">
-          <IoDocumentText size={33} />
-          <h2 className="text-xl text-gray-600 font-bold">ادارة المواعيد</h2>
-        </div>
-        <p className="ps-10 text-lg text-gray-400">
-          قم بادارة مواعيدك مع الاطباء
-        </p>
-      </div>
-      <div className="rounded-lg bg-[url('/imgs/website/dash-next.png')] bg-cover p-5 mb-8">
+      <DashPageHeader
+        Icon={IoDocumentText}
+        title="ادارة المواعيد"
+        description="قم بادارة مواعيدك مع الاطباء"
+      />
+
+      <div className="rounded-lg bg-[url('/imgs/website/dash-next.png')] bg-cover p-5  lg:w-2/3 lg:mx-auto mb-8">
         <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-3 mb-5">
           <div className="flex gap-4 items-center">
             <img
@@ -142,7 +140,7 @@ export default function PatientAppointments() {
           <div className="absolute bg-[#25A85C] w-3 h-full start-0 top-0"></div>
           <div className="flex flex-col md:flex-row md:justify-between items-center gap-5">
             <div>
-              <div className="flex gap-4 items-center">
+              <div className="flex gap-4 items-center mb-2">
                 <img
                   src="/doctor2.jpg"
                   alt="doctor"
@@ -155,7 +153,7 @@ export default function PatientAppointments() {
                   <p className="text-gray-400">اخصائية امراض المعدة</p>
                 </div>
               </div>
-              <div className="ps-28 flex gap-3 items-center">
+              <div className="md:ps-28 flex gap-3 items-center">
                 <div className="flex items-center gap-2 text-[#25A85C] bg-[#b6ffd4] py-2 px-4 rounded-lg">
                   <MdDone />
                   <span>منتهية</span>
@@ -188,7 +186,7 @@ export default function PatientAppointments() {
           <div className="absolute bg-[#25A85C] w-3 h-full start-0 top-0"></div>
           <div className="flex flex-col md:flex-row md:justify-between items-center gap-5">
             <div>
-              <div className="flex gap-4 items-center">
+              <div className="flex gap-4 items-center mb-2">
                 <img
                   src="/doctor2.jpg"
                   alt="doctor"
@@ -201,7 +199,7 @@ export default function PatientAppointments() {
                   <p className="text-gray-400">اخصائية امراض المعدة</p>
                 </div>
               </div>
-              <div className="ps-28 flex gap-3 items-center">
+              <div className="md:ps-28 flex gap-3 items-center">
                 <div className="flex items-center gap-2 text-[#25A85C] bg-[#b6ffd4] py-2 px-4 rounded-lg">
                   <MdDone />
                   <span>منتهية</span>
@@ -234,7 +232,7 @@ export default function PatientAppointments() {
           <div className="absolute bg-[#25A85C] w-3 h-full start-0 top-0"></div>
           <div className="flex flex-col md:flex-row md:justify-between items-center gap-5">
             <div>
-              <div className="flex gap-4 items-center">
+              <div className="flex gap-4 items-center mb-2">
                 <img
                   src="/doctor2.jpg"
                   alt="doctor"
@@ -247,7 +245,7 @@ export default function PatientAppointments() {
                   <p className="text-gray-400">اخصائية امراض المعدة</p>
                 </div>
               </div>
-              <div className="ps-28 flex gap-3 items-center">
+              <div className="md:ps-28 flex gap-3 items-center">
                 <div className="flex items-center gap-2 text-[#25A85C] bg-[#b6ffd4] py-2 px-4 rounded-lg">
                   <MdDone />
                   <span>منتهية</span>

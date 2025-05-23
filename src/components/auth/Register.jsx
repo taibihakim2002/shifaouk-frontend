@@ -13,6 +13,7 @@ import flowbit from "../../config/flowbit";
 import useAuthModalStore from "../../store/authModalStore";
 import useApiRequest from "../../hooks/useApiRequest";
 import globalApi from "../../utils/globalApi";
+import useToastStore from "../../store/toastStore";
 
 export default function Register() {
   const { openModal } = useAuthModalStore();
@@ -31,7 +32,7 @@ export default function Register() {
   });
 
   const [formErrors, setFormErrors] = useState({});
-  const [toast, setToast] = useState({ type: "", message: "" });
+  const { showToast } = useToastStore();
 
   const handleChange = (e) => {
     const { id, value, type, checked } = e.target;
@@ -47,7 +48,7 @@ export default function Register() {
     if (!formData.name.trim()) errors.name = "الاسم مطلوب";
     if (!formData.prename.trim()) errors.prename = "اللقب مطلوب";
     if (!formData.email.includes("@")) errors.email = "بريد غير صالح";
-    if (!formData.phone.match(/^(\+213)[0-9]{9}$/))
+    if (!formData.phone.match(/^0[567][0-9]{8}$/))
       errors.phone = "رقم الهاتف غير صحيح";
     if (formData.password.length < 6) errors.password = "كلمة السر قصيرة جداً";
     if (formData.password !== formData.password2)
@@ -82,16 +83,10 @@ export default function Register() {
     const response = await request(() => globalApi.registerPatient(payload));
 
     if (response) {
+      showToast("success", "تم إنشاء الحساب بنجاح!");
       openModal("registerSuccess");
-      setToast({
-        type: "success",
-        message: "تم إنشاء الحساب بنجاح!",
-      });
     } else {
-      setToast({
-        type: "error",
-        message: serverError || "حدث خطأ أثناء عملية التسجيل",
-      });
+      showToast("error", "حدث خطأ أثناء عملية التسجيل");
     }
   };
 
@@ -317,30 +312,6 @@ export default function Register() {
           className="max-w-full w-full max-h-[700px] object-cover"
         />
       </div>
-
-      {toast.message && (
-        <div className="fixed top-5 right-5 z-50">
-          <Toast>
-            <div
-              className={`inline-flex h-8 w-8 items-center justify-center rounded-lg ${
-                toast.type === "success"
-                  ? "bg-green-100 text-green-500"
-                  : "bg-red-100 text-red-500"
-              }`}
-            >
-              {toast.type === "success" ? (
-                <HiCheck className="h-5 w-5" />
-              ) : (
-                <HiExclamation className="h-5 w-5" />
-              )}
-            </div>
-            <div className="ml-3 text-sm font-normal">{toast.message}</div>
-            <ToastToggle
-              onDismiss={() => setToast({ type: "", message: "" })}
-            />
-          </Toast>
-        </div>
-      )}
     </div>
   );
 }

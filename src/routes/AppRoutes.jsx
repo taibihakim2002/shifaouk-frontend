@@ -16,6 +16,12 @@ import PatientProfile from "../pages/dashboard/patient/PatientProfile";
 import PatientAppointments from "../pages/dashboard/patient/PatientAppointments";
 import PatientHistory from "../pages/dashboard/patient/PatientHistory";
 import PatientWallet from "../pages/dashboard/patient/PatientWallet";
+import PatientFavorite from "../pages/dashboard/patient/PatientFavorite";
+import DoctorProfile from "../pages/dashboard/doctor/DoctorProfile";
+import DoctorWallet from "../pages/dashboard/doctor/DoctorWallet";
+import DoctorAppointments from "../pages/dashboard/doctor/DoctorAppointments";
+import DoctorHistory from "../pages/dashboard/doctor/DoctorHistory";
+import DoctorPatients from "../pages/dashboard/doctor/DoctorPatients";
 
 export default function AppRoutes() {
   return (
@@ -42,11 +48,17 @@ export default function AppRoutes() {
             <Route path="appointments" element={<PatientAppointments />} />
             <Route path="history" element={<PatientHistory />} />
             <Route path="wallet" element={<PatientWallet />} />
+            <Route path="favorite" element={<PatientFavorite />} />
           </>
         )}
         {store.userRole === "doctor" && (
           <>
             <Route index element={<DoctorHome />} />
+            <Route path="profile" element={<DoctorProfile />} />
+            <Route path="wallet" element={<DoctorWallet />} />
+            <Route path="appointments" element={<DoctorAppointments />} />
+            <Route path="history" element={<DoctorHistory />} />
+            <Route path="patients" element={<DoctorPatients />} />
           </>
         )}
       </Route>

@@ -1,4 +1,15 @@
 import {
+  ArrowDownIcon,
+  ArrowLeftRightIcon,
+  ArrowUpIcon,
+  GiftIcon,
+  Wallet,
+} from "lucide-react";
+import React from "react";
+import DashPageHeader from "../../../components/dashboard/common/DashPageHeader";
+import { HiCurrencyDollar } from "react-icons/hi";
+import flowbit from "../../../config/flowbit";
+import {
   Button,
   Table,
   TableBody,
@@ -7,10 +18,6 @@ import {
   TableHeadCell,
   TableRow,
 } from "flowbite-react";
-import { Wallet } from "lucide-react";
-import { HiCurrencyDollar } from "react-icons/hi";
-import flowbit from "../../../config/flowbit";
-import DashPageHeader from "../../../components/dashboard/common/DashPageHeader";
 import {
   BarChart,
   Bar,
@@ -35,13 +42,6 @@ const data = [
   { name: "نوفمبر", received: 12, sent: 23 },
   { name: "ديسمبر", received: 30, sent: 200 },
 ];
-import {
-  ArrowDownIcon,
-  ArrowUpIcon,
-  GiftIcon,
-  ArrowLeftRightIcon,
-} from "lucide-react";
-
 const transactions = [
   {
     type: "charge",
@@ -113,7 +113,7 @@ function getLabel(type) {
   }
 }
 
-export default function PatientWallet() {
+export default function DoctorWallet() {
   return (
     <div>
       <DashPageHeader

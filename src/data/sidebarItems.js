@@ -36,33 +36,34 @@ export const sidebarAdminItems = [
 ]
 export const sidebarDoctorItems = [
     {
-        "title": "لوحة التحكم",
+        "title": "نظرة عامة",
         "href": "/dashboard",
         "icon": HiChartPie
     },
     {
-        "title": "الرحلات",
-        "href": "/dashboard/tours",
-        "icon": HiViewBoards
+        "title": "المرضى",
+        "href": "/dashboard/patients",
+        "icon": HiUsers
     },
     {
-        "title": "الحجوزات",
-        "href": "/dashboard/bookings",
-        "icon": HiCalendar,
-        "label": "جديد",
-        "labelColor": "success"
+        "title": "الملف الشخصي",
+        "href": "/dashboard/profile",
+        "icon": FaUserAlt,
     },
     {
-        "title": "المستخدين",
-        "href": "/dashboard/users",
-        "icon": HiUsers,
-        "label": "2",
-        "labelColor": "success"
+        "title": "ادارة المواعيد",
+        "href": "/dashboard/appointments",
+        "icon": FaCalendarCheck,
     },
     {
-        "title": "المراجعات",
-        "href": "/dashboard/reviews",
-        "icon": HiStar
+        "title": " المحفظة",
+        "href": "/dashboard/wallet",
+        "icon": BiWallet
+    },
+    {
+        "title": "السجل ",
+        "href": "/dashboard/history",
+        "icon": BiHistory
     },
 
 ]
