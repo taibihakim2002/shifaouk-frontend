@@ -9,6 +9,7 @@ import {
   FileInput,
   Label,
   Select,
+  Spinner,
   TextInput,
   Textarea,
 } from "flowbite-react";
@@ -19,6 +20,9 @@ import { BsCamera } from "react-icons/bs";
 import { HiMiniDocumentPlus } from "react-icons/hi2";
 import { IoDocumentTextOutline, IoHelpCircleSharp } from "react-icons/io5";
 import { Link } from "react-router-dom";
+import globalApi from "../utils/globalApi";
+import useApiRequest from "../hooks/useApiRequest";
+import useToastStore from "../store/toastStore";
 
 const stats = [
   { id: 1, name: "أدرار" },
@@ -111,8 +115,179 @@ const spec = [
 
 export default function NewDoctor() {
   const [step, setStep] = useState(1);
+  const { data, error, loading, request } = useApiRequest();
+  const showToast = useToastStore((state) => state.showToast);
+  const [formErrors, setFormErrors] = useState({});
+  const [formDataState, setFormDataState] = useState({
+    name: "",
+    prename: "",
+    email: "",
+    phone: "",
+    password: "",
+    password2: "",
+    state: "",
+    city: "",
+    spec: "",
+    exper: "",
+    workplace: "",
+    pio: "",
+    profile: null,
+    bac: null,
+    specCar: null,
+    profession: null,
+    termsAccepted: false,
+  });
 
-  const nextStep = () => setStep((pre) => pre + 1);
+  const handleNext = () => {
+    const errors = validateForm();
+    setFormErrors(errors);
+    if (Object.keys(errors).length > 0) return;
+    setStep((pre) => pre + 1);
+  };
+
+  const handleChange = (e) => {
+    const { id, value, type, files, checked } = e.target;
+
+    if (type === "file") {
+      setFormDataState((prev) => ({
+        ...prev,
+        [id]: files[0],
+      }));
+    } else if (type === "checkbox") {
+      setFormDataState((prev) => ({
+        ...prev,
+        [id]: checked,
+      }));
+    } else {
+      setFormDataState((prev) => ({
+        ...prev,
+        [id]: value,
+      }));
+    }
+  };
+
+  const validateForm = () => {
+    const errors = {};
+    if (step === 1) {
+      if (!formDataState.name.trim()) {
+        errors.name = "الاسم مطلوب";
+      } else if (
+        formDataState.name.length < 2 ||
+        formDataState.name.length > 10
+      ) {
+        errors.name = "الاسم يجب أن يكون بين 2 و 10 أحرف";
+      }
+      if (!formDataState.prename.trim()) {
+        errors.prename = "اللقب مطلوب";
+      } else if (
+        formDataState.prename.length < 2 ||
+        formDataState.prename.length > 10
+      ) {
+        errors.prename = "اللقب يجب أن يكون بين 2 و 10 أحرف";
+      }
+
+      if (!formDataState.email.trim()) {
+        errors.email = "البريد الإلكتروني مطلوب";
+      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formDataState.email)) {
+        errors.email = "البريد غير صالح";
+      }
+
+      if (!formDataState.phone.trim()) {
+        errors.phone = "رقم الهاتف مطلوب";
+      } else if (!/^0[567][0-9]{8}$/.test(formDataState.phone)) {
+        errors.phone = "رقم الهاتف غير صالح";
+      }
+
+      if (!formDataState.password) {
+        errors.password = "كلمة السر مطلوبة";
+      } else if (formDataState.password.length < 6) {
+        errors.password = "كلمة السر قصيرة جداً";
+      }
+      if (!formDataState.password2) {
+        errors.password2 = "تأكيد كلمة السر مطلوب";
+      } else if (formDataState.password !== formDataState.password2) {
+        errors.password2 = "كلمة السر غير متطابقة";
+      }
+      if (!formDataState.state) {
+        errors.state = "الولاية مطلوبة";
+      }
+      if (!formDataState.city) {
+        errors.city = "المدينة مطلوبة";
+      }
+    }
+    if (step === 2) {
+      if (!formDataState.spec) {
+        errors.spec = "اختر تخصصك";
+      }
+
+      if (!formDataState.exper) {
+        errors.exper = "عدد سنوات الخبرة مطلوب";
+      } else if (
+        isNaN(formDataState.exper) ||
+        Number(formDataState.exper) < 0
+      ) {
+        errors.exper = "عدد سنوات الخبرة غير صالح";
+      }
+
+      if (!formDataState.workplace.trim()) {
+        errors.workplace = "مكان العمل مطلوب";
+      }
+
+      if (!formDataState.pio.trim()) {
+        errors.pio = "النبذة مطلوبة";
+      } else if (formDataState.pio.length < 10) {
+        errors.pio = "النبذة قصيرة جداً";
+      }
+    }
+    if (step === 3) {
+      if (!formDataState.profile) {
+        errors.profile = "الصورة الشخصية مطلوبة";
+      }
+
+      if (!formDataState.bac) {
+        errors.bac = "شهادة البكالوريا مطلوبة";
+      }
+
+      if (!formDataState.specCar) {
+        errors.specCar = "شهادة التخصص مطلوبة";
+      }
+
+      if (!formDataState.profession) {
+        errors.profession = "رخصة مزاولة المهنة مطلوبة";
+      }
+
+      if (!formDataState.termsAccepted) {
+        errors.termsAccepted = "يجب الموافقة على الشروط والأحكام";
+      }
+    }
+
+    return errors;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const errors = validateForm();
+    setFormErrors(errors);
+    if (Object.keys(errors).length > 0) return;
+    const formData = new FormData();
+
+    Object.entries(formDataState).forEach(([key, value]) => {
+      if (value === null || value === undefined) return;
+      formData.append(key, typeof value === "boolean" ? String(value) : value);
+    });
+
+    const { success, error: requestError } = await request(() =>
+      globalApi.registerDoctor(formData)
+    );
+
+    if (success) {
+      showToast("success", "تم تسجيل طلبك بنجاح");
+      setStep(4);
+    } else {
+      showToast("error", requestError);
+    }
+  };
+
   const preStep = () => setStep((pre) => pre - 1);
   return (
     <div>
@@ -169,280 +344,505 @@ export default function NewDoctor() {
               </h4>
             </div>
           </div>
-          {step === 1 && (
-            <div>
-              <h3 className="text-gray-600 font-bold mb-5">
-                المعلومات الاساسية
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-7">
-                <div className="flex flex-col gap-2">
-                  <Label htmlFor="name">الاسم الكامل</Label>
-                  <TextInput
-                    id="name"
-                    type="text"
-                    rightIcon={FaUser}
-                    placeholder="أدخل إسمك هنا..."
-                    required
-                  />
-                </div>
-                <div className="flex flex-col gap-2">
-                  <Label htmlFor="email">البريد الالكتروني</Label>
-                  <TextInput
-                    id="email"
-                    type="email"
-                    rightIcon={HiMail}
-                    placeholder="ahmed@example.com"
-                    required
-                  />
-                </div>
-                <div className="flex flex-col gap-2">
-                  <Label htmlFor="phone">رقم الهاتف</Label>
-                  <TextInput
-                    id="phone"
-                    type="number"
-                    rightIcon={Phone}
-                    placeholder="06********"
-                    required
-                  />
-                </div>
-                <div className="flex flex-col gap-2" dir="rtl">
-                  <Label htmlFor="password">كلمة المرور</Label>
-                  <TextInput
-                    id="password"
-                    type="password"
-                    placeholder="*************"
-                    required
-                  />
-                </div>
-                <div className="flex flex-col gap-2" dir="rtl">
-                  <Label htmlFor="states">الولاية </Label>
-                  <select
-                    className="border p-1 rounded-md bg-gray-50 text-gray-900 border-gray-300 "
-                    id="states"
-                    required
-                    defaultValue=""
-                  >
-                    <option value="">اختر ولاية</option>
-                    {stats.map((ele) => (
-                      <option value={ele.id}>{ele.name}</option>
-                    ))}
-                  </select>
-                </div>
-                <div className="flex flex-col gap-2" dir="rtl">
-                  <Label htmlFor="cities">البلدية </Label>
-                  <select
-                    className="border p-1 rounded-md bg-gray-50 text-gray-900 border-gray-300 "
-                    id="cities"
-                    required
-                    defaultValue=""
-                  >
-                    <option value="">اختر بلدية </option>
-                    <option>الفييييض</option>
-                  </select>
-                </div>
-              </div>
-              <div className="flex justify-end">
-                <Button
-                  theme={flowbit.button}
-                  color="primary"
-                  onClick={() => nextStep()}
-                >
-                  التالي
-                </Button>
-              </div>
-            </div>
-          )}
-          {step === 2 && (
-            <div>
-              <h3 className="text-gray-600 font-bold mb-5">
-                المعلومات المهنية
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-y-5 md:gap-5 mb-7">
-                <div className="flex flex-col gap-2 w-full md:col-span-2">
-                  <Label htmlFor="spec">التخصص </Label>
-                  <select
-                    className="border w-f p-1 rounded-md bg-gray-50 text-gray-900 border-gray-300 "
-                    id="spec"
-                    required
-                    defaultValue=""
-                  >
-                    <option value="">اختر التخصص</option>
-                    {spec.map((ele) => (
-                      <option value={ele.value}>{ele.label}</option>
-                    ))}
-                  </select>
-                </div>
-                <div className="flex flex-col gap-2 col-span-2 md:col-span-1">
-                  <Label htmlFor="exper">سنوات الخبرة</Label>
-                  <TextInput
-                    id="exper"
-                    type="number"
-                    placeholder="عدد سنوات الخبرة"
-                    required
-                  />
-                </div>
-                <div className=" flex flex-col gap-2">
-                  <Label htmlFor="workplace">مكان العمل الحالي</Label>
-                  <TextInput
-                    id="workplace"
-                    type="text"
-                    placeholder="مستشفى/ عيادة"
-                    required
-                  />
-                </div>
-
-                <div className="flex flex-col gap-2 col-span-2">
-                  <Label htmlFor="pio">نبذة عامة </Label>
-                  <Textarea
-                    id="pio"
-                    placeholder="نبذة عامة عنك ..."
-                    required
-                    rows={4}
-                  />
-                </div>
-              </div>
-              <div className="flex justify-between">
-                <Button
-                  theme={flowbit.button}
-                  color="primary"
-                  outline
-                  onClick={() => preStep()}
-                >
-                  السابق
-                </Button>
-                <Button
-                  theme={flowbit.button}
-                  color="primary"
-                  onClick={() => nextStep()}
-                >
-                  التالي
-                </Button>
-              </div>
-            </div>
-          )}
-          {step === 3 && (
-            <div>
-              <h3 className="text-gray-600 font-bold mb-5">
-                المعلومات المهنية
-              </h3>
-              <div className="mb-7">
-                <div className="flex flex-col gap-2 col-span-2">
-                  <Label htmlFor="spec">الصورة الشخصية </Label>
-                  <div className="border rounded-lg p-4 flex flex-col items-center md:flex-row gap-5 mb-5">
-                    <img
-                      src="/doctor1.jpg"
-                      alt="doctor image"
-                      className="w-20 h-20 rounded-full object-cover"
+          <form onSubmit={handleSubmit}>
+            {step === 1 && (
+              <div>
+                <h3 className="text-gray-600 font-bold mb-5">
+                  المعلومات الاساسية
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-7">
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="name">الاسم </Label>
+                    <TextInput
+                      id="name"
+                      type="text"
+                      rightIcon={FaUser}
+                      placeholder="أدخل إسمك هنا..."
+                      value={formDataState.name}
+                      onChange={handleChange}
+                      color={formErrors.name ? "failure" : "gray"}
+                      required
                     />
-                    <div className="text-center md:text-start flex-1">
-                      <h3 className=" text-gray-600 mb-2">صورة الملف الشخصي</h3>
-                      <p className="text-sm text-gray-400 ">
-                        يفضل استخدام صورة بحجم 400×400 بكسل
+                    {formErrors.name && (
+                      <p className="text-[12px] text-red-600">
+                        {formErrors.name}
                       </p>
-                    </div>
-                    <Button
-                      theme={flowbit.button}
-                      color="primary"
-                      className="flex gap-2"
+                    )}
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="prename">اللقب </Label>
+                    <TextInput
+                      id="prename"
+                      type="text"
+                      rightIcon={FaUser}
+                      placeholder="أدخل إسمك هنا..."
+                      value={formDataState.prename}
+                      onChange={handleChange}
+                      color={formErrors.prename ? "failure" : "gray"}
+                      required
+                    />
+                    {formErrors.prename && (
+                      <p className="text-[12px] text-red-600">
+                        {formErrors.prename}
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="email">البريد الالكتروني</Label>
+                    <TextInput
+                      id="email"
+                      type="text"
+                      rightIcon={HiMail}
+                      value={formDataState.email}
+                      onChange={handleChange}
+                      placeholder="example@example.com"
+                      color={formErrors.email ? "failure" : "gray"}
+                      required
+                    />
+                    {formErrors.email && (
+                      <p className="text-[12px] text-red-600">
+                        {formErrors.email}
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="phone">رقم الهاتف</Label>
+                    <TextInput
+                      id="phone"
+                      type="number"
+                      rightIcon={Phone}
+                      placeholder="06********"
+                      value={formDataState.phone}
+                      onChange={handleChange}
+                      color={formErrors.phone ? "failure" : "gray"}
+                      required
+                    />
+                    {formErrors.phone && (
+                      <p className="text-[12px] text-red-600">
+                        {formErrors.phone}
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex flex-col gap-2" dir="rtl">
+                    <Label htmlFor="password">كلمة المرور</Label>
+                    <TextInput
+                      id="password"
+                      type="password"
+                      placeholder="*************"
+                      value={formDataState.password}
+                      onChange={handleChange}
+                      color={formErrors.password ? "failure" : "gray"}
+                      required
+                    />
+                    {formErrors.password && (
+                      <p className="text-[12px] text-red-600">
+                        {formErrors.password}
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex flex-col gap-2" dir="rtl">
+                    <Label htmlFor="password2"> اعادة كلمة المرور</Label>
+                    <TextInput
+                      id="password2"
+                      type="password"
+                      placeholder="*************"
+                      value={formDataState.password2}
+                      onChange={handleChange}
+                      color={formErrors.password2 ? "failure" : "gray"}
+                      required
+                    />
+                    {formErrors.password2 && (
+                      <p className="text-[12px] text-red-600">
+                        {formErrors.password2}
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex flex-col gap-2" dir="rtl">
+                    <Label htmlFor="state">الولاية </Label>
+                    <select
+                      className={`border  ${
+                        formErrors.state && "border-red-600 bg-red-50"
+                      } p-1 rounded-md bg-gray-50 text-gray-900 border-gray-300 `}
+                      id="state"
+                      required
+                      value={formDataState.state}
+                      onChange={handleChange}
+                      defaultValue=""
                     >
-                      <span>
-                        <BsCamera size={18} className="text-white" />
-                      </span>
-                      <span>تغيير الصورة</span>
-                    </Button>
+                      <option value="">اختر ولاية</option>
+                      {stats.map((ele) => (
+                        <option value={ele.id}>{ele.name}</option>
+                      ))}
+                    </select>
+                    {formErrors.state && (
+                      <p className="text-[12px] text-red-600">
+                        {formErrors.state}
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex flex-col gap-2" dir="rtl">
+                    <Label htmlFor="city">البلدية </Label>
+                    <select
+                      className={`border ${
+                        formErrors.city && "border-red-600 bg-red-50"
+                      } p-1 rounded-md bg-gray-50 text-gray-900 border-gray-300 `}
+                      id="city"
+                      required
+                      value={formDataState.city}
+                      onChange={handleChange}
+                      defaultValue=""
+                    >
+                      <option value="">اختر بلدية </option>
+                      <option>الفييييض</option>
+                    </select>
+                    {formErrors.city && (
+                      <p className="text-[12px] text-red-600">
+                        {formErrors.city}
+                      </p>
+                    )}
+                  </div>
+                </div>
+                <div className="flex justify-end">
+                  <Button
+                    theme={flowbit.button}
+                    color="primary"
+                    onClick={handleNext}
+                  >
+                    التالي
+                  </Button>
+                </div>
+              </div>
+            )}
+            {step === 2 && (
+              <div>
+                <h3 className="text-gray-600 font-bold mb-5">
+                  المعلومات المهنية
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-y-5 md:gap-5 mb-7">
+                  <div className="flex flex-col gap-2 w-full md:col-span-2">
+                    <Label htmlFor="spec">التخصص </Label>
+                    <select
+                      className={`border ${
+                        formErrors.spec && "border-red-600 bg-red-50"
+                      } p-1 rounded-md bg-gray-50 text-gray-900 border-gray-300 `}
+                      id="spec"
+                      value={formDataState.spec}
+                      onChange={handleChange}
+                      required
+                    >
+                      <option value="">اختر التخصص</option>
+                      {spec.map((ele) => (
+                        <option key={ele.value} value={ele.value}>
+                          {ele.label}
+                        </option>
+                      ))}
+                    </select>
+                    {formErrors.spec && (
+                      <p className="text-[12px] text-red-600">
+                        {formErrors.spec}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="flex flex-col gap-2 col-span-2 md:col-span-1">
+                    <Label htmlFor="exper">سنوات الخبرة</Label>
+                    <TextInput
+                      id="exper"
+                      type="number"
+                      placeholder="عدد سنوات الخبرة"
+                      value={formDataState.exper}
+                      onChange={handleChange}
+                      color={formErrors.exper ? "failure" : "gray"}
+                      required
+                    />
+                    {formErrors.exper && (
+                      <p className="text-[12px] text-red-600">
+                        {formErrors.exper}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="workplace">مكان العمل الحالي</Label>
+                    <TextInput
+                      id="workplace"
+                      type="text"
+                      placeholder="مستشفى/ عيادة"
+                      value={formDataState.workplace}
+                      onChange={handleChange}
+                      color={formErrors.workplace ? "failure" : "gray"}
+                      required
+                    />
+                    {formErrors.workplace && (
+                      <p className="text-[12px] text-red-600">
+                        {formErrors.workplace}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="flex flex-col gap-2 col-span-2">
+                    <Label htmlFor="pio">نبذة عامة </Label>
+                    <Textarea
+                      id="pio"
+                      placeholder="نبذة عامة عنك ..."
+                      value={formDataState.pio}
+                      onChange={handleChange}
+                      rows={4}
+                      color={formErrors.pio ? "failure" : "gray"}
+                      className={`${
+                        formErrors.pio ? "border-red-500" : "border-gray-300"
+                      }`}
+                      required
+                    />
+                    {formErrors.pio && (
+                      <p className="text-[12px] text-red-600">
+                        {formErrors.pio}
+                      </p>
+                    )}
                   </div>
                 </div>
 
-                <div className="flex  items-center gap-2 mb-5">
-                  <Checkbox theme={flowbit.checkbox} id="accept" />
-                  <Label htmlFor="accept">اوافق على الشروط والاحكام</Label>
-                </div>
-                <div className="flex flex-col gap-2 mb-5">
-                  <Label htmlFor="bac">شهادة البكالوريا</Label>
-                  <Label
-                    htmlFor="bac"
-                    className="flex h-64 w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:hover:border-gray-500 dark:hover:bg-gray-600"
+                <div className="flex justify-between">
+                  <Button
+                    theme={flowbit.button}
+                    color="primary"
+                    outline
+                    onClick={preStep}
                   >
-                    <div className="flex flex-col items-center justify-center pb-6 pt-5">
-                      <HiMiniDocumentPlus
-                        size={73}
-                        className="text-primaryColor mb-2"
-                      />
-                      <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
-                        <span className="font-semibold"> اسحب الملف هنا </span>{" "}
-                        أو اضغط للاختيار
-                      </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        يدعم ملفات pdf و png و jpg الحد القصى : (2MB)
-                      </p>
-                    </div>
-                    <FileInput id="bac" className="hidden" />
-                  </Label>
-                </div>
-                <div className="flex flex-col gap-2 mb-5">
-                  <Label htmlFor="spec-car">شهادة التخصص </Label>
-                  <Label
-                    htmlFor="spec-car"
-                    className="flex h-64 w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:hover:border-gray-500 dark:hover:bg-gray-600"
+                    السابق
+                  </Button>
+                  <Button
+                    theme={flowbit.button}
+                    color="primary"
+                    onClick={handleNext}
                   >
-                    <div className="flex flex-col items-center justify-center pb-6 pt-5">
-                      <HiMiniDocumentPlus
-                        size={73}
-                        className="text-primaryColor mb-2"
-                      />
-                      <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
-                        <span className="font-semibold"> اسحب الملف هنا </span>{" "}
-                        أو اضغط للاختيار
-                      </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        يدعم ملفات pdf و png و jpg الحد القصى : (2MB)
-                      </p>
-                    </div>
-                    <FileInput id="spec-car" className="hidden" />
-                  </Label>
-                </div>
-                <div className="flex flex-col gap-2 mb-5">
-                  <Label htmlFor="profession"> رخصة مزاولة المهنة</Label>
-                  <Label
-                    htmlFor="profession"
-                    className="flex h-64 w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:hover:border-gray-500 dark:hover:bg-gray-600"
-                  >
-                    <div className="flex flex-col items-center justify-center pb-6 pt-5">
-                      <HiMiniDocumentPlus
-                        size={73}
-                        className="text-primaryColor mb-2"
-                      />
-                      <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
-                        <span className="font-semibold"> اسحب الملف هنا </span>{" "}
-                        أو اضغط للاختيار
-                      </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        يدعم ملفات pdf و png و jpg الحد القصى : (2MB)
-                      </p>
-                    </div>
-                    <FileInput id="profession" className="hidden" />
-                  </Label>
+                    التالي
+                  </Button>
                 </div>
               </div>
-              <div className="flex justify-between">
-                <Button
-                  theme={flowbit.button}
-                  color="primary"
-                  outline
-                  onClick={() => preStep()}
-                >
-                  السابق
-                </Button>
-                <Button
-                  theme={flowbit.button}
-                  color="primary"
-                  onClick={() => nextStep()}
-                >
-                  تسجيل
-                </Button>
+            )}
+
+            {step === 3 && (
+              <div>
+                <h3 className="text-gray-600 font-bold mb-5">
+                  المعلومات المهنية
+                </h3>
+                <div className="mb-7">
+                  {/* الصورة الشخصية */}
+                  <div className="flex flex-col gap-2 col-span-2 mb-3">
+                    <Label>الصورة الشخصية </Label>
+                    <div
+                      className={`border ${
+                        formErrors.profile && "border-red-600 bg-red-50"
+                      } rounded-lg p-4 flex flex-col items-center md:flex-row gap-5 `}
+                    >
+                      <img
+                        src={
+                          formDataState.profile
+                            ? URL.createObjectURL(formDataState.profile)
+                            : "/doctor1.jpg"
+                        }
+                        alt="doctor image"
+                        className="w-20 h-20 rounded-full object-cover"
+                      />
+                      <div className="text-center md:text-start flex-1">
+                        <h3 className=" text-gray-600 mb-2">
+                          صورة الملف الشخصي
+                        </h3>
+                        <p className="text-sm text-gray-400 ">
+                          يفضل استخدام صورة بحجم 400×400 بكسل
+                        </p>
+                      </div>
+                      <Label
+                        htmlFor="profile"
+                        className="p-3 bg-primaryColor rounded-lg text-white flex gap-2 cursor-pointer"
+                      >
+                        <span>
+                          <BsCamera size={18} className="text-white" />
+                        </span>
+                        <span>اضافة صورة</span>
+                      </Label>
+                      <input
+                        type="file"
+                        id="profile"
+                        accept="image/*"
+                        onChange={handleChange}
+                        className="hidden"
+                      />
+                    </div>
+                    {formErrors.profile && (
+                      <p className="text-[12px] text-red-600">
+                        {formErrors.profile}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Checkbox */}
+                  <div className="flex flex-col gap-1 mb-4">
+                    <div className="flex items-center gap-2">
+                      <Checkbox
+                        theme={flowbit.checkbox}
+                        id="termsAccepted"
+                        checked={formDataState.termsAccepted}
+                        onChange={handleChange}
+                      />
+                      <Label htmlFor="termsAccepted">
+                        اوافق على الشروط والاحكام
+                      </Label>
+                    </div>
+
+                    {formErrors.termsAccepted && (
+                      <p className="text-[12px] text-red-600 ">
+                        {formErrors.termsAccepted}
+                      </p>
+                    )}
+                  </div>
+                  {/* شهادة البكالوريا */}
+                  <div className="flex flex-col gap-2 mb-4">
+                    <Label htmlFor="bac">شهادة البكالوريا</Label>
+                    <Label
+                      htmlFor="bac"
+                      className={`flex h-64 w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed ${
+                        formErrors.bac
+                          ? "border-red-600 bg-red-50"
+                          : "border-gray-300 bg-gray-50 hover:bg-gray-100"
+                      }  `}
+                    >
+                      <div className="flex flex-col items-center justify-center pb-6 pt-5">
+                        <HiMiniDocumentPlus
+                          size={73}
+                          className="text-primaryColor mb-2"
+                        />
+                        <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
+                          <span className="font-semibold">
+                            {" "}
+                            اسحب الملف هنا{" "}
+                          </span>{" "}
+                          أو اضغط للاختيار
+                        </p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          يدعم ملفات pdf و png و jpg الحد القصى : (2MB)
+                        </p>
+                      </div>
+                      <FileInput
+                        id="bac"
+                        className="hidden"
+                        onChange={handleChange}
+                      />
+                    </Label>
+                    {formErrors.bac && (
+                      <p className="text-[12px] text-red-600">
+                        {formErrors.bac}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* شهادة التخصص */}
+                  <div className="flex flex-col gap-2 mb-4">
+                    <Label htmlFor="specCar">شهادة التخصص </Label>
+                    <Label
+                      htmlFor="specCar"
+                      className={`flex h-64 w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed ${
+                        formErrors.bac
+                          ? "border-red-600 bg-red-50"
+                          : "border-gray-300 bg-gray-50 hover:bg-gray-100"
+                      }  `}
+                    >
+                      <div className="flex flex-col items-center justify-center pb-6 pt-5">
+                        <HiMiniDocumentPlus
+                          size={73}
+                          className="text-primaryColor mb-2"
+                        />
+                        <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
+                          <span className="font-semibold">
+                            {" "}
+                            اسحب الملف هنا{" "}
+                          </span>{" "}
+                          أو اضغط للاختيار
+                        </p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          يدعم ملفات pdf و png و jpg الحد القصى : (2MB)
+                        </p>
+                      </div>
+                      <FileInput
+                        id="specCar"
+                        className="hidden"
+                        onChange={handleChange}
+                      />
+                    </Label>
+                    {formErrors.specCar && (
+                      <p className="text-[12px] text-red-600">
+                        {formErrors.specCar}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* رخصة مزاولة المهنة */}
+                  <div className="flex flex-col gap-2 mb-2">
+                    <Label htmlFor="profession">رخصة مزاولة المهنة</Label>
+                    <Label
+                      htmlFor="profession"
+                      className={`flex h-64 w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed ${
+                        formErrors.bac
+                          ? "border-red-600 bg-red-50"
+                          : "border-gray-300 bg-gray-50 hover:bg-gray-100"
+                      }  `}
+                    >
+                      <div className="flex flex-col items-center justify-center pb-6 pt-5">
+                        <HiMiniDocumentPlus
+                          size={73}
+                          className="text-primaryColor mb-2"
+                        />
+                        <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
+                          <span className="font-semibold">
+                            {" "}
+                            اسحب الملف هنا{" "}
+                          </span>{" "}
+                          أو اضغط للاختيار
+                        </p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          يدعم ملفات pdf و png و jpg الحد القصى : (2MB)
+                        </p>
+                      </div>
+                      <FileInput
+                        id="profession"
+                        className="hidden"
+                        onChange={handleChange}
+                      />
+                    </Label>
+                    {formErrors.profession && (
+                      <p className="text-[12px] text-red-600">
+                        {formErrors.profession}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex justify-between">
+                  <Button
+                    theme={flowbit.button}
+                    color="primary"
+                    outline
+                    onClick={preStep}
+                  >
+                    السابق
+                  </Button>
+                  <Button
+                    theme={flowbit.button}
+                    color="primary"
+                    type="submit"
+                    onClick={handleSubmit}
+                    disabled={loading}
+                  >
+                    {loading && (
+                      <Spinner className="me-2" color="info" size="sm" />
+                    )}
+                    تسجيل
+                  </Button>
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </form>
           {step === 4 && (
             <div>
               <div className="p-3 rounded-full bg-gradient-to-r from-[#0F1242] to-[#008CFF] w-20 h-20 flex justify-center items-center m-auto mb-4">

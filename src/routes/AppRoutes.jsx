@@ -6,7 +6,7 @@ import DashboardLayout from "../layouts/DashboardLayout";
 import DoctorHome from "../pages/dashboard/doctor/DoctorHome";
 import AdminHome from "../pages/dashboard/admin/AdminHome";
 import PatientHome from "../pages/dashboard/patient/PatientHome";
-import store from "../data/store";
+import AdminDoctors from "../pages/dashboard/admin/doctors/AdminDoctors";
 import PublicRoutes from "./PublicRoutes";
 import PrivateRoutes from "./PrivateRoutes";
 import NewDoctor from "../pages/NewDoctor";
@@ -22,8 +22,15 @@ import DoctorWallet from "../pages/dashboard/doctor/DoctorWallet";
 import DoctorAppointments from "../pages/dashboard/doctor/DoctorAppointments";
 import DoctorHistory from "../pages/dashboard/doctor/DoctorHistory";
 import DoctorPatients from "../pages/dashboard/doctor/DoctorPatients";
+import useAuthStore from "../store/authStore";
+import AddDoctor from "../pages/dashboard/admin/doctors/AddDoctor";
+import AdminPatients from "../pages/dashboard/admin/patients/AdminPatients";
+import AdminAppointments from "../pages/dashboard/admin/appointments/AdminAppointments";
+import AdminWallet from "../pages/dashboard/admin/wallet/AdminWallet";
+import AdminSettings from "../pages/dashboard/admin/AdminSettings";
 
 export default function AppRoutes() {
+  const user = useAuthStore((state) => state.user);
   return (
     <Routes>
       <Route path="/new-doctor" element={<NewDoctor />} />
@@ -36,12 +43,18 @@ export default function AppRoutes() {
       </Route>
       <Route path={PATHS.DASHBOARD} element={<DashboardLayout />}>
         {/* Must Change || it is not best practises to add conditions inside routes element */}
-        {store.userRole === "admin" && (
+        {user?.role === "admin" && (
           <>
             <Route index element={<AdminHome />} />
+            <Route path="doctors" element={<AdminDoctors />} />
+            <Route path="doctors/add-doctor" element={<AddDoctor />} />
+            <Route path="patients" element={<AdminPatients />} />
+            <Route path="appointments" element={<AdminAppointments />} />
+            <Route path="wallet" element={<AdminWallet />} />
+            <Route path="settings" element={<AdminSettings />} />
           </>
         )}
-        {store.userRole === "patient" && (
+        {user?.role === "patient" && (
           <>
             <Route index element={<PatientHome />} />
             <Route path="profile" element={<PatientProfile />} />
@@ -51,7 +64,7 @@ export default function AppRoutes() {
             <Route path="favorite" element={<PatientFavorite />} />
           </>
         )}
-        {store.userRole === "doctor" && (
+        {user?.role === "doctor" && (
           <>
             <Route index element={<DoctorHome />} />
             <Route path="profile" element={<DoctorProfile />} />

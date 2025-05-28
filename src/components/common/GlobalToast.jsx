@@ -23,7 +23,7 @@ export default function GlobalToast() {
             <HiExclamation className="h-5 w-5" />
           )}
         </div>
-        <div className="ml-3 text-sm font-normal">{toast.message}</div>
+        <div className="ml-3 ms-2 text-sm font-normal">{toast.message}</div>
         <ToastToggle onDismiss={hideToast} />
       </Toast>
     </div>

@@ -1,11 +1,25 @@
-import { FaRegCalendarCheck } from "react-icons/fa";
-import { IoCheckmarkDoneCircle } from "react-icons/io5";
-import { SiGooglestreetview } from "react-icons/si";
-import { TbPointFilled } from "react-icons/tb";
-import { VscRunCoverage } from "react-icons/vsc";
-import flowbit from "../../../config/flowbit";
+import { HiChartPie, HiCurrencyDollar } from "react-icons/hi";
+import DashPageHeader from "../../../components/dashboard/common/DashPageHeader";
 import {
-  Button,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  PieChart,
+  Pie,
+  Cell,
+} from "recharts";
+import { FaRegCalendarCheck, FaUsers } from "react-icons/fa";
+
+import { FaUserDoctor } from "react-icons/fa6";
+import { AiOutlineSchedule } from "react-icons/ai";
+import {
   Table,
   TableBody,
   TableCell,
@@ -13,155 +27,349 @@ import {
   TableHeadCell,
   TableRow,
 } from "flowbite-react";
-import { Link } from "react-router-dom";
+
+import InfoCard from "../../../components/dashboard/common/InfoCard";
+
+const piChartData = [
+  { name: "أمراض القلب", value: 12 },
+  { name: "طب الأطفال", value: 8 },
+  { name: "جراحة عامة", value: 10 },
+  { name: "الجلدية", value: 6 },
+  { name: "النساء والتوليد", value: 7 },
+];
+const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#A28EF5"];
+
+const chartData = [
+  { month: "1", doctors: 520, patients: 600 },
+  { month: "2", doctors: 300, patients: 700 },
+  { month: "3", doctors: 280, patients: 250 },
+  { month: "4", doctors: 400, patients: 690 },
+  { month: "5", doctors: 0, patients: 520 },
+  { month: "6", doctors: 460, patients: 520 },
+  { month: "7", doctors: 950, patients: 960 },
+  { month: "8", doctors: 780, patients: 900 },
+  { month: "9", doctors: 800, patients: 800 },
+];
+const consultationsData = [
+  { month: "1", consultations: 25, appointments: 5 },
+  { month: "2", consultations: 20, appointments: 3 },
+  { month: "3", consultations: 55, appointments: 50 },
+  { month: "4", consultations: 90, appointments: 10 },
+  { month: "5", consultations: 70, appointments: 85 },
+  { month: "6", consultations: 65, appointments: 20 },
+  { month: "7", consultations: 15, appointments: 10 },
+  { month: "8", consultations: 100, appointments: 60 },
+  { month: "9", consultations: 90, appointments: 95 },
+];
+
+const users = [
+  {
+    name: "د. كريم بن عمر",
+    type: "طبيب",
+    email: "karim.doc@example.com",
+    phone: "0550 123 456",
+    registeredAt: "2025-05-24",
+    status: "نشط",
+  },
+  {
+    name: "ليلى منصوري",
+    type: "مريض",
+    email: "layla.mansouri@example.com",
+    phone: "0560 789 321",
+    registeredAt: "2025-05-23",
+    status: "نشط",
+  },
+];
+
+const appointments = [
+  {
+    doctor: "د. أحمد قادري",
+    patient: "سعاد بن زيد",
+    type: "استشارة",
+    datetime: "2025-05-25 14:00",
+    price: 2500,
+    status: "مكتمل",
+  },
+  {
+    doctor: "د. ليلى بن عيسى",
+    patient: "علي ناصر",
+    type: "متابعة",
+    datetime: "2025-05-26 09:30",
+    price: 2000,
+    status: "قيد الانتظار",
+  },
+];
+
+const infoCards = [
+  {
+    title: "المرضى المسجلين",
+    icon: FaUsers,
+    color: "#0D99FF",
+    value: 10054,
+    percentage: -3,
+    percentageText: "مقارنة بالشهر الماضي",
+  },
+  {
+    title: "الاطباء المسجلين",
+    icon: FaUserDoctor,
+    color: "#25A85C",
+    value: 2108,
+    percentage: 5,
+    percentageText: "مقارنة بالشهر الماضي",
+  },
+  {
+    title: "الاستشارات التي تمت",
+    icon: FaRegCalendarCheck,
+    color: "#13324F",
+    value: 571,
+    percentage: 15,
+    percentageText: "مقارنة بالشهر الماضي",
+  },
+  {
+    title: "المواعيد المجدولة",
+    icon: AiOutlineSchedule,
+    color: "#960DFF",
+    value: 120,
+    percentage: 3,
+    percentageText: "مقارنة بالشهر الماضي",
+  },
+  {
+    title: "الارباح",
+    icon: HiCurrencyDollar,
+    color: "#65D2E5",
+    value: 120822,
+    valueText: "دج",
+    percentage: 3,
+    percentageText: "مقارنة بالشهر الماضي",
+  },
+];
 
 export default function AdminHome() {
   return (
     <div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 xl:gap-x-14 gap-y-5 mb-7">
-        <div className="flex items-center gap-5 p-5 border rounded-lg">
-          <div className="p-3 bg-orange-100 rounded-lg">
-            <SiGooglestreetview size={30} color="orange" />
+      <DashPageHeader
+        Icon={HiChartPie}
+        title="لوحة التحكم"
+        description="مرحباً بك، أحمد! هذا هو ملخص نشاط منصة شفاؤك."
+      />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+        {infoCards.map((card, index) => (
+          <InfoCard
+            key={index}
+            title={card.title}
+            icon={card.icon}
+            color={card.color}
+            value={card.value}
+            valueText={card.valueText}
+            percentage={card.percentage}
+            percentageText={card.percentageText}
+          />
+        ))}
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        <div className="mt-10 p-5 border rounded-xl bg-white">
+          <h2 className="text-lg font-bold text-gray-600 mb-10">
+            نمو المستخدمين خلال الشهور
+          </h2>
+
+          <div className="flex justify-center gap-4 mb-4">
+            <span className="px-3 py-1 rounded bg-green-400 text-white text-sm">
+              المرضى
+            </span>
+            <span className="px-3 py-1 rounded bg-blue-400 text-white text-sm">
+              الأطباء
+            </span>
           </div>
-          <div className="flex flex-col gap-1">
-            <p className="text-grayBlue">كل الاطباء</p>
-            <p className="text-xl font-bold">10</p>
+          <div className="w-full h-full relative" dir="ltr">
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={chartData} margin={{ left: -20 }}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis
+                  dataKey="month"
+                  height={20}
+                  tick={{ fontSize: 12, fill: "#333" }}
+                />
+                <YAxis tick={{ fontSize: 12, fill: "#333" }} />
+                <Tooltip />
+                <Line
+                  type="monotone"
+                  dataKey="patients"
+                  stroke="#4ade80"
+                  strokeWidth={2}
+                  dot={{ r: 4 }}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="doctors"
+                  stroke="#60a5fa"
+                  strokeWidth={2}
+                  dot={{ r: 4 }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
           </div>
         </div>
-        <div className="flex items-center gap-5  p-5 border rounded-lg">
-          <div className="p-3 bg-green-100 rounded-lg">
-            <VscRunCoverage size={30} color="green" />
+        <div className="mt-10 p-5 border rounded-xl bg-white">
+          <h2 className="text-lg font-bold text-gray-600 mb-10">
+            نشاط الاستشارات الشهري
+          </h2>
+
+          <div className="flex justify-center gap-4 mb-4">
+            <span className="px-3 py-1 rounded bg-pink-500 text-white text-sm">
+              الاستشارات
+            </span>
+            <span className="px-3 py-1 rounded bg-green-800 text-white text-sm">
+              المواعيد
+            </span>
           </div>
-          <div className="flex flex-col gap-1">
-            <p className="text-grayBlue">الحجوزات </p>
-            <p className="text-xl font-bold">5</p>
-          </div>
-        </div>
-        <div className="flex items-center gap-5 p-5 border rounded-lg">
-          <div className="p-3 bg-red-100 rounded-lg">
-            <IoCheckmarkDoneCircle size={30} color="red" />
-          </div>
-          <div className="flex flex-col gap-1">
-            <p className="text-grayBlue">المرضى </p>
-            <p className="text-xl font-bold">5</p>
-          </div>
-        </div>
-        <div className="flex items-center gap-5 p-5 border rounded-lg">
-          <div className="p-3 bg-blue-100 rounded-lg">
-            <FaRegCalendarCheck size={30} color="blue" />
-          </div>
-          <div className="flex flex-col gap-1">
-            <p className="text-grayBlue">الحجوزات</p>
-            <p className="text-xl font-bold">22</p>
+          <div className="w-full h-full" dir="ltr">
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={consultationsData} margin={{ left: -20 }}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis
+                  dataKey="month"
+                  height={20}
+                  tick={{ fontSize: 12, fill: "#333" }}
+                />
+                <YAxis tick={{ fontSize: 12, fill: "#333" }} />
+                <Tooltip />
+
+                <Bar dataKey="consultations" fill="#ec4899" />
+                <Bar dataKey="appointments" fill="#4d4d00" />
+              </BarChart>
+            </ResponsiveContainer>
           </div>
         </div>
       </div>
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
-        <div className="w-full lg:col-span-2  p-4 border rounded-xl">
-          <h2 className="text-lg font-bold text-darkBlue mb-5 flex gap-2 items-center">
-            <span> كل الاطباء</span>
-            <TbPointFilled color="green" size={25} />
-          </h2>
-          <div className="flex flex-col gap-4">
-            {/* <StatsTourCard />
-            <StatsTourCard />
-            <StatsTourCard /> */}
-            <Link to="/dashboard/tours">
-              <Button theme={flowbit.button} color="primary" className="w-full">
-                عرض المزيد
-              </Button>
-            </Link>
-          </div>
+      <div className="mt-10 p-5 border rounded-xl bg-white">
+        <h2 className="text-lg font-bold text-gray-600 mb-10">
+          أحدث المستخدمين المسجلين
+        </h2>
+
+        <div className="overflow-x-auto mb-3">
+          <Table className="text-right">
+            <TableHead className="bg-gray-100">
+              <TableHeadCell>الاسم الكامل</TableHeadCell>
+              <TableHeadCell>نوع المستخدم</TableHeadCell>
+              <TableHeadCell>البريد الإلكتروني</TableHeadCell>
+              <TableHeadCell>رقم الهاتف</TableHeadCell>
+              <TableHeadCell>تاريخ التسجيل</TableHeadCell>
+              <TableHeadCell>الحالة</TableHeadCell>
+            </TableHead>
+            <TableBody>
+              {users.map((user, index) => (
+                <TableRow key={index} className="bg-white">
+                  <TableCell>{user.name}</TableCell>
+                  <TableCell>
+                    <span
+                      className={`px-3 py-1 rounded-full text-sm ${
+                        user.type === "طبيب"
+                          ? "bg-blue-100 text-blue-800"
+                          : "bg-green-100 text-green-800"
+                      }`}
+                    >
+                      {user.type}
+                    </span>
+                  </TableCell>
+                  <TableCell>{user.email}</TableCell>
+                  <TableCell>{user.phone}</TableCell>
+                  <TableCell>{user.registeredAt}</TableCell>
+                  <TableCell>
+                    <span
+                      className={`px-3 py-1 rounded-full text-sm ${
+                        user.status === "نشط"
+                          ? "bg-green-100 text-green-800"
+                          : "bg-gray-100 text-gray-800"
+                      }`}
+                    >
+                      {user.status}
+                    </span>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </div>
-        <div className="w-full lg:col-span-3 p-4 border rounded-xl">
-          <h2 className="text-lg font-bold text-darkBlue mb-5">اخر الحجوزات</h2>
+      </div>
 
-          <div className="overflow-x-auto mb-3">
-            <Table theme={flowbit.table} className="relative -z-10">
-              <TableHead>
-                <TableHeadCell className="w-12">#</TableHeadCell>
-                <TableHeadCell className="">الطبيب</TableHeadCell>
-                <TableHeadCell className="w-36">المريض</TableHeadCell>
-                <TableHeadCell className="w-36">التخصص</TableHeadCell>
-                <TableHeadCell className="min-w-28">الموعد</TableHeadCell>
-                <TableHeadCell className="min-w-28">الحالة</TableHeadCell>
-                <TableHeadCell className="w-12">إجراء</TableHeadCell>
-              </TableHead>
-              <TableBody className="divide-y">
-                <TableRow className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                  <TableCell>#1</TableCell>
-                  <TableCell>د. أحمد بن يوسف</TableCell>
-                  <TableCell>محمد طيبي</TableCell>
-                  <TableCell>أمراض القلب</TableCell>
-                  <TableCell>2025-05-15 | 10:30</TableCell>
+      <div className="mt-10 p-5 border rounded-xl bg-white">
+        <h2 className="text-lg font-bold text-gray-600 mb-10">
+          آخر الاستشارات والمواعيد
+        </h2>
+
+        <div className="overflow-x-auto mb-3">
+          <Table className="text-right">
+            <TableHead className="bg-gray-100">
+              <TableHeadCell>اسم الطبيب</TableHeadCell>
+              <TableHeadCell>اسم المريض</TableHeadCell>
+              <TableHeadCell>نوع الموعد</TableHeadCell>
+              <TableHeadCell>التاريخ والوقت</TableHeadCell>
+              <TableHeadCell>السعر</TableHeadCell>
+              <TableHeadCell>الحالة</TableHeadCell>
+            </TableHead>
+            <TableBody>
+              {appointments.map((appt, index) => (
+                <TableRow key={index} className="bg-white">
+                  <TableCell>{appt.doctor}</TableCell>
+                  <TableCell>{appt.patient}</TableCell>
                   <TableCell>
-                    <span className="text-blue-600 px-2 py-1 rounded-lg bg-blue-50 text-[10px]">
-                      في الانتظار
+                    <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">
+                      {appt.type}
                     </span>
                   </TableCell>
-                  <TableCell>
-                    <a
-                      href="#"
-                      className="font-medium text-cyan-600 hover:underline dark:text-cyan-500"
-                    >
-                      تعديل
-                    </a>
+                  <TableCell>{appt.datetime}</TableCell>
+                  <TableCell className="text-green-600">
+                    {appt.price} د.ج
                   </TableCell>
-                </TableRow>
-
-                <TableRow className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                  <TableCell>#2</TableCell>
-                  <TableCell>د. ليلى بوزيد</TableCell>
-                  <TableCell>ياسين بن عمر</TableCell>
-                  <TableCell>الطب النفسي</TableCell>
-                  <TableCell>2025-05-16 | 14:00</TableCell>
                   <TableCell>
-                    <span className="text-green-600 px-2 py-1 rounded-lg bg-green-50 text-[10px]">
-                      مؤكد
+                    <span
+                      className={`px-3 py-1 rounded-full text-sm ${
+                        appt.status === "مكتمل"
+                          ? "bg-green-100 text-green-800"
+                          : appt.status === "قيد الانتظار"
+                          ? "bg-yellow-100 text-yellow-800"
+                          : "bg-gray-100 text-gray-800"
+                      }`}
+                    >
+                      {appt.status}
                     </span>
                   </TableCell>
-                  <TableCell>
-                    <a
-                      href="#"
-                      className="font-medium text-cyan-600 hover:underline dark:text-cyan-500"
-                    >
-                      تعديل
-                    </a>
-                  </TableCell>
                 </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      </div>
 
-                <TableRow className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                  <TableCell>#3</TableCell>
-                  <TableCell>د. سامي العيد</TableCell>
-                  <TableCell>سهى بن عبد الله</TableCell>
-                  <TableCell>طب الأطفال</TableCell>
-                  <TableCell>2025-05-18 | 09:00</TableCell>
-                  <TableCell>
-                    <span className="text-red-600 px-2 py-1 rounded-lg bg-red-50 text-[10px]">
-                      ملغي
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    <a
-                      href="#"
-                      className="font-medium text-cyan-600 hover:underline dark:text-cyan-500"
-                    >
-                      تعديل
-                    </a>
-                  </TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
-          </div>
-          <Link to="/dashboard/bookings">
-            <Button
-              theme={flowbit.button}
-              color="primary"
-              className="w-52 m-auto"
-            >
-              عرض المزيد
-            </Button>
-          </Link>
+      <div className="mt-10 p-5 border rounded-xl bg-white">
+        <h2 className="text-lg font-bold text-gray-600 mb-6 text-center">
+          توزيع تخصصات الأطباء
+        </h2>
+
+        <div className="h-72" dir="ltr">
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie
+                data={piChartData}
+                cx="50%"
+                cy="50%"
+                outerRadius={80}
+                fill="#8884d8"
+                dataKey="value"
+                label
+              >
+                {piChartData.map((entry, index) => (
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={COLORS[index % COLORS.length]}
+                  />
+                ))}
+              </Pie>
+              <Tooltip />
+              <Legend />
+            </PieChart>
+          </ResponsiveContainer>
         </div>
       </div>
     </div>

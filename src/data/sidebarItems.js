@@ -1,6 +1,8 @@
 import { BiHistory, BiWallet } from "react-icons/bi";
 import { FaCalendarCheck, FaUserAlt } from "react-icons/fa";
+import { FaUserDoctor } from "react-icons/fa6";
 import { HiCalendar, HiChartPie, HiStar, HiUsers, HiViewBoards } from "react-icons/hi";
+import { IoIosSettings } from "react-icons/io";
 
 export const sidebarAdminItems = [
     {
@@ -9,28 +11,35 @@ export const sidebarAdminItems = [
         "icon": HiChartPie
     },
     {
-        "title": "الرحلات",
-        "href": "/dashboard/tours",
-        "icon": HiViewBoards
+        "title": "الاطباء",
+        "href": "/dashboard/doctors",
+        "icon": FaUserDoctor
     },
     {
-        "title": "الحجوزات",
-        "href": "/dashboard/bookings",
-        "icon": HiCalendar,
-        "label": "جديد",
-        "labelColor": "success"
-    },
-    {
-        "title": "المستخدين",
-        "href": "/dashboard/users",
+        "title": "المرضى",
+        "href": "/dashboard/patients",
         "icon": HiUsers,
-        "label": "2",
-        "labelColor": "success"
+    },
+
+    {
+        "title": "ادارة المواعيد",
+        "href": "/dashboard/appointments",
+        "icon": FaCalendarCheck
     },
     {
-        "title": "المراجعات",
-        "href": "/dashboard/reviews",
-        "icon": HiStar
+        "title": "طلبات الشحن",
+        "href": "/dashboard/wallet",
+        "icon": BiWallet
+    },
+    {
+        "title": "السجل",
+        "href": "/dashboard/history",
+        "icon": BiHistory
+    },
+    {
+        "title": "الاعدادات",
+        "href": "/dashboard/settings",
+        "icon": IoIosSettings
     },
 
 ]

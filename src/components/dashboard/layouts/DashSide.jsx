@@ -12,11 +12,11 @@ import {
   sidebarDoctorItems,
   sidebarPatientItems,
 } from "../../../data/sidebarItems";
-import store from "../../../data/store";
+import useAuthStore from "../../../store/authStore";
 
 export default function DashSide() {
   const location = useLocation();
-
+  const user = useAuthStore((state) => state.user);
   return (
     <Sidebar
       theme={flowbit.dashSide}
@@ -29,7 +29,7 @@ export default function DashSide() {
       </div>
       <SidebarItems>
         <SidebarItemGroup>
-          {store.userRole == "admin" &&
+          {user?.role == "admin" &&
             sidebarAdminItems.map((ele, index) => (
               <SidebarItem
                 key={index}
@@ -44,7 +44,7 @@ export default function DashSide() {
                 {ele.title}
               </SidebarItem>
             ))}
-          {store.userRole == "doctor" &&
+          {user?.role == "doctor" &&
             sidebarDoctorItems.map((ele, index) => (
               <SidebarItem
                 key={index}
@@ -59,7 +59,7 @@ export default function DashSide() {
                 {ele.title}
               </SidebarItem>
             ))}
-          {store.userRole == "patient" &&
+          {user?.role == "patient" &&
             sidebarPatientItems.map((ele, index) => (
               <SidebarItem
                 key={index}

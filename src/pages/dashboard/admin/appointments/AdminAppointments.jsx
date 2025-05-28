@@ -1,3 +1,4 @@
+import React from "react";
 import { HiMiniPlusCircle, HiUsers } from "react-icons/hi2";
 import DashPageHeader from "../../../../components/dashboard/common/DashPageHeader";
 import {
@@ -16,62 +17,104 @@ import { Search } from "lucide-react";
 import { GiHealthNormal } from "react-icons/gi";
 import { FaFilter } from "react-icons/fa";
 import { BsCalendarDateFill } from "react-icons/bs";
-const patients = [
+
+const appointments = [
   {
-    name: "عبد الرحمن قدوري",
-    email: "abdelrahman@example.com",
-    phone: "06*******01",
-    consultations: 14,
-    registeredAt: "12 مارس 2025",
-    status: "مفعل",
+    id: "APT-001",
+    doctorName: "د. ياسين بلقاسم",
+    patientName: "محمد عبد القادر",
+    type: "استشارة",
+    dateTime: "27 مايو 2025 - 14:00",
+    status: "مؤكد",
   },
   {
-    name: "ليلى بن عمّار",
-    email: "leila@example.com",
-    phone: "06*******02",
-    consultations: 0,
-    registeredAt: "12 مارس 2025",
-    status: "محظور",
+    id: "APT-002",
+    doctorName: "د. نوال بن سليمان",
+    patientName: "خديجة بوشامة",
+    type: "متابعة",
+    dateTime: "28 مايو 2025 - 10:30",
+    status: "قيد الانتظار",
   },
   {
-    name: "سليم طاهري",
-    email: "salim@example.com",
-    phone: "06*******03",
-    consultations: 8,
-    registeredAt: "11 مارس 2025",
-    status: "مفعل",
+    id: "APT-003",
+    doctorName: "د. أحمد شرفي",
+    patientName: "رياض حمودة",
+    type: "كشف أولي",
+    dateTime: "29 مايو 2025 - 09:00",
+    status: "ملغي",
   },
   {
-    name: "فاطمة الزهراء بولحية",
-    email: "fatima@example.com",
-    phone: "06*******04",
-    consultations: 5,
-    registeredAt: "10 مارس 2025",
-    status: "مفعل",
+    id: "APT-004",
+    doctorName: "د. سامية بوصبيع",
+    patientName: "سميرة قادري",
+    type: "استشارة",
+    dateTime: "30 مايو 2025 - 15:45",
+    status: "مؤكد",
   },
   {
-    name: "مراد بوعلام",
-    email: "mourad@example.com",
-    phone: "06*******05",
-    consultations: 2,
-    registeredAt: "09 مارس 2025",
-    status: "مفعل",
+    id: "APT-005",
+    doctorName: "د. مراد حداد",
+    patientName: "جمال قشي",
+    type: "متابعة",
+    dateTime: "31 مايو 2025 - 11:15",
+    status: "قيد الانتظار",
+  },
+  {
+    id: "APT-006",
+    doctorName: "د. فريدة بن زروقي",
+    patientName: "لمياء تواتي",
+    type: "استشارة",
+    dateTime: "01 يونيو 2025 - 13:00",
+    status: "مؤكد",
+  },
+  {
+    id: "APT-007",
+    doctorName: "د. عبد الكريم قادري",
+    patientName: "صالح مسعود",
+    type: "كشف أولي",
+    dateTime: "01 يونيو 2025 - 09:30",
+    status: "ملغي",
+  },
+  {
+    id: "APT-008",
+    doctorName: "د. نادية بوقرة",
+    patientName: "هيثم قرميط",
+    type: "استشارة",
+    dateTime: "02 يونيو 2025 - 12:00",
+    status: "قيد الانتظار",
+  },
+  {
+    id: "APT-009",
+    doctorName: "د. طارق خالدي",
+    patientName: "منى بن يوسف",
+    type: "متابعة",
+    dateTime: "02 يونيو 2025 - 16:30",
+    status: "مؤكد",
+  },
+  {
+    id: "APT-010",
+    doctorName: "د. زهرة سبتي",
+    patientName: "عبد الله بوجلال",
+    type: "كشف أولي",
+    dateTime: "03 يونيو 2025 - 08:00",
+    status: "مؤكد",
   },
 ];
-export default function AdminPatients() {
+
+export default function AdminAppointments() {
   return (
     <div>
       <div className="flex justify-between items-center flex-wrap">
         <DashPageHeader
           Icon={HiUsers}
-          title="المرضى"
-          description="إدارة وعرض بيانات المرضى المسجلين في منصة شفاؤك"
+          title="المواعيد"
+          description="إدارة وعرض بيانات المواعيد في منصة شفاؤك"
         />
         <Button theme={flowbit.button} color="primary" className="gap-2 mb-5">
           <span>
             <HiMiniPlusCircle size={18} />
           </span>
-          <span>اضافة مريض جديد</span>
+          <span>اضافة موعد جديد</span>
         </Button>
       </div>
       <div className="border rounded-lg p-10 flex items-center gap-8 jus flex-col md:flex-row mb-10">
@@ -80,7 +123,7 @@ export default function AdminPatients() {
             htmlFor="cities"
             className="flex items-center gap-2 text-gray-600"
           >
-            البحث عن مريض
+            البحث عن موعد
           </Label>
           <TextInput
             theme={flowbit.input}
@@ -89,7 +132,7 @@ export default function AdminPatients() {
             id="search"
             type="text"
             rightIcon={Search}
-            placeholder="ابحث عن مريض..."
+            placeholder="ابحث عن موعد او طبيب..."
             required
           />
         </div>
@@ -162,54 +205,55 @@ export default function AdminPatients() {
         <div className="overflow-x-auto mb-3">
           <Table className="text-right">
             <TableHead className="bg-gray-100">
-              <TableHeadCell>الاسم</TableHeadCell>
-              <TableHeadCell>البريد الالكتروني</TableHeadCell>
-              <TableHeadCell>رقم الهاتف</TableHeadCell>
-              <TableHeadCell>عدد الاستشارات</TableHeadCell>
-              <TableHeadCell>تاريخ التسجيل</TableHeadCell>
+              <TableHeadCell>رقم الموعد</TableHeadCell>
+              <TableHeadCell>اسم الطبيب</TableHeadCell>
+              <TableHeadCell>اسم المريض</TableHeadCell>
+              <TableHeadCell>نوع الموعد</TableHeadCell>
+              <TableHeadCell>تاريخ ووقت الموعد</TableHeadCell>
               <TableHeadCell>الحالة</TableHeadCell>
               <TableHeadCell>الإجراء</TableHeadCell>
             </TableHead>
             <TableBody>
-              {patients.slice(0, 10).map((patient, index) => (
+              {appointments.slice(0, 10).map((appointment, index) => (
                 <TableRow key={index} className="bg-white">
-                  <TableCell>{patient.name}</TableCell>
-                  <TableCell>{patient.email}</TableCell>
-                  <TableCell>{patient.phone}</TableCell>
-                  <TableCell className="text-center">
-                    {patient.consultations}
+                  <TableCell className="text-center font-bold">
+                    {appointment.id}
                   </TableCell>
-                  <TableCell>{patient.registeredAt}</TableCell>
+                  <TableCell>{appointment.doctorName}</TableCell>
+                  <TableCell>{appointment.patientName}</TableCell>
+                  <TableCell>{appointment.type}</TableCell>
+                  <TableCell>{appointment.dateTime}</TableCell>
                   <TableCell>
                     <span
                       className={`px-3 py-1 rounded-full text-sm ${
-                        patient.status === "مفعل"
+                        appointment.status === "مؤكد"
                           ? "bg-green-100 text-green-800"
-                          : "bg-red-100 text-red-800"
+                          : appointment.status === "ملغي"
+                          ? "bg-red-100 text-red-800"
+                          : "bg-yellow-100 text-yellow-800"
                       }`}
                     >
-                      {patient.status}
+                      {appointment.status}
                     </span>
                   </TableCell>
                   <TableCell className="flex gap-2 justify-center items-center">
-                    {/* أيقونات الإجراء */}
                     <button
-                      title="حظر"
-                      className="text-red-500 hover:text-red-700"
-                    >
-                      <i className="fas fa-ban"></i>
-                    </button>
-                    <button
-                      title="تفعيل"
+                      title="تأكيد"
                       className="text-green-500 hover:text-green-700"
                     >
                       <i className="fas fa-check-circle"></i>
                     </button>
                     <button
-                      title="حذف"
+                      title="إلغاء"
+                      className="text-red-500 hover:text-red-700"
+                    >
+                      <i className="fas fa-times-circle"></i>
+                    </button>
+                    <button
+                      title="تعديل"
                       className="text-blue-500 hover:text-blue-700"
                     >
-                      <i className="fas fa-trash-alt"></i>
+                      <i className="fas fa-edit"></i>
                     </button>
                   </TableCell>
                 </TableRow>

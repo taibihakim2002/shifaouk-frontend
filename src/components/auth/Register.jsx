@@ -1,23 +1,17 @@
 import { useState } from "react";
-import {
-  Button,
-  Checkbox,
-  Label,
-  Spinner,
-  TextInput,
-  Toast,
-  ToastToggle,
-} from "flowbite-react";
-import { HiCheck, HiExclamation } from "react-icons/hi";
+import { Button, Checkbox, Label, Spinner, TextInput } from "flowbite-react";
 import flowbit from "../../config/flowbit";
 import useAuthModalStore from "../../store/authModalStore";
 import useApiRequest from "../../hooks/useApiRequest";
 import globalApi from "../../utils/globalApi";
 import useToastStore from "../../store/toastStore";
+import useAuthStore from "../../store/authStore";
 
 export default function Register() {
+  const setUser = useAuthStore((state) => state.setUser);
   const { openModal } = useAuthModalStore();
-  const { data, error: serverError, loading, request } = useApiRequest();
+
+  const { data, error, loading, request } = useApiRequest();
 
   const [formData, setFormData] = useState({
     name: "",
@@ -45,18 +39,44 @@ export default function Register() {
   const validateForm = () => {
     const errors = {};
 
-    if (!formData.name.trim()) errors.name = "الاسم مطلوب";
-    if (!formData.prename.trim()) errors.prename = "اللقب مطلوب";
-    if (!formData.email.includes("@")) errors.email = "بريد غير صالح";
-    if (!formData.phone.match(/^0[567][0-9]{8}$/))
-      errors.phone = "رقم الهاتف غير صحيح";
-    if (formData.password.length < 6) errors.password = "كلمة السر قصيرة جداً";
-    if (formData.password !== formData.password2)
+    if (!formData.name.trim()) {
+      errors.name = "الاسم مطلوب";
+    } else if (formData.name.length < 2 || formData.name.length > 10) {
+      errors.name = "الاسم يجب أن يكون بين 2 و 10 أحرف";
+    }
+    if (!formData.prename.trim()) {
+      errors.prename = "اللقب مطلوب";
+    } else if (formData.prename.length < 2 || formData.prename.length > 10) {
+      errors.prename = "اللقب يجب أن يكون بين 2 و 10 أحرف";
+    }
+
+    if (!formData.email.trim()) {
+      errors.email = "البريد الإلكتروني مطلوب";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      errors.email = "البريد غير صالح";
+    }
+
+    if (!formData.phone.trim()) {
+      errors.phone = "رقم الهاتف مطلوب";
+    } else if (!/^0[567][0-9]{8}$/.test(formData.phone)) {
+      errors.phone = "رقم الهاتف غير صالح";
+    }
+
+    if (!formData.password) {
+      errors.password = "كلمة السر مطلوبة";
+    } else if (formData.password.length < 6) {
+      errors.password = "كلمة السر قصيرة جداً";
+    }
+    if (!formData.password2) {
+      errors.password2 = "تأكيد كلمة السر مطلوب";
+    } else if (formData.password !== formData.password2) {
       errors.password2 = "كلمة السر غير متطابقة";
+    }
     if (!formData.gender) errors.gender = "اختر الجنس";
     if (!formData.birthdate) errors.birthdate = "تاريخ الميلاد مطلوب";
-    if (!formData.termsAccepted) errors.termsAccepted = "يجب قبول الشروط";
-
+    if (!formData.termsAccepted) {
+      errors.termsAccepted = "يجب قبول الشروط والأحكام";
+    }
     return errors;
   };
 
@@ -80,13 +100,18 @@ export default function Register() {
       },
     };
 
-    const response = await request(() => globalApi.registerPatient(payload));
+    const {
+      success,
+      data: responseData,
+      error: requestError,
+    } = await request(() => globalApi.registerPatient(payload));
 
-    if (response) {
+    if (success) {
       showToast("success", "تم إنشاء الحساب بنجاح!");
       openModal("registerSuccess");
+      setUser(responseData.user);
     } else {
-      showToast("error", "حدث خطأ أثناء عملية التسجيل");
+      showToast("error", requestError);
     }
   };
 

@@ -2,8 +2,7 @@ import axios from "axios";
 
 const URL = import.meta.env.VITE_API_URL;
 const TOKEN = import.meta.env.VITE_API_KEY;
-console.log("BASE URL:", URL);
-console.log("API TOKEN:", TOKEN);
+
 const axiosClient = axios.create({
     baseURL: URL,
     headers: {
@@ -13,13 +12,17 @@ const axiosClient = axios.create({
 });
 
 
-const getCategories = () => axiosClient.get("/categories?populate=*");
-const getDoctors = () => axiosClient.get("/doctors?populate=*");
-const registerPatient = (userData) => axiosClient.post("/auth/register", userData);
+// const getCategories = () => axiosClient.get("/categories?populate=*");
+// const getDoctors = () => axiosClient.get("/doctors?populate=*");
+const registerPatient = (userData) => axiosClient.post("/auth/register/patient", userData);
+const registerDoctor = (doctorData) => axiosClient.post("/auth/register/doctor", doctorData)
 const login = (credentials) => axiosClient.post("/auth/login", credentials);
+const logout = () => axiosClient.post("/auth/logout");
 export default {
-    getCategories,
-    getDoctors,
+    // getCategories,
+    // getDoctors,
     registerPatient,
-    login
+    registerDoctor,
+    login,
+    logout
 };

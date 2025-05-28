@@ -14,7 +14,7 @@ import DashSide from "./DashSide";
 export default function DashHeader() {
   const [isOpen, setIsOpen] = useState(false);
   return (
-    <nav className="flex justify-between items-center w-full">
+    <nav className="flex justify-between items-center relative w-full z-50">
       <Drawer
         open={isOpen}
         onClose={() => setIsOpen(false)}
