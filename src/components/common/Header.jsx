@@ -25,6 +25,7 @@ import useAuthStore from "../../store/authStore";
 import useApiRequest from "../../hooks/useApiRequest";
 import globalApi from "../../utils/globalApi";
 import useToastStore from "../../store/toastStore";
+import parseImgUrl from "../../utils/parseImgUrl";
 const menu = [
   {
     title: "الرئيسية",
@@ -76,8 +77,11 @@ export default function Header() {
         <Logo />
         <div className="hidden md:flex items-center justify-between">
           <ul className="flex md:gap-5 lg:gap-10  text-sm md:text-md 2xl:text-[20px]">
-            {menu.map((ele) => (
-              <li className="hover:text-primary-500 flex gap-2 items-center">
+            {menu.map((ele, index) => (
+              <li
+                key={index}
+                className="hover:text-primary-500 flex gap-2 items-center"
+              >
                 <Link to={ele.link}>{ele.title}</Link>
               </li>
             ))}
@@ -126,6 +130,7 @@ export default function Header() {
           <div className="flex gap-3 justify-center items-center">
             <Dropdown
               label=""
+              className="w-44"
               dismissOnClick={false}
               renderTrigger={() => (
                 <span className="cursor-pointer flex items-center gap-3">
@@ -133,7 +138,7 @@ export default function Header() {
                     {`${user.fullName.first}  ${user.fullName.second}`}
                   </p>
                   <img
-                    src="/doctor1.jpg"
+                    src={parseImgUrl(user.profileImage)}
                     alt="Profile"
                     className="w-10 h-10 object-cover rounded-full"
                   />
@@ -141,17 +146,15 @@ export default function Header() {
               )}
             >
               <DropdownHeader>
-                <span className="block text-sm">
+                <span className="block text-sm font-bold">
                   {`${user.fullName.first}  ${user.fullName.second}`}{" "}
                 </span>
-                <span className="block truncate text-sm font-medium">
+                <span className="block truncate text-sm font-medium text-gray-400">
                   {user.email}
                 </span>
               </DropdownHeader>
               <DropdownItem>
-                <Link to="/dashboard" className="bg-gray-50">
-                  لوحة التحكم
-                </Link>
+                <Link to="/dashboard">لوحة التحكم</Link>
               </DropdownItem>
               <DropdownItem>الاعدادات</DropdownItem>
               <DropdownItem>المحفظة</DropdownItem>
@@ -172,10 +175,13 @@ export default function Header() {
                 <DrawerItems>
                   <div className="flex flex-col p-10">
                     <ul className="flex flex-col gap-10 text-sm">
-                      {menu.map((ele) => {
+                      {menu.map((ele, index) => {
                         const Icon = ele.icon;
                         return (
-                          <li className="hover:text-primary-500 flex gap-2 items-center">
+                          <li
+                            key={index}
+                            className="hover:text-primary-500 flex gap-2 items-center"
+                          >
                             <Icon className="w-3 h-3" />
                             <Link to={ele.link}>{ele.title}</Link>
                           </li>

@@ -91,11 +91,11 @@ export default function Register() {
         first: formData.name,
         second: formData.prename,
       },
+      gender: formData.gender,
       email: formData.email,
       phone: formData.phone,
       password: formData.password,
       patientProfile: {
-        gender: formData.gender,
         birthDate: formData.birthdate,
       },
     };
@@ -261,8 +261,8 @@ export default function Register() {
                 onChange={handleChange}
               >
                 <option value="">اختر الجنس</option>
-                <option value="male">ذكر</option>
-                <option value="female">أنثى</option>
+                <option value="ذكر">ذكر</option>
+                <option value="أنثى">أنثى</option>
               </select>
               {formErrors.gender && (
                 <p className="text-[12px] text-red-600">{formErrors.gender}</p>
@@ -315,7 +315,7 @@ export default function Register() {
             disabled={loading}
           >
             {loading && <Spinner color="info" size="sm" />}
-            انشاء حساب
+            <span> انشاء حساب</span>
           </Button>
         </form>
 

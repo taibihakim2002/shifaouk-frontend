@@ -13,6 +13,7 @@ import {
   sidebarPatientItems,
 } from "../../../data/sidebarItems";
 import useAuthStore from "../../../store/authStore";
+import Logo from "../../common/Logo";
 
 export default function DashSide() {
   const location = useLocation();
@@ -24,8 +25,7 @@ export default function DashSide() {
       className="w-full h-full z-50"
     >
       <div className="flex gap-4 items-center  justify-center mb-14">
-        <img className="w-12" src="/logo.png" alt="Logo" />
-        <h1 className="text-lg font-[600] text-primaryColor">شفائك</h1>
+        <Logo />
       </div>
       <SidebarItems>
         <SidebarItemGroup>

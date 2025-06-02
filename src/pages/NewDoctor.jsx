@@ -8,7 +8,6 @@ import {
   Checkbox,
   FileInput,
   Label,
-  Select,
   Spinner,
   TextInput,
   Textarea,
@@ -23,95 +22,8 @@ import { Link } from "react-router-dom";
 import globalApi from "../utils/globalApi";
 import useApiRequest from "../hooks/useApiRequest";
 import useToastStore from "../store/toastStore";
-
-const stats = [
-  { id: 1, name: "أدرار" },
-  { id: 2, name: "الشلف" },
-  { id: 3, name: "الأغواط" },
-  { id: 4, name: "أم البواقي" },
-  { id: 5, name: "باتنة" },
-  { id: 6, name: "بجاية" },
-  { id: 7, name: "بسكرة" },
-  { id: 8, name: "بشار" },
-  { id: 9, name: "البليدة" },
-  { id: 10, name: "البويرة" },
-  { id: 11, name: "تمنراست" },
-  { id: 12, name: "تبسة" },
-  { id: 13, name: "تلمسان" },
-  { id: 14, name: "تيارت" },
-  { id: 15, name: "تيزي وزو" },
-  { id: 16, name: "الجزائر" },
-  { id: 17, name: "الجلفة" },
-  { id: 18, name: "جيجل" },
-  { id: 19, name: "سطيف" },
-  { id: 20, name: "سعيدة" },
-  { id: 21, name: "سكيكدة" },
-  { id: 22, name: "سيدي بلعباس" },
-  { id: 23, name: "عنابة" },
-  { id: 24, name: "قالمة" },
-  { id: 25, name: "قسنطينة" },
-  { id: 26, name: "المدية" },
-  { id: 27, name: "مستغانم" },
-  { id: 28, name: "المسيلة" },
-  { id: 29, name: "معسكر" },
-  { id: 30, name: "ورقلة" },
-  { id: 31, name: "وهران" },
-  { id: 32, name: "البيض" },
-  { id: 33, name: "إليزي" },
-  { id: 34, name: "برج بوعريريج" },
-  { id: 35, name: "بومرداس" },
-  { id: 36, name: "الطارف" },
-  { id: 37, name: "تندوف" },
-  { id: 38, name: "تيسمسيلت" },
-  { id: 39, name: "الوادي" },
-  { id: 40, name: "خنشلة" },
-  { id: 41, name: "سوق أهراس" },
-  { id: 42, name: "تيبازة" },
-  { id: 43, name: "ميلة" },
-  { id: 44, name: "عين الدفلى" },
-  { id: 45, name: "النعامة" },
-  { id: 46, name: "عين تموشنت" },
-  { id: 47, name: "غرداية" },
-  { id: 48, name: "غليزان" },
-  { id: 49, name: "تميمون" },
-  { id: 50, name: "برج باجي مختار" },
-  { id: 51, name: "أولاد جلال" },
-  { id: 52, name: "بني عباس" },
-  { id: 53, name: "عين صالح" },
-  { id: 54, name: "عين قزام" },
-  { id: 55, name: "تقرت" },
-  { id: 56, name: "جانت" },
-  { id: 57, name: "المغير" },
-  { id: 58, name: "المنيعة" },
-];
-
-const spec = [
-  { label: "الطب العام", value: "general_medicine" },
-  { label: "طب الأطفال", value: "pediatrics" },
-  { label: "أمراض النساء والتوليد", value: "gynecology_obstetrics" },
-  { label: "طب العيون", value: "ophthalmology" },
-  { label: "طب الأسنان", value: "dentistry" },
-  { label: "الأمراض الجلدية", value: "dermatology" },
-  { label: "طب القلب", value: "cardiology" },
-  { label: "طب الأنف والأذن والحنجرة", value: "ent" },
-  { label: "طب الأعصاب", value: "neurology" },
-  { label: "جراحة العظام والمفاصل", value: "orthopedic_surgery" },
-  { label: "الجراحة العامة", value: "general_surgery" },
-  { label: "جراحة الأعصاب", value: "neurosurgery" },
-  { label: "جراحة القلب والشرايين", value: "cardiovascular_surgery" },
-  { label: "الطب النفسي", value: "psychiatry" },
-  { label: "الأورام", value: "oncology" },
-  { label: "طب الكلى", value: "nephrology" },
-  { label: "أمراض الجهاز الهضمي", value: "gastroenterology" },
-  { label: "أمراض الدم", value: "hematology" },
-  { label: "التخدير والإنعاش", value: "anesthesia" },
-  { label: "الأشعة والتصوير الطبي", value: "radiology" },
-  { label: "الطب الشرعي", value: "forensic_medicine" },
-  { label: "أمراض الصدر والتنفس", value: "pulmonology" },
-  { label: "الطب الرياضي", value: "sports_medicine" },
-  { label: "الطب الوقائي والصحة العامة", value: "public_health" },
-  { label: "العلاج الطبيعي وإعادة التأهيل", value: "physiotherapy" },
-];
+import states from "../data/states";
+import specializations from "../data/specializations";
 
 export default function NewDoctor() {
   const [step, setStep] = useState(1);
@@ -127,7 +39,8 @@ export default function NewDoctor() {
     password2: "",
     state: "",
     city: "",
-    spec: "",
+    address: "",
+    gender: "",
     exper: "",
     workplace: "",
     pio: "",
@@ -173,17 +86,17 @@ export default function NewDoctor() {
         errors.name = "الاسم مطلوب";
       } else if (
         formDataState.name.length < 2 ||
-        formDataState.name.length > 10
+        formDataState.name.length > 20
       ) {
-        errors.name = "الاسم يجب أن يكون بين 2 و 10 أحرف";
+        errors.name = "الاسم يجب أن يكون بين 2 و 20 أحرف";
       }
       if (!formDataState.prename.trim()) {
         errors.prename = "اللقب مطلوب";
       } else if (
         formDataState.prename.length < 2 ||
-        formDataState.prename.length > 10
+        formDataState.prename.length > 20
       ) {
-        errors.prename = "اللقب يجب أن يكون بين 2 و 10 أحرف";
+        errors.prename = "اللقب يجب أن يكون بين 2 و 20 أحرف";
       }
 
       if (!formDataState.email.trim()) {
@@ -212,7 +125,10 @@ export default function NewDoctor() {
         errors.state = "الولاية مطلوبة";
       }
       if (!formDataState.city) {
-        errors.city = "المدينة مطلوبة";
+        errors.city = "البلدية مطلوبة";
+      }
+      if (!formDataState.gender) {
+        errors.gender = "اختر الجنس  ";
       }
     }
     if (step === 2) {
@@ -276,6 +192,7 @@ export default function NewDoctor() {
       formData.append(key, typeof value === "boolean" ? String(value) : value);
     });
 
+    console.log(formData);
     const { success, error: requestError } = await request(() =>
       globalApi.registerDoctor(formData)
     );
@@ -470,8 +387,8 @@ export default function NewDoctor() {
                       defaultValue=""
                     >
                       <option value="">اختر ولاية</option>
-                      {stats.map((ele) => (
-                        <option value={ele.id}>{ele.name}</option>
+                      {states.map((ele) => (
+                        <option value={ele.name}>{ele.name}</option>
                       ))}
                     </select>
                     {formErrors.state && (
@@ -482,24 +399,52 @@ export default function NewDoctor() {
                   </div>
                   <div className="flex flex-col gap-2" dir="rtl">
                     <Label htmlFor="city">البلدية </Label>
-                    <select
-                      className={`border ${
-                        formErrors.city && "border-red-600 bg-red-50"
-                      } p-1 rounded-md bg-gray-50 text-gray-900 border-gray-300 `}
+                    <TextInput
                       id="city"
-                      required
+                      type="text"
+                      placeholder="البلدية"
                       value={formDataState.city}
                       onChange={handleChange}
-                      defaultValue=""
-                    >
-                      <option value="">اختر بلدية </option>
-                      <option>الفييييض</option>
-                    </select>
+                      color={formErrors.city ? "failure" : "gray"}
+                    />
                     {formErrors.city && (
                       <p className="text-[12px] text-red-600">
                         {formErrors.city}
                       </p>
                     )}
+                  </div>
+                  <div className="flex flex-col gap-2" dir="rtl">
+                    <Label htmlFor="gender">الجنس </Label>
+                    <select
+                      className={`border ${
+                        formErrors.city && "border-red-600 bg-red-50"
+                      } p-1 rounded-md bg-gray-50 text-gray-900 border-gray-300 `}
+                      id="gender"
+                      required
+                      value={formDataState.gender}
+                      onChange={handleChange}
+                      defaultValue=""
+                    >
+                      <option value="">اختر الجنس</option>
+                      <option value="ذكر">ذكر</option>
+                      <option value="أنثى">انثى</option>
+                    </select>
+                    {formErrors.gender && (
+                      <p className="text-[12px] text-red-600">
+                        {formErrors.gender}
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex flex-col gap-2" dir="rtl">
+                    <Label htmlFor="password2">العنوان</Label>
+                    <TextInput
+                      id="address"
+                      type="text"
+                      placeholder="أدخل عنوانك هنا..."
+                      value={formDataState.address}
+                      onChange={handleChange}
+                      color="gray"
+                    />
                   </div>
                 </div>
                 <div className="flex justify-end">
@@ -531,7 +476,7 @@ export default function NewDoctor() {
                       required
                     >
                       <option value="">اختر التخصص</option>
-                      {spec.map((ele) => (
+                      {specializations.map((ele) => (
                         <option key={ele.value} value={ele.value}>
                           {ele.label}
                         </option>

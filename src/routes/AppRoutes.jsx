@@ -28,6 +28,12 @@ import AdminPatients from "../pages/dashboard/admin/patients/AdminPatients";
 import AdminAppointments from "../pages/dashboard/admin/appointments/AdminAppointments";
 import AdminWallet from "../pages/dashboard/admin/wallet/AdminWallet";
 import AdminSettings from "../pages/dashboard/admin/AdminSettings";
+import JoiningRequests from "../pages/dashboard/admin/doctors/JoiningRequests";
+import JoiningRequest from "../pages/dashboard/admin/doctors/JoiningRequest";
+import ProfileDoctor from "../pages/ProfileDoctor";
+import DoctorBook from "../pages/DoctorBook";
+import AdminDoctorProfile from "../pages/dashboard/admin/doctors/AdminDoctorProfile";
+import AdminPatientProfile from "../pages/dashboard/admin/patients/AdminPatientProfile";
 
 export default function AppRoutes() {
   const user = useAuthStore((state) => state.user);
@@ -37,9 +43,11 @@ export default function AppRoutes() {
       <Route element={<PublicRoutes />}>
         <Route path="/" element={<Home />} />
         <Route path="/doctors" element={<Doctors />} />
+        <Route path="/doctors/:id" element={<ProfileDoctor />} />
+        <Route path="/doctors/:id/book" element={<DoctorBook />} />
       </Route>
       <Route element={<PrivateRoutes />}>
-        <Route path="/profile" element={<Profile />} />
+        {/* <Route path="/profile" element={<Profile />} /> */}
       </Route>
       <Route path={PATHS.DASHBOARD} element={<DashboardLayout />}>
         {/* Must Change || it is not best practises to add conditions inside routes element */}
@@ -48,7 +56,14 @@ export default function AppRoutes() {
             <Route index element={<AdminHome />} />
             <Route path="doctors" element={<AdminDoctors />} />
             <Route path="doctors/add-doctor" element={<AddDoctor />} />
+            <Route path="doctors/:id" element={<AdminDoctorProfile />} />
+            <Route path="doctors/requests" element={<JoiningRequests />} />
+            <Route
+              path="doctors/requests/:requestId"
+              element={<JoiningRequest />}
+            />
             <Route path="patients" element={<AdminPatients />} />
+            <Route path="patients/:id" element={<AdminPatientProfile />} />
             <Route path="appointments" element={<AdminAppointments />} />
             <Route path="wallet" element={<AdminWallet />} />
             <Route path="settings" element={<AdminSettings />} />

@@ -14,7 +14,7 @@ export default function Stats() {
   const isInView = useInView(ref, { once: true, amount: 0.5 });
 
   return (
-    <div ref={ref} className="bg-primaryColor py-10">
+    <div ref={ref} className="bg-secondaryColor py-10">
       <div className="container grid grid-cols-2  lg:grid-cols-4 gap-10">
         {stats.map((ele) => (
           <div className="flex flex-col gap-3 items-center justify-center">

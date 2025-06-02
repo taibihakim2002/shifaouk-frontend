@@ -1,8 +1,10 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { HiMiniPlusCircle, HiUsers } from "react-icons/hi2";
 import DashPageHeader from "../../../../components/dashboard/common/DashPageHeader";
 import {
   Button,
+  Dropdown,
+  DropdownItem,
   Label,
   Table,
   TableBody,
@@ -17,91 +19,18 @@ import { Search } from "lucide-react";
 import { GiHealthNormal } from "react-icons/gi";
 import { FaFilter } from "react-icons/fa";
 import { BsCalendarDateFill } from "react-icons/bs";
-
-const appointments = [
-  {
-    id: "APT-001",
-    doctorName: "د. ياسين بلقاسم",
-    patientName: "محمد عبد القادر",
-    type: "استشارة",
-    dateTime: "27 مايو 2025 - 14:00",
-    status: "مؤكد",
-  },
-  {
-    id: "APT-002",
-    doctorName: "د. نوال بن سليمان",
-    patientName: "خديجة بوشامة",
-    type: "متابعة",
-    dateTime: "28 مايو 2025 - 10:30",
-    status: "قيد الانتظار",
-  },
-  {
-    id: "APT-003",
-    doctorName: "د. أحمد شرفي",
-    patientName: "رياض حمودة",
-    type: "كشف أولي",
-    dateTime: "29 مايو 2025 - 09:00",
-    status: "ملغي",
-  },
-  {
-    id: "APT-004",
-    doctorName: "د. سامية بوصبيع",
-    patientName: "سميرة قادري",
-    type: "استشارة",
-    dateTime: "30 مايو 2025 - 15:45",
-    status: "مؤكد",
-  },
-  {
-    id: "APT-005",
-    doctorName: "د. مراد حداد",
-    patientName: "جمال قشي",
-    type: "متابعة",
-    dateTime: "31 مايو 2025 - 11:15",
-    status: "قيد الانتظار",
-  },
-  {
-    id: "APT-006",
-    doctorName: "د. فريدة بن زروقي",
-    patientName: "لمياء تواتي",
-    type: "استشارة",
-    dateTime: "01 يونيو 2025 - 13:00",
-    status: "مؤكد",
-  },
-  {
-    id: "APT-007",
-    doctorName: "د. عبد الكريم قادري",
-    patientName: "صالح مسعود",
-    type: "كشف أولي",
-    dateTime: "01 يونيو 2025 - 09:30",
-    status: "ملغي",
-  },
-  {
-    id: "APT-008",
-    doctorName: "د. نادية بوقرة",
-    patientName: "هيثم قرميط",
-    type: "استشارة",
-    dateTime: "02 يونيو 2025 - 12:00",
-    status: "قيد الانتظار",
-  },
-  {
-    id: "APT-009",
-    doctorName: "د. طارق خالدي",
-    patientName: "منى بن يوسف",
-    type: "متابعة",
-    dateTime: "02 يونيو 2025 - 16:30",
-    status: "مؤكد",
-  },
-  {
-    id: "APT-010",
-    doctorName: "د. زهرة سبتي",
-    patientName: "عبد الله بوجلال",
-    type: "كشف أولي",
-    dateTime: "03 يونيو 2025 - 08:00",
-    status: "مؤكد",
-  },
-];
+import globalApi from "../../../../utils/globalApi";
+import useApiRequest from "../../../../hooks/useApiRequest";
+import formatDateTime from "../../../../utils/formatDateTime";
+import { HiOutlineDotsVertical, HiOutlineEye, HiTrash } from "react-icons/hi";
 
 export default function AdminAppointments() {
+  const { data: appointments, error, loading, request } = useApiRequest();
+
+  useEffect(() => {
+    request(() => globalApi.getAllAppointments());
+  }, []);
+
   return (
     <div>
       <div className="flex justify-between items-center flex-wrap">
@@ -202,7 +131,7 @@ export default function AdminAppointments() {
         </div>
       </div>
       <div>
-        <div className="overflow-x-auto mb-3">
+        <div className=" mb-3">
           <Table className="text-right">
             <TableHead className="bg-gray-100">
               <TableHeadCell>رقم الموعد</TableHeadCell>
@@ -214,50 +143,73 @@ export default function AdminAppointments() {
               <TableHeadCell>الإجراء</TableHeadCell>
             </TableHead>
             <TableBody>
-              {appointments.slice(0, 10).map((appointment, index) => (
-                <TableRow key={index} className="bg-white">
-                  <TableCell className="text-center font-bold">
-                    {appointment.id}
-                  </TableCell>
-                  <TableCell>{appointment.doctorName}</TableCell>
-                  <TableCell>{appointment.patientName}</TableCell>
-                  <TableCell>{appointment.type}</TableCell>
-                  <TableCell>{appointment.dateTime}</TableCell>
-                  <TableCell>
-                    <span
-                      className={`px-3 py-1 rounded-full text-sm ${
-                        appointment.status === "مؤكد"
-                          ? "bg-green-100 text-green-800"
-                          : appointment.status === "ملغي"
-                          ? "bg-red-100 text-red-800"
-                          : "bg-yellow-100 text-yellow-800"
-                      }`}
-                    >
-                      {appointment.status}
-                    </span>
-                  </TableCell>
-                  <TableCell className="flex gap-2 justify-center items-center">
-                    <button
-                      title="تأكيد"
-                      className="text-green-500 hover:text-green-700"
-                    >
-                      <i className="fas fa-check-circle"></i>
-                    </button>
-                    <button
-                      title="إلغاء"
-                      className="text-red-500 hover:text-red-700"
-                    >
-                      <i className="fas fa-times-circle"></i>
-                    </button>
-                    <button
-                      title="تعديل"
-                      className="text-blue-500 hover:text-blue-700"
-                    >
-                      <i className="fas fa-edit"></i>
-                    </button>
+              {loading ? (
+                [...Array(5)].map((_, index) => (
+                  <TableRow key={index} className="bg-white animate-pulse">
+                    {[...Array(7)].map((_, cellIndex) => (
+                      <TableCell key={cellIndex}>
+                        <div className="h-4 bg-gray-200 rounded w-full"></div>
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : appointments?.data?.length > 0 ? (
+                appointments.data.map((appointment, index) => (
+                  <TableRow key={index} className="bg-white">
+                    <TableCell className="text-center font-bold">
+                      #{appointment?.consultationId}
+                    </TableCell>
+                    <TableCell>
+                      {appointment?.doctor?.fullName?.first}{" "}
+                      {appointment?.doctor?.fullName?.second}
+                    </TableCell>
+                    <TableCell>
+                      {appointment?.patient?.fullName?.first}{" "}
+                      {appointment?.patient?.fullName?.second}
+                    </TableCell>
+                    <TableCell>{appointment.type}</TableCell>
+                    <TableCell>
+                      {formatDateTime(appointment?.date, "both")}
+                    </TableCell>
+                    <TableCell>
+                      <span
+                        className={`px-3 py-1 rounded-full text-[11px] ${
+                          appointment.status === "confirmed"
+                            ? "bg-green-100 text-green-800"
+                            : appointment.status === "ملغي"
+                            ? "bg-red-100 text-red-800"
+                            : "bg-yellow-100 text-yellow-800"
+                        }`}
+                      >
+                        {appointment.status}
+                      </span>
+                    </TableCell>
+                    <TableCell className="flex gap-2 justify-center items-center">
+                      <Dropdown
+                        label={
+                          <HiOutlineDotsVertical className="text-xl cursor-pointer" />
+                        }
+                        inline
+                        arrowIcon={false}
+                      >
+                        <DropdownItem icon={HiOutlineEye}>
+                          عرض التفاصيل
+                        </DropdownItem>
+                        <DropdownItem icon={HiTrash}>حذف</DropdownItem>
+                      </Dropdown>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={7}
+                    className="text-center py-5 text-gray-500"
+                  >
+                    لا توجد بيانات
                   </TableCell>
                 </TableRow>
-              ))}
+              )}
             </TableBody>
           </Table>
         </div>

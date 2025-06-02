@@ -282,7 +282,7 @@ export default function AdminWallet() {
                   <TableCell>{req.method}</TableCell>
                   <TableCell>
                     <span
-                      className={`px-3 py-1 rounded-full text-sm ${
+                      className={`px-3 py-1 rounded-full text-[11px] ${
                         req.status === "مكتملة"
                           ? "bg-green-100 text-green-800"
                           : req.status === "مرفوضة"

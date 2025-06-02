@@ -2,7 +2,7 @@ import { Rating, RatingStar } from "flowbite-react";
 import { FaUserAlt, FaWallet } from "react-icons/fa";
 import { FaCircleCheck, FaUserDoctor } from "react-icons/fa6";
 import { GoArrowDown, GoArrowUp } from "react-icons/go";
-import { HiOutlineCurrencyDollar, HiUsers } from "react-icons/hi";
+import { HiChartPie, HiOutlineCurrencyDollar, HiUsers } from "react-icons/hi";
 import { IoCheckmarkCircleSharp, IoCloseCircle, IoStar } from "react-icons/io5";
 import { Button } from "flowbite-react";
 import flowbit from "../../../config/flowbit";
@@ -26,8 +26,48 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { Link } from "react-router-dom";
-import { MdAccessTimeFilled } from "react-icons/md";
+import { MdAccessTimeFilled, MdDone } from "react-icons/md";
 import { CiLock } from "react-icons/ci";
+import { GiSandsOfTime } from "react-icons/gi";
+import { IoMdClose } from "react-icons/io";
+import InfoCard from "../../../components/dashboard/common/InfoCard";
+import DashPageHeader from "../../../components/dashboard/common/DashPageHeader";
+
+const infoCards = [
+  {
+    title: "عدد المرضى ",
+    icon: HiUsers,
+    color: "#9747FF",
+    value: 120,
+    percentage: 8,
+    percentageText: "مقارنة بالشهر الماضي",
+  },
+  {
+    title: "طلبات بانتظار المراجعة",
+    icon: GiSandsOfTime,
+    color: "#FFAE00",
+    value: 15,
+    percentage: 4,
+    percentageText: "مقارنة بالشهر الماضي",
+  },
+  {
+    title: "طلبات مقبولة",
+    icon: MdDone,
+    color: "#25A85C",
+    value: 92,
+    percentage: 4,
+    percentageText: "مقارنة بالشهر الماضي",
+  },
+  {
+    title: "المحفظة ",
+    icon: FaWallet,
+    color: "#65D2E5",
+    value: 5200,
+    valueText: "دج",
+    percentage: -11,
+    percentageText: "مقارنة بالشهر الماضي",
+  },
+];
 const data = [
   { day: "05 جويلية", patients: 6, consultations: 8 },
   { day: "06 جويلية", patients: 7, consultations: 6 },
@@ -47,6 +87,7 @@ const patients = [
     date: "21 مايو",
     time: "21:00",
     status: "مكتملة",
+    email: "mohamed.mouawia@example.com",
     action: { label: "عرض بروفيل", type: "info" },
   },
   {
@@ -55,6 +96,7 @@ const patients = [
     date: "21 مايو",
     time: "22:00",
     status: "قادمة",
+    email: "ali.benahmed@example.com",
     action: { label: "بدء الجلسة", type: "video" },
   },
   {
@@ -63,6 +105,7 @@ const patients = [
     date: "21 مايو",
     time: "23:00",
     status: "قادمة",
+    email: "ahmed.ibnchaaban1@example.com",
     action: { label: "عرض بروفيل", type: "info" },
   },
   {
@@ -71,6 +114,7 @@ const patients = [
     date: "21 مايو",
     time: "23:00",
     status: "تحتاج متابعة",
+    email: "ahmed.ibnchaaban2@example.com",
     action: { label: "تواصل", type: "chat" },
   },
 ];
@@ -110,76 +154,34 @@ const getActionButton = (action) => {
 };
 
 export default function DoctorHome() {
-  const numberOfPatients = 10;
   return (
     <div>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-10">
-        <div className="p-5 border rounded-lg">
-          <div className="flex gap-5 items-center mb-5">
-            <div className="p-2 bg-[#a3ffc9] rounded-lg">
-              <HiUsers size={30} className="text-[#25A85C]" />
-            </div>
-            <h3 className="text-gray-600 text-lg">عدد مرضى اليوم </h3>
-          </div>
-          <div className="ps-10">
-            <h3 className="text-[35px] font-bold text-primaryColor">12</h3>
-            <div className="flex gap-3 items-center">
-              <p
-                className={`text-sm flex items-center font-bold ${
-                  numberOfPatients > 0 && "text-green-600"
-                } ${numberOfPatients < 0 && "text-red-600"} ${
-                  numberOfPatients === 0 && "text-gray-400"
-                }`}
-              >
-                <span>
-                  {numberOfPatients >= 0 ? <GoArrowUp /> : <GoArrowDown />}
-                </span>
-                <span>{numberOfPatients}</span>
-                <span>{numberOfPatients >= 0 ? "+" : "-"}</span>
-                <span className="ms-2 text-gray-400 font-normal">
-                  مقارنة بعدد مرضى امس
-                </span>
-              </p>
-            </div>
-          </div>
-        </div>
-        <div className="p-5 border rounded-lg">
-          <div className="flex gap-5 items-center mb-5">
-            <div className="p-2 bg-[#b2dcff] rounded-lg">
-              <FaWallet size={30} className="text-[#008CFF]" />
-            </div>
-            <h3 className="text-gray-600 text-lg">رصيد الدينار الطبي</h3>
-          </div>
-          <div className="flex justify-between items-center ps-10">
-            <h3 className="text-[35px] font-bold">2500</h3>
-            <HiOutlineCurrencyDollar size={30} className="text-[#008CFF]" />
-          </div>
-        </div>
-        <div className="p-5 border rounded-lg">
-          <div className="flex gap-5 items-center mb-5">
-            <div className="p-2 bg-[#ffe9bd] rounded-lg">
-              <IoStar size={30} className="text-[#FAA700]" />
-            </div>
-            <h3 className="text-gray-600 text-lg">التقييم </h3>
-          </div>
-          <div className="flex justify-between items-center ps-10">
-            <Rating size="lg">
-              <p className="me-4 text-[35px] font-bold text-gray-600 ">4.5</p>
-              <RatingStar />
-              <RatingStar />
-              <RatingStar />
-              <RatingStar />
-              <RatingStar filled={false} />
-            </Rating>
-          </div>
-        </div>
+      <DashPageHeader
+        Icon={HiChartPie}
+        title="لوحة التحكم"
+        description="مرحباً بك، أحمد! هذا هو ملخص نشاط منصة شفاؤك."
+      />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-10">
+        {infoCards.map((card, index) => (
+          <InfoCard
+            key={index}
+            title={card.title}
+            icon={card.icon}
+            color={card.color}
+            value={card.value}
+            valueText={card.valueText}
+            percentage={card.percentage}
+            percentageText={card.percentageText}
+          />
+        ))}
       </div>
-      <div className="border rounded-lg p-10 mb-10">
-        <h3 className="text-lg font-bold mb-10">نشاط المعاملات</h3>
+      <div className="mt-10 p-5 border rounded-xl bg-white mb-10">
+        <h2 className="text-lg font-bold text-gray-600 mb-10">سجل المرضى</h2>
         <div className="overflow-x-auto mb-3">
           <Table className="text-right">
             <TableHead className="bg-gray-100">
               <TableHeadCell>اسم المريض</TableHeadCell>
+              <TableHeadCell>البريد الإلكتروني</TableHeadCell>
               <TableHeadCell>العمر</TableHeadCell>
               <TableHeadCell>التاريخ</TableHeadCell>
               <TableHeadCell>الوقت</TableHeadCell>
@@ -190,6 +192,7 @@ export default function DoctorHome() {
               {patients.map((p, index) => (
                 <TableRow key={index}>
                   <TableCell>{p.name}</TableCell>
+                  <TableCell>{p.email}</TableCell>
                   <TableCell>{p.age}</TableCell>
                   <TableCell>{p.date}</TableCell>
                   <TableCell>{p.time}</TableCell>
@@ -197,14 +200,12 @@ export default function DoctorHome() {
                     <span
                       className={`${getStatusStyle(
                         p.status
-                      )} px-3 py-1 rounded-full text-sm`}
+                      )} px-3 py-1 rounded-full  text-[12px]`}
                     >
                       {p.status}
                     </span>
                   </TableCell>
-                  <TableCell className="flex justify-center">
-                    {getActionButton(p.action)}
-                  </TableCell>
+                  <TableCell className="flex justify-center"></TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -214,7 +215,9 @@ export default function DoctorHome() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
         <div className="border rounded-lg p-7 lg:col-span-2">
           <div className="flex justify-between items-center mb-10">
-            <h3 className="text-lg font-bold ">طلبات الاستشارة الجديدة</h3>
+            <h3 className="text-lg font-bold text-gray-600">
+              طلبات الاستشارة الجديدة
+            </h3>
             <p className="flex items-center gap-2 text-sm text-blue-700 bg-blue-100 rounded-lg px-2 py-2">
               <span>4</span>
               <span>طلبات جديدة</span>
@@ -352,12 +355,12 @@ export default function DoctorHome() {
           </div>
         </div>
         <div className="border rounded-lg p-7 ">
-          <h3 className="text-lg font-bold ">سجل المحادثات </h3>
+          <h3 className="text-lg font-bold text-gray-600">سجل المحادثات </h3>
         </div>
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="border rounded-lg p-7 lg:col-span-2">
-          <h3 className="text-lg font-bold ">احصائيات الطبيب</h3>
+          <h3 className="text-lg font-bold text-gray-600">احصائيات الطبيب</h3>
 
           <div
             className="w-full h-[350px] flex justify-center items-center"
@@ -406,9 +409,14 @@ export default function DoctorHome() {
           </div>
         </div>
         <div className="border rounded-lg p-7 ">
-          <h3 className="text-lg font-bold mb-10">اعدادات الحساب</h3>
+          <h3 className="text-lg font-bold text-gray-600 mb-10">
+            اعدادات الحساب
+          </h3>
           <div className="flex flex-col gap-6">
-            <Link className="border rounded-lg p-4 flex items-center gap-5 hover:bg-[#daf0ff]">
+            <Link
+              to="/dashboard/profile"
+              className="border rounded-lg p-4 flex items-center gap-5 hover:bg-[#daf0ff]"
+            >
               <div className="p-3 border border-primaryColor rounded-full bg-[#abdcff]">
                 <FaUserAlt size={25} className="text-primaryColor" />
               </div>

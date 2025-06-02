@@ -1,4 +1,6 @@
 import axios from "axios";
+import useAuthStore from "../store/authStore";
+import useToastStore from "../store/toastStore";
 
 const URL = import.meta.env.VITE_API_URL;
 const TOKEN = import.meta.env.VITE_API_KEY;
@@ -11,18 +13,66 @@ const axiosClient = axios.create({
     withCredentials: true
 });
 
+axiosClient.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        console.log(error)
+        if (error.response?.status === 401) {
+            const { clearUser } = useAuthStore.getState();
+            const { showToast } = useToastStore.getState()
+            clearUser();
+            window.location.href = "/";
+            showToast("login")
+        }
 
-// const getCategories = () => axiosClient.get("/categories?populate=*");
-// const getDoctors = () => axiosClient.get("/doctors?populate=*");
+        return Promise.reject(error);
+    }
+);
+
+
+
+
+const setDoctorAvailability = (doctorId, availabilityData) =>
+    axiosClient.patch(`/users/update-availability/${doctorId}`, availabilityData);
+
+const getTopDoctors = () => axiosClient.get("/users/top-doctors");
+const setRejectDoctor = (doctorId, reason) => axiosClient.patch(`/users/doctors/${doctorId}/reject`, reason);
+const setApproveDoctor = (doctorId) => axiosClient.patch(`/users/doctors/${doctorId}/approve`);
+const updateDoctor = (doctorId, data) => axiosClient.patch(`/users/doctors/${doctorId}`, data)
+const getAllApprovedDoctors = (queryString) => axiosClient.get(`${queryString ? `/users/doctors?${queryString}` : "/users/doctors"}`);
+const getDoctorByRequestId = (requestId) => axiosClient.get(`users/doctors/requests/${requestId}`)
+const getDoctorById = (id) => axiosClient.get(`users/doctors/${id}`)
+const getDoctorSlots = (doctorId, date) => axiosClient.get(`/users/doctors/${doctorId}/available-slots?date=${date}`)
+const createConsultation = (data) => axiosClient.post("/consultations", data)
+const getAllPatients = () => axiosClient.get("/users?role=patient");
+const getMyBalance = () => axiosClient.get("/wallet/my-balance")
+const getAllAppointments = () => axiosClient.get("/consultations")
+const getLastUsers = () => axiosClient.get("/users?limit=10&sort=-createdAt");
 const registerPatient = (userData) => axiosClient.post("/auth/register/patient", userData);
 const registerDoctor = (doctorData) => axiosClient.post("/auth/register/doctor", doctorData)
+const getDoctorsRequests = () => axiosClient.get("/users?role=doctor&doctorProfile.status=pending&sort=-createdAt");
+const getAdminHomeStates = () => axiosClient.get("/dashboard/admin/home");
 const login = (credentials) => axiosClient.post("/auth/login", credentials);
 const logout = () => axiosClient.post("/auth/logout");
 export default {
-    // getCategories,
-    // getDoctors,
     registerPatient,
     registerDoctor,
     login,
-    logout
+    logout,
+    getDoctorsRequests,
+    getAdminHomeStates,
+    getLastUsers,
+    getAllApprovedDoctors,
+    getAllPatients,
+    getAllAppointments,
+    setDoctorAvailability,
+    getDoctorByRequestId,
+    setRejectDoctor,
+    setApproveDoctor,
+    getTopDoctors,
+    getDoctorById,
+    updateDoctor,
+    getDoctorSlots,
+    getMyBalance,
+    createConsultation
 };

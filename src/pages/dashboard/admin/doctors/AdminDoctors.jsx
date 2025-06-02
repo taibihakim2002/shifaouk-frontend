@@ -2,6 +2,8 @@ import { HiMiniPlusCircle, HiUsers } from "react-icons/hi2";
 import DashPageHeader from "../../../../components/dashboard/common/DashPageHeader";
 import {
   Button,
+  Dropdown,
+  DropdownItem,
   Label,
   Table,
   TableBody,
@@ -12,104 +14,27 @@ import {
   TextInput,
 } from "flowbite-react";
 import flowbit from "../../../../config/flowbit";
-import { Search } from "lucide-react";
+import { LoaderIcon, Search } from "lucide-react";
 import { GiHealthNormal } from "react-icons/gi";
 import { FaFilter } from "react-icons/fa";
 import { BsCalendarDateFill } from "react-icons/bs";
-const doctors = [
-  {
-    name: "د. ياسين بلقاسم",
-    email: "yassine@example.com",
-    phone: "06*******01",
-    specialty: "طب القلب",
-    patientsCount: 120,
-    registeredAt: "10 مارس 2025",
-    status: "مفعل",
-  },
-  {
-    name: "د. سميرة قرفي",
-    email: "samira@example.com",
-    phone: "06*******02",
-    specialty: "أمراض النساء",
-    patientsCount: 98,
-    registeredAt: "11 مارس 2025",
-    status: "محظور",
-  },
-  {
-    name: "د. أحمد شرفي",
-    email: "ahmed@example.com",
-    phone: "06*******03",
-    specialty: "طب الأطفال",
-    patientsCount: 76,
-    registeredAt: "12 مارس 2025",
-    status: "مفعل",
-  },
-  {
-    name: "د. فاطمة الزهراء بن عمر",
-    email: "fatima@example.com",
-    phone: "06*******04",
-    specialty: "طب العيون",
-    patientsCount: 110,
-    registeredAt: "13 مارس 2025",
-    status: "مفعل",
-  },
-  {
-    name: "د. كمال بوزيد",
-    email: "kamal@example.com",
-    phone: "06*******05",
-    specialty: "جراحة العظام",
-    patientsCount: 89,
-    registeredAt: "14 مارس 2025",
-    status: "مفعل",
-  },
-  {
-    name: "د. نوال بن سليمان",
-    email: "nawal@example.com",
-    phone: "06*******06",
-    specialty: "الطب العام",
-    patientsCount: 65,
-    registeredAt: "15 مارس 2025",
-    status: "محظور",
-  },
-  {
-    name: "د. رفيق صالحي",
-    email: "rafik@example.com",
-    phone: "06*******07",
-    specialty: "طب الأعصاب",
-    patientsCount: 54,
-    registeredAt: "16 مارس 2025",
-    status: "مفعل",
-  },
-  {
-    name: "د. نادية رحماني",
-    email: "nadia@example.com",
-    phone: "06*******08",
-    specialty: "الأمراض الجلدية",
-    patientsCount: 72,
-    registeredAt: "17 مارس 2025",
-    status: "مفعل",
-  },
-  {
-    name: "د. هشام عزيزي",
-    email: "hichem@example.com",
-    phone: "06*******09",
-    specialty: "جراحة الأعصاب",
-    patientsCount: 41,
-    registeredAt: "18 مارس 2025",
-    status: "مفعل",
-  },
-  {
-    name: "د. نسرين زروقي",
-    email: "nisrine@example.com",
-    phone: "06*******10",
-    specialty: "طب الأورام",
-    patientsCount: 33,
-    registeredAt: "19 مارس 2025",
-    status: "محظور",
-  },
-];
+import useApiRequest from "../../../../hooks/useApiRequest";
+import { useEffect } from "react";
+import globalApi from "../../../../utils/globalApi";
+import formatDateTime from "../../../../utils/formatDateTime";
+import { Link, useNavigate } from "react-router-dom";
+import { HiOutlineDotsVertical, HiOutlineEye, HiTrash } from "react-icons/hi";
 
 export default function AdminDoctors() {
+  const navigate = useNavigate();
+  const { data: doctors, loading, error, request } = useApiRequest();
+
+  useEffect(() => {
+    request(() => globalApi.getAllApprovedDoctors());
+  }, []);
+
+  console.log(doctors);
+
   return (
     <div>
       <div className="flex justify-between items-center flex-wrap">
@@ -118,12 +43,26 @@ export default function AdminDoctors() {
           title="الاطباء"
           description="إدارة وعرض بيانات الاطباء المسجلين في منصة شفاؤك"
         />
-        <Button theme={flowbit.button} color="primary" className="gap-2 mb-5">
-          <span>
-            <HiMiniPlusCircle size={18} />
-          </span>
-          <span>اضافة طبيب جديد</span>
-        </Button>
+        <div className="flex flex-col md:flex-row gap-3">
+          <Button theme={flowbit.button} color="primary" className="gap-2 mb-5">
+            <span>
+              <HiMiniPlusCircle size={18} />
+            </span>
+            <span>اضافة طبيب جديد</span>
+          </Button>
+          <Button
+            theme={flowbit.button}
+            color="yellow"
+            className="gap-2 mb-5"
+            outline
+            onClick={() => navigate("/dashboard/doctors/requests")}
+          >
+            <span>
+              <LoaderIcon size={18} />
+            </span>
+            <span> طلبات الانضمام</span>
+          </Button>
+        </div>
       </div>
       <div className="border rounded-lg p-10 flex items-center gap-8 jus flex-col md:flex-row mb-10">
         <div className="flex flex-col gap-2 w-full md:max-w-[500px]">
@@ -210,62 +149,91 @@ export default function AdminDoctors() {
         </div>
       </div>
       <div>
-        <div className="overflow-x-auto mb-3">
+        <div className="mb-3">
           <Table className="text-right">
             <TableHead className="bg-gray-100">
               <TableHeadCell>الاسم</TableHeadCell>
               <TableHeadCell>البريد الالكتروني</TableHeadCell>
               <TableHeadCell>رقم الهاتف</TableHeadCell>
-              <TableHeadCell>التخصص</TableHeadCell>
-              <TableHeadCell>عدد المرضى</TableHeadCell>
+              <TableHeadCell className="lg:w-32 ">التخصص</TableHeadCell>
+              <TableHeadCell className="lg:w-22">عدد المرضى</TableHeadCell>
               <TableHeadCell>تاريخ التسجيل</TableHeadCell>
-              <TableHeadCell>الحالة</TableHeadCell>
+              <TableHeadCell className="lg:w-22">الحالة</TableHeadCell>
               <TableHeadCell>الإجراء</TableHeadCell>
             </TableHead>
             <TableBody>
-              {doctors.slice(0, 10).map((doctor, index) => (
-                <TableRow key={index} className="bg-white">
-                  <TableCell>{doctor.name}</TableCell>
-                  <TableCell>{doctor.email}</TableCell>
-                  <TableCell>{doctor.phone}</TableCell>
-                  <TableCell>{doctor.specialty}</TableCell>
-                  <TableCell className="text-center">
-                    {doctor.patientsCount}
-                  </TableCell>
-                  <TableCell>{doctor.registeredAt}</TableCell>
-                  <TableCell>
-                    <span
-                      className={`px-3 py-1 rounded-full text-sm ${
-                        doctor.status === "مفعل"
-                          ? "bg-green-100 text-green-800"
-                          : "bg-red-100 text-red-800"
-                      }`}
+              {loading ? (
+                [...Array(5)].map((_, index) => (
+                  <TableRow key={index} className="bg-white animate-pulse">
+                    {[...Array(8)].map((_, cellIndex) => (
+                      <TableCell key={cellIndex}>
+                        <div className="h-4 bg-gray-200 rounded w-full"></div>
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : doctors?.data?.users?.length > 0 ? (
+                doctors.data.users.map((doctor, index) => (
+                  <TableRow
+                    key={index}
+                    className="hover:bg-gray-50 cursor-pointer"
+                    onClick={() => navigate(`/dashboard/doctors/${doctor._id}`)}
+                  >
+                    <TableCell>
+                      {doctor.fullName.first} {doctor.fullName.second}
+                    </TableCell>
+                    <TableCell>{doctor.email}</TableCell>
+                    <TableCell>{doctor.phone}</TableCell>
+                    <TableCell>{doctor.doctorProfile.specialization}</TableCell>
+                    <TableCell className="text-center">nan</TableCell>
+                    <TableCell>
+                      {formatDateTime(doctor.createdAt, "date")}
+                    </TableCell>
+                    <TableCell>
+                      <span
+                        className={`px-3 py-1 rounded-full text-[11px] ${
+                          doctor?.doctorProfile?.status === "approved"
+                            ? "bg-green-100 text-green-800"
+                            : "bg-red-100 text-red-800"
+                        }`}
+                      >
+                        {doctor?.doctorProfile?.status === "approved"
+                          ? "مفعل"
+                          : "غير مفعل"}
+                      </span>
+                    </TableCell>
+                    <TableCell
+                      className="flex gap-2 justify-center items-center"
+                      onClick={(e) => e.stopPropagation()}
                     >
-                      {doctor.status}
-                    </span>
-                  </TableCell>
-                  <TableCell className="flex gap-2 justify-center items-center">
-                    <button
-                      title="حظر"
-                      className="text-red-500 hover:text-red-700"
-                    >
-                      <i className="fas fa-ban"></i>
-                    </button>
-                    <button
-                      title="تفعيل"
-                      className="text-green-500 hover:text-green-700"
-                    >
-                      <i className="fas fa-check-circle"></i>
-                    </button>
-                    <button
-                      title="حذف"
-                      className="text-blue-500 hover:text-blue-700"
-                    >
-                      <i className="fas fa-trash-alt"></i>
-                    </button>
+                      <Dropdown
+                        className="w-52"
+                        label={
+                          <HiOutlineDotsVertical className="text-xl cursor-pointer" />
+                        }
+                        inline
+                        arrowIcon={false}
+                      >
+                        <Link to={`/doctors/${doctor._id}`}>
+                          <DropdownItem icon={HiOutlineEye}>
+                            عرض الملف الشخصي
+                          </DropdownItem>
+                        </Link>
+                        <DropdownItem icon={HiTrash}>حذف</DropdownItem>
+                      </Dropdown>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={8}
+                    className="text-center py-5 text-gray-500"
+                  >
+                    لا توجد بيانات
                   </TableCell>
                 </TableRow>
-              ))}
+              )}
             </TableBody>
           </Table>
         </div>
