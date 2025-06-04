@@ -150,7 +150,6 @@ export default function Doctors() {
   useEffect(() => {
     request(() => globalApi.getTopDoctors());
   }, []); // إضافة request إلى مصفوفة الاعتماديات
-
   const swiperRef = useRef(null);
 
   return (

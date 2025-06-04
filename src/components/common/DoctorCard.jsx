@@ -102,7 +102,7 @@ export default function DoctorCard({ ele }) {
       <div className="relative w-full h-52 sm:h-56 md:h-60 lg:h-56 xl:h-60 2xl:h-64 overflow-hidden">
         <img
           className="absolute inset-0 w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-350 ease-in-out"
-          src={doctorImage || "/placeholder-doctor.jpg"} // صورة احتياطية
+          src={doctorImage} // صورة احتياطية
           alt={`د. ${doctorName}`}
           onError={(e) => {
             e.target.onerror = null;
