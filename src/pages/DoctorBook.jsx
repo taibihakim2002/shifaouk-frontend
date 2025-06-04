@@ -635,13 +635,15 @@ export default function DoctorBook() {
                 </div>
               </div>
             </div>
-            <Button
-              theme={flowbit.button}
-              color="primary"
-              className="min-w-[250px] shadow-lg"
-            >
-              الانتقال الى الصفحة الرئيسية
-            </Button>
+            <Link to={"/"}>
+              <Button
+                theme={flowbit.button}
+                color="primary"
+                className="min-w-[250px] shadow-lg"
+              >
+                الانتقال الى الصفحة الرئيسية
+              </Button>
+            </Link>
           </div>
         )}
       </div>

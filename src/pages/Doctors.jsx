@@ -23,38 +23,7 @@ import useApiRequest from "../hooks/useApiRequest";
 import { useEffect, useState } from "react";
 import globalApi from "../utils/globalApi";
 import Skeleton from "../components/common/Skeleton";
-
-const specializationsData = [
-  { value: "", label: "كل التخصصات" },
-  { label: "الطب العام", value: "الطب العام" },
-  { label: "طب الأطفال", value: "طب الأطفال" },
-  { label: "أمراض النساء والتوليد", value: "أمراض النساء والتوليد" },
-  { label: "طب العيون", value: "طب العيون" },
-  { label: "طب الأسنان", value: "طب الأسنان" },
-  { label: "الأمراض الجلدية", value: "الأمراض الجلدية" },
-  { label: "طب القلب", value: "طب القلب" },
-  { label: "طب الأنف والأذن والحنجرة", value: "طب الأنف والأذن والحنجرة" },
-  { label: "طب الأعصاب", value: "طب الأعصاب" },
-  { label: "جراحة العظام والمفاصل", value: "جراحة العظام والمفاصل" },
-  { label: "الجراحة العامة", value: "الجراحة العامة" },
-  { label: "جراحة الأعصاب", value: "جراحة الأعصاب" },
-  { label: "جراحة القلب والشرايين", value: "جراحة القلب والشرايين" },
-  { label: "الطب النفسي", value: "الطب النفسي" },
-  { label: "الأورام", value: "الأورام" },
-  { label: "طب الكلى", value: "طب الكلى" },
-  { label: "أمراض الجهاز الهضمي", value: "أمراض الجهاز الهضمي" },
-  { label: "أمراض الدم", value: "أمراض الدم" },
-  { label: "التخدير والإنعاش", value: "التخدير والإنعاش" },
-  { label: "الأشعة والتصوير الطبي", value: "الأشعة والتصوير الطبي" },
-  { label: "الطب الشرعي", value: "الطب الشرعي" },
-  { label: "أمراض الصدر والتنفس", value: "أمراض الصدر والتنفس" },
-  { label: "الطب الرياضي", value: "الطب الرياضي" },
-  { label: "الطب الوقائي والصحة العامة", value: "الطب الوقائي والصحة العامة" },
-  {
-    label: "العلاج الطبيعي وإعادة التأهيل",
-    value: "العلاج الطبيعي وإعادة التأهيل",
-  },
-];
+import specializations from "../data/specializations";
 
 const wilayasData = [
   { value: "", label: "كل الولايات" },
@@ -130,7 +99,7 @@ export default function Doctors() {
         page: currentPage,
         limit: doctorsPerPage,
         search: debouncedSearchQuery,
-        "doctorProfile.specialization": selectedSpecialization,
+        specialization: selectedSpecialization,
         state: selectedWilaya,
         priceRange: selectedPrice,
         minRating: selectedRating,
@@ -246,7 +215,7 @@ export default function Doctors() {
             }}
             theme={flowbit.select}
           >
-            {specializationsData.map((spec) => (
+            {specializations.map((spec) => (
               <option key={spec.value} value={spec.value}>
                 {spec.label}
               </option>

@@ -1,8 +1,9 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { HiMiniPlusCircle, HiUsers } from "react-icons/hi2";
 import DashPageHeader from "../../../../components/dashboard/common/DashPageHeader";
 import {
   Button,
+  Datepicker,
   Dropdown,
   DropdownItem,
   Label,
@@ -13,206 +14,469 @@ import {
   TableHeadCell,
   TableRow,
   TextInput,
+  Badge, // تمت إضافة Badge
 } from "flowbite-react";
 import flowbit from "../../../../config/flowbit";
-import { Search } from "lucide-react";
-import { GiHealthNormal } from "react-icons/gi";
-import { FaFilter } from "react-icons/fa";
-import { BsCalendarDateFill } from "react-icons/bs";
+import {
+  Search,
+  ArrowUpDown,
+  CalendarDays,
+  ListFilter,
+  Tag,
+  UserPlus,
+} from "lucide-react"; // أيقونات محدثة
+// import { GiHealthNormal } from "react-icons/gi"; // غير مستخدمة
+import { FaFilter } from "react-icons/fa"; // مستخدمة في فلتر الترتيب
+// import { BsCalendarDateFill } from "react-icons/bs"; // أيقونة Datepicker ستكون كافية
 import globalApi from "../../../../utils/globalApi";
 import useApiRequest from "../../../../hooks/useApiRequest";
 import formatDateTime from "../../../../utils/formatDateTime";
-import { HiOutlineDotsVertical, HiOutlineEye, HiTrash } from "react-icons/hi";
+import {
+  HiOutlineDotsVertical,
+  HiOutlineEye,
+  HiTrash,
+  HiOutlineClipboardList, // لعرض تفاصيل الموعد
+  HiOutlineExclamationCircle, // لعرض الخطأ
+  HiOutlineCheckCircle, // لحالة "مؤكد/مكتمل"
+  HiOutlineClock, // لحالة "قيد الانتظار"
+  HiOutlineXCircle, // لحالة "ملغي/مرفوض"
+  HiOutlineInformationCircle, // لحالة "غير معروف"
+} from "react-icons/hi";
+import AppointmentDetailsModal from "../../../../components/dashboard/common/AppointmentDetailsModal"; // تأكد من صحة المسار
+import { Link } from "react-router-dom"; // Link لزر الإضافة
+import parseImgUrl from "../../../../utils/parseImgUrl";
+
+const sortOptionsData = [
+  { value: "", label: "الفرز الافتراضي" },
+  { value: "fullName.first,fullName.second", label: "اسم المريض (أ-ي)" }, // تعديل ليشمل الاسم الكامل
+  { value: "-fullName.first,-fullName.second", label: "اسم المريض (ي-أ)" },
+  { value: "date", label: "تاريخ الموعد (الأقدم أولاً)" }, // فرز بتاريخ الموعد
+  { value: "-date", label: "تاريخ الموعد (الأحدث أولاً)" },
+  { value: "createdAt", label: "تاريخ الإنشاء (الأقدم)" },
+  { value: "-createdAt", label: "تاريخ الإنشاء (الأحدث)" },
+];
+
+// قائمة بحالات المواعيد للفلتر
+const appointmentStatusOptions = [
+  { value: "", label: "كل الحالات" },
+  { value: "pending", label: "في الانتظار" },
+  { value: "confirmed", label: "مقبول" },
+  { value: "cancelled", label: "ملغي" }, // "ملغي" بدلاً من "مرفوض" ليكون أوضح للمستخدم
+  { value: "completed", label: "مكتمل" },
+  { value: "rejected", label: "مرفوض من الطبيب" }, // حالة إضافية
+];
 
 export default function AdminAppointments() {
-  const { data: appointments, error, loading, request } = useApiRequest();
+  // navigate غير مستخدم مباشرة في هذا الكود، لكنه قد يستخدم داخل AppointmentDetailsModal أو أزرار الإجراءات
+  // const navigate = useNavigate();
+  const { data: apiResponse, error, loading, request } = useApiRequest(); // تم تغيير appointments إلى apiResponse
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedDate, setDate] = useState(); // اسم الحالة كان 'date'
+  const [selectedStatus, setStatus] = useState(""); // اسم الحالة كان 'status'
+  const [sortBy, setSortBy] = useState("");
 
+  const [openModal, setOpenModal] = useState(false);
+  const [selectedAppointmentForModal, setSelectedAppointmentForModal] =
+    useState(null); // تم تعديل الاسم ليكون أوضح
+
+  useEffect(() => {
+    request(() => globalApi.getAllAppointments()); // إرسال سلسلة فارغة في البداية لجلب الكل
+  }, []); // إضافة request كاعتمادية
+
+  console.log(apiResponse);
   useEffect(() => {
     request(() => globalApi.getAllAppointments());
   }, []);
 
+  useEffect(() => {
+    const fetchAppointments = async () => {
+      const params = new URLSearchParams();
+
+      if (searchQuery) params.append("search", searchQuery);
+      if (sortBy) params.append("sort", sortBy);
+      if (selectedDate) params.append("date", selectedDate.toISOString());
+      if (selectedStatus) params.append("status", selectedStatus);
+      const queryString = params.toString();
+      console.log(queryString);
+      request(() => globalApi.getAllAppointments(queryString));
+    };
+    fetchAppointments();
+  }, [searchQuery, selectedDate, selectedStatus, sortBy]);
+
+  const handleViewDetails = (appointment) => {
+    setSelectedAppointmentForModal(appointment);
+    setOpenModal(true);
+  };
+
+  const getStatusDisplay = (statusKey) => {
+    switch (statusKey?.toLowerCase()) {
+      case "pending":
+        return { text: "في الانتظار", color: "warning", icon: HiOutlineClock };
+      case "confirmed":
+        return { text: "مؤكد", color: "success", icon: HiOutlineCheckCircle };
+      case "cancelled":
+        return { text: "ملغي", color: "pink", icon: HiOutlineXCircle }; // Flowbite 'pink' or 'failure'
+      case "rejected":
+        return {
+          text: "مرفوض",
+          color: "failure",
+          icon: HiOutlineExclamationCircle,
+        };
+      case "completed":
+        return { text: "مكتمل", color: "teal", icon: HiOutlineCheckCircle };
+      default:
+        return {
+          text: statusKey || "غير معروف",
+          color: "gray",
+          icon: HiOutlineInformationCircle,
+        };
+    }
+  };
+
   return (
-    <div>
-      <div className="flex justify-between items-center flex-wrap">
-        <DashPageHeader
-          Icon={HiUsers}
-          title="المواعيد"
-          description="إدارة وعرض بيانات المواعيد في منصة شفاؤك"
+    <div className="p-4 md:p-6 lg:p-8 dark:bg-gray-900 min-h-screen">
+      {selectedAppointmentForModal && (
+        <AppointmentDetailsModal
+          open={openModal}
+          onClose={() => {
+            setOpenModal(false);
+            setSelectedAppointmentForModal(null);
+          }}
+          appointment={selectedAppointmentForModal}
         />
-        <Button theme={flowbit.button} color="primary" className="gap-2 mb-5">
-          <span>
-            <HiMiniPlusCircle size={18} />
-          </span>
-          <span>اضافة موعد جديد</span>
+      )}
+      <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-8 pb-4 border-b dark:border-gray-700">
+        <DashPageHeader
+          Icon={HiOutlineClipboardList} // أيقونة أكثر ملاءمة للمواعيد
+          title="إدارة المواعيد"
+          description="عرض وتتبع جميع المواعيد المحجوزة في منصة شفاؤك."
+        />
+        <Button
+          as={Link}
+          to="/dashboard/appointments/new" // مسار لإنشاء موعد جديد (إذا كان متاحًا للإداري)
+          theme={flowbit.button}
+          color="primary"
+          className="flex items-center justify-center gap-2 mb-2 sm:mb-0 shadow-md hover:shadow-lg transition-shadow px-4 py-2"
+        >
+          <HiMiniPlusCircle size={20} />
+          <span>إضافة موعد جديد</span>
         </Button>
       </div>
-      <div className="border rounded-lg p-10 flex items-center gap-8 jus flex-col md:flex-row mb-10">
-        <div className="flex flex-col gap-2 w-full md:max-w-[500px]">
-          <Label
-            htmlFor="cities"
-            className="flex items-center gap-2 text-gray-600"
-          >
-            البحث عن موعد
-          </Label>
-          <TextInput
-            theme={flowbit.input}
-            color="primary"
-            className="w-full "
-            id="search"
-            type="text"
-            rightIcon={Search}
-            placeholder="ابحث عن موعد او طبيب..."
-            required
-          />
-        </div>
-        <div className="flex flex-col md:flex-row w-full items-center gap-5 ">
-          <div className="flex flex-col gap-2 w-full md:w-44" dir="rtl">
-            <div className="flex flex-col gap-2 w-full md:w-44" dir="rtl">
-              <Label
-                htmlFor="cities"
-                className="flex items-center gap-2 text-gray-600"
-              >
-                <span>
-                  <BsCalendarDateFill />
-                </span>
-                <span>اليوم </span>
-              </Label>
-              <TextInput id="birthdate" theme={flowbit.input} type="date" />
-            </div>
-          </div>
-          <div className="flex flex-col gap-2 w-full md:w-44" dir="rtl">
-            <div className="flex flex-col gap-2 w-full md:w-44" dir="rtl">
-              <Label
-                htmlFor="cities"
-                className="flex items-center gap-2 text-gray-600"
-              >
-                <span>
-                  <GiHealthNormal />
-                </span>
-                <span>الحالة الصحية</span>
-              </Label>
-              <select
-                className="w-full border text-sm p-1 rounded-md bg-gray-50 text-gray-900 border-gray-300 "
-                id="cities"
-                required
-                defaultValue=""
-              >
-                <option value="">اختر الحالة</option>
-                <option>اليوم</option>
-                <option>امس</option>
-                <option>هذا الاسبوع</option>
-                <option>هذا الشهر</option>
-              </select>
-            </div>
-          </div>
-          <div className="flex flex-col gap-2 w-full md:w-44" dir="rtl">
+
+      {/* لوحة الفلاتر والبحث */}
+      <div className="mb-8 p-4 sm:p-6 bg-white rounded-xl shadow-lg border border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-5 items-end">
+          <div>
             <Label
-              htmlFor="cities"
-              className="flex items-center gap-2 text-gray-600"
+              htmlFor="search-appointments-input"
+              className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300"
             >
-              <span>
-                <FaFilter />
+              بحث شامل
+            </Label>
+            <TextInput
+              theme={flowbit.input}
+              color="primary"
+              className="w-full text-sm"
+              id="search-appointments-input"
+              type="text"
+              icon={Search}
+              placeholder="اسم طبيب/مريض، رقم موعد..."
+              value={searchQuery} // ربط القيمة
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+
+          <div>
+            <Label
+              htmlFor="date-filter-appointments"
+              className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300"
+            >
+              <span className="inline-flex items-center">
+                <CalendarDays size={16} className="ml-1" />
+                تاريخ الموعد
               </span>
-              <span>ترتيب حسب</span>
+            </Label>
+            <Datepicker
+              language="ar"
+              labelTodayButton="اليوم"
+              labelClearButton="ازالة"
+              value={selectedDate}
+              onChange={(e) => setDate(e)}
+              theme={flowbit.customInlineDatePicker}
+            />
+          </div>
+
+          <div>
+            <Label
+              htmlFor="status-filter-appointments"
+              className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300"
+            >
+              <span className="inline-flex items-center">
+                <Tag size={16} className="ml-1" />
+                حالة الموعد
+              </span>
             </Label>
             <select
-              className="w-full border text-sm p-1 rounded-md bg-gray-50 text-gray-900 border-gray-300 "
-              id="cities"
-              required
-              defaultValue=""
+              id="status-filter-appointments"
+              className="w-full p-1.5 text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+              value={selectedStatus}
+              onChange={(e) => setStatus(e.target.value)}
             >
-              <option value="">التاريخ</option>
-              <option>مكتملة</option>
-              <option>معلقة</option>
-              <option>مؤكدة</option>
-              <option>مرفوضة </option>
+              {appointmentStatusOptions.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <Label
+              htmlFor="sort-appointments-select"
+              className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300"
+            >
+              <span className="inline-flex items-center">
+                <ArrowUpDown size={16} className="ml-1" />
+                ترتيب حسب
+              </span>
+            </Label>
+            <select
+              className="w-full p-1.5 text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+              id="sort-appointments-select"
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+            >
+              {sortOptionsData.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
             </select>
           </div>
         </div>
       </div>
-      <div>
-        <div className=" mb-3">
-          <Table className="text-right">
-            <TableHead className="bg-gray-100">
-              <TableHeadCell>رقم الموعد</TableHeadCell>
-              <TableHeadCell>اسم الطبيب</TableHeadCell>
-              <TableHeadCell>اسم المريض</TableHeadCell>
-              <TableHeadCell>نوع الموعد</TableHeadCell>
-              <TableHeadCell>تاريخ ووقت الموعد</TableHeadCell>
-              <TableHeadCell>الحالة</TableHeadCell>
-              <TableHeadCell>الإجراء</TableHeadCell>
-            </TableHead>
-            <TableBody>
-              {loading ? (
-                [...Array(5)].map((_, index) => (
-                  <TableRow key={index} className="bg-white animate-pulse">
-                    {[...Array(7)].map((_, cellIndex) => (
-                      <TableCell key={cellIndex}>
-                        <div className="h-4 bg-gray-200 rounded w-full"></div>
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))
-              ) : appointments?.data?.length > 0 ? (
-                appointments.data.map((appointment, index) => (
-                  <TableRow key={index} className="bg-white">
-                    <TableCell className="text-center font-bold">
-                      #{appointment?.consultationId}
-                    </TableCell>
-                    <TableCell>
-                      {appointment?.doctor?.fullName?.first}{" "}
-                      {appointment?.doctor?.fullName?.second}
-                    </TableCell>
-                    <TableCell>
-                      {appointment?.patient?.fullName?.first}{" "}
-                      {appointment?.patient?.fullName?.second}
-                    </TableCell>
-                    <TableCell>{appointment.type}</TableCell>
-                    <TableCell>
-                      {formatDateTime(appointment?.date, "both")}
-                    </TableCell>
-                    <TableCell>
-                      <span
-                        className={`px-3 py-1 rounded-full text-[11px] ${
-                          appointment.status === "confirmed"
-                            ? "bg-green-100 text-green-800"
-                            : appointment.status === "ملغي"
-                            ? "bg-red-100 text-red-800"
-                            : "bg-yellow-100 text-yellow-800"
-                        }`}
-                      >
-                        {appointment.status}
-                      </span>
-                    </TableCell>
-                    <TableCell className="flex gap-2 justify-center items-center">
-                      <Dropdown
-                        label={
-                          <HiOutlineDotsVertical className="text-xl cursor-pointer" />
-                        }
-                        inline
-                        arrowIcon={false}
-                      >
-                        <DropdownItem icon={HiOutlineEye}>
-                          عرض التفاصيل
-                        </DropdownItem>
-                        <DropdownItem icon={HiTrash}>حذف</DropdownItem>
-                      </Dropdown>
-                    </TableCell>
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell
-                    colSpan={7}
-                    className="text-center py-5 text-gray-500"
-                  >
-                    لا توجد بيانات
+
+      <div className="bg-white rounded-xl shadow-lg border border-gray-200 dark:bg-gray-800 dark:border-gray-700 overflow-x-auto">
+        <Table hoverable className="text-right dark:divide-gray-700">
+          <TableHead className="bg-gray-100 dark:bg-gray-700 text-xs text-gray-600 dark:text-gray-300 uppercase">
+            <TableHeadCell className="p-3 px-4">رقم الموعد</TableHeadCell>
+            <TableHeadCell className="p-3 px-4">الطبيب</TableHeadCell>
+            <TableHeadCell className="p-3 px-4">المريض</TableHeadCell>
+            <TableHeadCell className="p-3 px-4">نوع الاستشارة</TableHeadCell>
+            <TableHeadCell className="p-3 px-4">التاريخ والوقت</TableHeadCell>
+            <TableHeadCell className="p-3 px-4 text-center">
+              السعر (دج)
+            </TableHeadCell>
+            <TableHeadCell className="p-3 px-4 text-center">
+              الحالة
+            </TableHeadCell>
+            <TableHeadCell className="p-3 px-4 text-center sticky right-0 bg-gray-100 dark:bg-gray-700 z-10">
+              الإجراءات
+            </TableHeadCell>
+          </TableHead>
+          <TableBody className="divide-y dark:divide-gray-700">
+            {loading ? (
+              [...Array(7)].map((_, index) => (
+                <TableRow
+                  key={index}
+                  className="bg-white animate-pulse dark:bg-gray-800"
+                >
+                  <TableCell className="p-3 px-4">
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-20"></div>
+                  </TableCell>
+                  <TableCell className="p-3 px-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-full bg-gray-300 dark:bg-gray-600 flex-shrink-0"></div>
+                      <div className="w-full">
+                        <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-3/4"></div>
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell className="p-3 px-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-full bg-gray-300 dark:bg-gray-600 flex-shrink-0"></div>
+                      <div className="w-full">
+                        <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-3/4"></div>
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell className="p-3 px-4">
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-24"></div>
+                  </TableCell>
+                  <TableCell className="p-3 px-4">
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-32"></div>
+                  </TableCell>
+                  <TableCell className="p-3 px-4 text-center">
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-16 mx-auto"></div>
+                  </TableCell>
+                  <TableCell className="p-3 px-4 text-center">
+                    <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded-full w-24 mx-auto"></div>
+                  </TableCell>
+                  <TableCell className="p-3 px-4 text-center sticky right-0 bg-white dark:bg-gray-800">
+                    <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-8 mx-auto"></div>
                   </TableCell>
                 </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </div>
+              ))
+            ) : error ? (
+              <TableRow className="bg-white dark:bg-gray-800">
+                <TableCell
+                  colSpan={8}
+                  className="text-center py-12 text-red-600 dark:text-red-400"
+                >
+                  <HiOutlineExclamationCircle
+                    size={32}
+                    className="inline-block ml-2 mb-1"
+                  />
+                  حدث خطأ أثناء تحميل بيانات المواعيد.
+                </TableCell>
+              </TableRow>
+            ) : apiResponse?.data?.length > 0 ? (
+              apiResponse?.data?.map((appointment) => {
+                const statusInfo = getStatusDisplay(appointment.status);
+                const doctor = appointment.doctor; // افترض أن الطبيب متاح ككائن متداخل
+                const patient = appointment.patient; // افترض أن المريض متاح ككائن متداخل
+                return (
+                  <TableRow
+                    key={appointment._id} // استخدام _id للمفتاح
+                    className="bg-white hover:bg-slate-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700/50 transition-colors duration-150 group"
+                  >
+                    <TableCell className="p-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300 text-center">
+                      #
+                      {appointment?.consultationId ||
+                        appointment.sequentialId ||
+                        appointment._id.slice(-6).toUpperCase()}{" "}
+                      {/* عرض ID مميز */}
+                    </TableCell>
+                    <TableCell className="p-3 px-4 whitespace-nowrap">
+                      {doctor ? (
+                        <div className="flex items-center gap-2">
+                          <img
+                            className="w-8 h-8 rounded-full object-cover"
+                            src={
+                              doctor.profileImage
+                                ? parseImgUrl(doctor.profileImage)
+                                : `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                                    doctor.fullName.first
+                                  )}+${encodeURIComponent(
+                                    doctor.fullName.second
+                                  )}&background=0284C7&color=fff&font-size=0.4`
+                            }
+                            alt="Doctor"
+                          />
+                          <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
+                            {doctor.fullName.first} {doctor.fullName.second}
+                          </span>
+                        </div>
+                      ) : (
+                        <span className="text-sm text-gray-500">غير محدد</span>
+                      )}
+                    </TableCell>
+                    <TableCell className="p-3 px-4 whitespace-nowrap">
+                      {patient ? (
+                        <div className="flex items-center gap-2">
+                          <img
+                            className="w-8 h-8 rounded-full object-cover"
+                            src={
+                              patient.profileImage
+                                ? parseImgUrl(patient.profileImage)
+                                : `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                                    patient.fullName.first
+                                  )}+${encodeURIComponent(
+                                    patient.fullName.second
+                                  )}&background=7C3AED&color=fff&font-size=0.4`
+                            }
+                            alt="Patient"
+                          />
+                          <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
+                            {patient.fullName.first} {patient.fullName.second}
+                          </span>
+                        </div>
+                      ) : (
+                        <span className="text-sm text-gray-500">غير محدد</span>
+                      )}
+                    </TableCell>
+                    <TableCell className="p-3 px-4 text-sm text-gray-500 dark:text-gray-400">
+                      {appointment.type === "online"
+                        ? "عن بعد"
+                        : appointment.type === "in-person"
+                        ? "حضوري"
+                        : appointment.type || "غير محدد"}
+                    </TableCell>
+                    <TableCell className="p-3 px-4 text-sm text-gray-500 dark:text-gray-400">
+                      {formatDateTime(appointment?.date, "both")}
+                    </TableCell>
+                    <TableCell className="p-3 px-4 text-sm text-gray-500 dark:text-gray-400 text-center">
+                      {appointment?.price} دج
+                    </TableCell>
+                    <TableCell className="p-3 px-4 text-center">
+                      <Badge
+                        color={statusInfo.color}
+                        icon={statusInfo.icon}
+                        theme={flowbit.badge}
+                        className={`inline-flex items-center !px-2 !py-0.5 text-xs`}
+                      >
+                        {statusInfo.text}
+                      </Badge>
+                    </TableCell>
+                    <TableCell
+                      className="p-3 px-4 text-center sticky right-0 bg-white group-hover:bg-slate-50 dark:bg-gray-800 dark:group-hover:bg-gray-700/50 transition-colors duration-150 z-0 group-hover:z-10"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <div className="flex justify-center">
+                        <Dropdown
+                          arrowIcon={false}
+                          inline
+                          renderTrigger={() => (
+                            <button
+                              type="button"
+                              className="p-1.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg focus:outline-none dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-600"
+                            >
+                              <HiOutlineDotsVertical className="h-5 w-5" />
+                            </button>
+                          )}
+                          theme={flowbit.dropdown}
+                          placement="bottom-end"
+                        >
+                          <DropdownItem
+                            icon={HiOutlineEye}
+                            onClick={() => handleViewDetails(appointment)}
+                          >
+                            عرض التفاصيل
+                          </DropdownItem>
+                          {/* يمكنك إضافة إجراءات أخرى مثل تعديل حالة الموعد */}
+                          <DropdownItem
+                            icon={HiTrash}
+                            className="!text-red-600 hover:!bg-red-100 dark:!text-red-500 dark:hover:!text-white dark:hover:!bg-red-600"
+                          >
+                            حذف الموعد
+                          </DropdownItem>
+                        </Dropdown>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                );
+              })
+            ) : (
+              <TableRow className="bg-white dark:bg-gray-800">
+                <TableCell
+                  colSpan={8} // تم تعديل colSpan ليناسب عدد الأعمدة
+                  className="text-center py-16 text-gray-500 dark:text-gray-400"
+                >
+                  <HiOutlineClipboardList
+                    size={48}
+                    className="mx-auto text-gray-300 dark:text-gray-500 mb-4"
+                  />
+                  <p className="text-lg font-medium mb-1">
+                    لا توجد مواعيد لعرضها
+                  </p>
+                  <p className="text-sm">
+                    حاول تعديل الفلاتر أو قم بإضافة مواعيد جديدة.
+                  </p>
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
       </div>
     </div>
   );

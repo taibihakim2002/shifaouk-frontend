@@ -1,4 +1,5 @@
 import {
+  Badge,
   Button,
   Table,
   TableBody,
@@ -41,8 +42,12 @@ import {
   GiftIcon,
   ArrowLeftRightIcon,
 } from "lucide-react";
+import { useState } from "react";
+import { HiMiniPlusCircle } from "react-icons/hi2";
+import formatDateTime from "../../../utils/formatDateTime";
+import ChargeWalletModal from "../../../components/dashboard/common/ChargeWalletModal";
 
-const transactions = [
+const transactionsHistory = [
   {
     type: "charge",
     details: "إضافة رصيد",
@@ -80,7 +85,7 @@ const transactions = [
   },
 ];
 
-function getIcon(type) {
+function getIconForTransaction(type) {
   switch (type) {
     case "charge":
     case "receive":
@@ -96,7 +101,7 @@ function getIcon(type) {
   }
 }
 
-function getLabel(type) {
+function getLabelForTransaction(type) {
   switch (type) {
     case "charge":
       return "شحن";
@@ -114,6 +119,19 @@ function getLabel(type) {
 }
 
 export default function PatientWallet() {
+  const [isChargeModalOpen, setIsChargeModalOpen] = useState(false);
+  const handleChargeSubmit = async (formData) => {
+    try {
+      alert("سيتم إرسال طلب الشحن الآن (محاكاة)."); // مؤقتًا
+      // لمزيد من الواقعية، يمكنك إضافة تأخير بسيط
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      return true; // افترض النجاح للمحاكاة
+    } catch (error) {
+      console.error("Error submitting charge request:", error);
+      // showToast("error", "حدث خطأ أثناء إرسال طلب الشحن.");
+      return false;
+    }
+  };
   return (
     <div>
       <DashPageHeader
@@ -122,25 +140,28 @@ export default function PatientWallet() {
         description="قم بادارة محفظتك "
       />
 
-      <div className="rounded-lg bg-[url('/imgs/website/dash-next.png')] bg-cover p-5 px-10 lg:w-2/3 lg:mx-auto mb-8">
-        <div className="flex items-center justify-between gap-2 text-white mb-5">
+      <div className="mb-10 max-w-2xl m-auto bg-gradient-to-br from-primary-600 to-primary-500 dark:from-primary-700 dark:to-primary-600 text-white rounded-xl shadow-2xl p-6 py-8 transform hover:scale-105 transition-transform duration-300">
+        <div className="flex items-center justify-between mb-4">
           <h3 className="text-xl font-bold">رصيدك الحالي</h3>
-          <HiCurrencyDollar size={33} />
+          <HiCurrencyDollar size={36} className="opacity-80" />
         </div>
-        <div className="flex flex-col gap-3 md:flex-row items-center md:justify-between">
-          <div className="text-white text-center md:text-start">
-            <h3 className="font-bold mb-3">
-              <span className="text-xl">25.000</span>{" "}
-              <span className="text-md">دينار طبي</span>
-            </h3>
-            <p className="font-light text-sm text-gray-200">
-              يعادل 25.000 دينار جزائري
-            </p>
-          </div>
-          <Button theme={flowbit.button} color="green" className="w-32">
-            شحن
-          </Button>
+        <div className="mb-6">
+          <h3 className="font-extrabold text-[40px] tracking-tight mb-1">
+            2500 <span className="text-lg font-normal opacity-90">د.ط</span>
+          </h3>
+          <p className="font-light text-sm text-primary-200 dark:text-primary-300">
+            يعادل 2500 دينار جزائري
+          </p>
         </div>
+        <Button
+          theme={flowbit.button}
+          color="light" // لون متباين مع الخلفية
+          onClick={() => setIsChargeModalOpen(true)}
+          className="w-full !bg-white/20 hover:!bg-white/30 !text-white border-white/30 hover:border-white/50 focus:ring-white/30"
+        >
+          <HiMiniPlusCircle className="ml-2 h-5 w-5" /> {/* ml للعربية */}
+          شحن الرصيد
+        </Button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-10">
@@ -188,44 +209,106 @@ export default function PatientWallet() {
           </div>
         </div>
       </div>
-      <div className="border rounded-lg p-5">
-        <h3 className="text-lg font-bold mb-10">نشاط المعاملات</h3>
-        <div className="overflow-x-auto mb-3">
-          <Table className="text-right">
-            <TableHead className="bg-gray-100">
-              <TableHeadCell>نوع المعاملة</TableHeadCell>
-              <TableHeadCell>تفاصيل</TableHeadCell>
-              <TableHeadCell>المبلغ</TableHeadCell>
-              <TableHeadCell>التاريخ</TableHeadCell>
-              <TableHeadCell>الحالة</TableHeadCell>
+      <div className="bg-white dark:bg-gray-800 border dark:border-gray-700 rounded-xl shadow-lg p-4 sm:p-6">
+        <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-6">
+          سجل المعاملات الأخير
+        </h3>
+        <div className="overflow-x-auto">
+          <Table
+            hoverable
+            className="min-w-[700px] text-right dark:divide-gray-700"
+          >
+            <TableHead className="bg-slate-100 dark:bg-gray-700 text-xs text-gray-600 dark:text-gray-300 uppercase">
+              <TableHeadCell className="p-3 px-4 whitespace-nowrap">
+                نوع المعاملة
+              </TableHeadCell>
+              <TableHeadCell className="p-3 px-4 whitespace-nowrap">
+                التفاصيل
+              </TableHeadCell>
+              <TableHeadCell className="p-3 px-4 whitespace-nowrap text-center">
+                المبلغ (دج)
+              </TableHeadCell>
+              <TableHeadCell className="p-3 px-4 whitespace-nowrap">
+                التاريخ والوقت
+              </TableHeadCell>
+              <TableHeadCell className="p-3 px-4 whitespace-nowrap text-center">
+                الحالة
+              </TableHeadCell>
             </TableHead>
-            <TableBody>
-              {transactions.map((tx, index) => (
-                <TableRow key={index} className="bg-white">
-                  <TableCell className="flex items-center gap-2">
-                    {getIcon(tx.type)}
-                    {getLabel(tx.type)}
-                  </TableCell>
-                  <TableCell>{tx.details}</TableCell>
-                  <TableCell
-                    className={
-                      tx.amount < 0 ? "text-red-600" : "text-green-600"
-                    }
+            <TableBody className="divide-y dark:divide-gray-700">
+              {transactionsHistory.length > 0 ? (
+                transactionsHistory.map((tx) => (
+                  <TableRow
+                    key={tx._id}
+                    className="bg-white dark:bg-gray-800 hover:bg-slate-50 dark:hover:bg-gray-700/50 transition-colors"
                   >
-                    {tx.amount > 0 ? `+${tx.amount}` : tx.amount}
-                  </TableCell>
-                  <TableCell>{tx.date}</TableCell>
-                  <TableCell>
-                    <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm">
-                      {tx.status}
-                    </span>
+                    <TableCell className="p-3 px-4 whitespace-nowrap">
+                      <div className="flex items-center gap-2.5">
+                        {getIconForTransaction(tx.type)}
+                        <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
+                          {getLabelForTransaction(tx.type)}
+                        </span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="p-3 px-4 text-sm text-gray-600 dark:text-gray-300 max-w-xs truncate">
+                      {tx.details}
+                    </TableCell>
+                    <TableCell
+                      className={`p-3 px-4 text-sm font-semibold text-center whitespace-nowrap ${
+                        tx.amount < 0
+                          ? "text-red-600 dark:text-red-400"
+                          : "text-green-600 dark:text-green-400"
+                      }`}
+                    >
+                      {tx.amount > 0 ? `+${tx.amount}` : tx.amount}
+                    </TableCell>
+                    <TableCell className="p-3 px-4 text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                      {tx.date}
+                    </TableCell>
+                    <TableCell className="p-3 px-4 text-center">
+                      <Badge
+                        color={
+                          tx.status === "completed"
+                            ? "success"
+                            : tx.status === "pending"
+                            ? "warning"
+                            : "failure"
+                        }
+                        theme={flowbit.badge}
+                        className="!text-xs !px-2 !py-0.5"
+                      >
+                        {tx.status === "completed"
+                          ? "مكتملة"
+                          : tx.status === "pending"
+                          ? "قيد المعالجة"
+                          : "فشلت"}
+                      </Badge>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={5}
+                    className="text-center py-10 text-gray-500 dark:text-gray-400"
+                  >
+                    <HiOutlineClipboardList
+                      size={40}
+                      className="mx-auto mb-2 text-gray-400 dark:text-gray-500"
+                    />
+                    لا توجد معاملات لعرضها حاليًا.
                   </TableCell>
                 </TableRow>
-              ))}
+              )}
             </TableBody>
           </Table>
         </div>
       </div>
+      <ChargeWalletModal
+        open={isChargeModalOpen}
+        onClose={() => setIsChargeModalOpen(false)}
+        onSubmit={handleChargeSubmit}
+      />
     </div>
   );
 }

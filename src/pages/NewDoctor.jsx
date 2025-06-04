@@ -191,8 +191,6 @@ export default function NewDoctor() {
       if (value === null || value === undefined) return;
       formData.append(key, typeof value === "boolean" ? String(value) : value);
     });
-
-    console.log(formData);
     const { success, error: requestError } = await request(() =>
       globalApi.registerDoctor(formData)
     );

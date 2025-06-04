@@ -5,6 +5,7 @@ import Categories from "../components/home/Categories";
 import Doctors from "../components/home/Doctors";
 import FAQ from "../components/home/FAQ";
 import Hero from "../components/home/Hero";
+import JoinDoctorsSection from "../components/home/JoinDoctorsSection";
 import Reviews from "../components/home/Reviews";
 import Services from "../components/home/Services";
 import Stats from "../components/home/Stats";
@@ -18,6 +19,7 @@ export default function Home() {
       <Categories />
       <Doctors />
       <FAQ />
+      <JoinDoctorsSection />
       <Blogs />
       <Reviews />
     </>

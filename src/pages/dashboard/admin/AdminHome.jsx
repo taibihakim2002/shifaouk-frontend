@@ -21,7 +21,7 @@ import {
   Pie,
   Cell,
 } from "recharts";
-import { FaRegCalendarCheck, FaUsers } from "react-icons/fa";
+import { FaRegCalendarCheck, FaTasks, FaUsers } from "react-icons/fa";
 
 import { FaUserDoctor } from "react-icons/fa6";
 import { AiOutlineSchedule } from "react-icons/ai";
@@ -74,88 +74,6 @@ const consultationsData = [
   { month: "7", consultations: 15, appointments: 10 },
   { month: "8", consultations: 100, appointments: 60 },
   { month: "9", consultations: 90, appointments: 95 },
-];
-
-const users = [
-  {
-    name: "د. كريم بن عمر",
-    type: "طبيب",
-    email: "karim.doc@example.com",
-    phone: "0550 123 456",
-    registeredAt: "2025-05-24",
-    status: "نشط",
-  },
-  {
-    name: "ليلى منصوري",
-    type: "مريض",
-    email: "layla.mansouri@example.com",
-    phone: "0560 789 321",
-    registeredAt: "2025-05-23",
-    status: "نشط",
-  },
-];
-
-const appointments = [
-  {
-    doctor: "د. أحمد قادري",
-    patient: "سعاد بن زيد",
-    type: "استشارة",
-    datetime: "2025-05-25 14:00",
-    price: 2500,
-    status: "مكتمل",
-  },
-  {
-    doctor: "د. ليلى بن عيسى",
-    patient: "علي ناصر",
-    type: "متابعة",
-    datetime: "2025-05-26 09:30",
-    price: 2000,
-    status: "قيد الانتظار",
-  },
-];
-
-const infoCards = [
-  {
-    title: "المرضى المسجلين",
-    icon: FaUsers,
-    color: "#0D99FF",
-    value: 10054,
-    percentage: -3,
-    percentageText: "مقارنة بالشهر الماضي",
-  },
-  {
-    title: "الاطباء المسجلين",
-    icon: FaUserDoctor,
-    color: "#25A85C",
-    value: 2108,
-    percentage: 5,
-    percentageText: "مقارنة بالشهر الماضي",
-  },
-  {
-    title: "الاستشارات التي تمت",
-    icon: FaRegCalendarCheck,
-    color: "#13324F",
-    value: 571,
-    percentage: 15,
-    percentageText: "مقارنة بالشهر الماضي",
-  },
-  {
-    title: "المواعيد المجدولة",
-    icon: AiOutlineSchedule,
-    color: "#960DFF",
-    value: 120,
-    percentage: 3,
-    percentageText: "مقارنة بالشهر الماضي",
-  },
-  {
-    title: "الارباح",
-    icon: HiCurrencyDollar,
-    color: "#65D2E5",
-    value: 120822,
-    valueText: "دج",
-    percentage: 3,
-    percentageText: "مقارنة بالشهر الماضي",
-  },
 ];
 
 export default function AdminHome() {
@@ -228,12 +146,12 @@ export default function AdminHome() {
                 title: "الاستشارات التي تمت",
                 icon: FaRegCalendarCheck,
                 color: "#13324F",
-                value: statesData?.data?.CompletedConsultations || 0,
+                value: statesData?.data?.completedConsultations || 0,
                 percentage: statesData?.data?.consultationChangePercent || 0,
                 percentageText: "مقارنة بالشهر الماضي",
               },
               {
-                title: "المواعيد المجدولة",
+                title: "الاستشارات المجدولة",
                 icon: AiOutlineSchedule,
                 color: "#960DFF",
                 value: statesData?.data?.ConfirmedConsultations || 0,
@@ -244,7 +162,7 @@ export default function AdminHome() {
                 title: "الارباح",
                 icon: HiCurrencyDollar,
                 color: "#65D2E5",
-                value: statesData?.data?.totalRevenue || 0,
+                value: statesData?.data?.profites || 0,
                 valueText: "دج",
                 percentage: statesData?.data?.revenueChangePercent || 0,
                 percentageText: "مقارنة بالشهر الماضي",
@@ -349,9 +267,9 @@ export default function AdminHome() {
               <TableHeadCell>نوع المستخدم</TableHeadCell>
               <TableHeadCell>البريد الإلكتروني</TableHeadCell>
               <TableHeadCell>رقم الهاتف</TableHeadCell>
+              <TableHeadCell>الجنس</TableHeadCell>
               <TableHeadCell>تاريخ التسجيل</TableHeadCell>
               <TableHeadCell>الحالة</TableHeadCell>
-              <TableHeadCell>الاجراء</TableHeadCell>
             </TableHead>
             <TableBody>
               {usersLoading ? (
@@ -400,6 +318,7 @@ export default function AdminHome() {
                     </TableCell>
                     <TableCell>{user?.email}</TableCell>
                     <TableCell>{user?.phone}</TableCell>
+                    <TableCell>{user?.gender}</TableCell>
                     <TableCell>
                       {formatDateTime(user?.createdAt, "date")}
                     </TableCell>
@@ -421,20 +340,6 @@ export default function AdminHome() {
                           نشط
                         </span>
                       )}
-                    </TableCell>
-                    <TableCell>
-                      <Dropdown
-                        label={
-                          <HiOutlineDotsVertical className="text-xl cursor-pointer" />
-                        }
-                        inline
-                        arrowIcon={false}
-                      >
-                        <DropdownItem icon={HiOutlineEye}>
-                          عرض الطبيب في الموقع
-                        </DropdownItem>
-                        <DropdownItem icon={HiTrash}>حذف</DropdownItem>
-                      </Dropdown>
                     </TableCell>
                   </TableRow>
                 ))

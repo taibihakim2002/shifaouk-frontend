@@ -34,6 +34,7 @@ import ProfileDoctor from "../pages/ProfileDoctor";
 import DoctorBook from "../pages/DoctorBook";
 import AdminDoctorProfile from "../pages/dashboard/admin/doctors/AdminDoctorProfile";
 import AdminPatientProfile from "../pages/dashboard/admin/patients/AdminPatientProfile";
+import AdminChargeRequest from "../pages/dashboard/admin/wallet/AdminChargeRequest";
 
 export default function AppRoutes() {
   const user = useAuthStore((state) => state.user);
@@ -66,6 +67,7 @@ export default function AppRoutes() {
             <Route path="patients/:id" element={<AdminPatientProfile />} />
             <Route path="appointments" element={<AdminAppointments />} />
             <Route path="wallet" element={<AdminWallet />} />
+            <Route path="wallet/charge/:id" element={<AdminChargeRequest />} />
             <Route path="settings" element={<AdminSettings />} />
           </>
         )}

@@ -72,8 +72,8 @@ export default function Header() {
     }
   };
   return (
-    <div className="w-full flex items-center h-[80px]">
-      <div className="container flex justify-between items-center pb-3 border-b border-b-gray-100">
+    <div className="w-full flex items-center h-[80px] border-b bg-primary-50">
+      <div className="container flex justify-between items-center  border-b-gray-100">
         <Logo />
         <div className="hidden md:flex items-center justify-between">
           <ul className="flex md:gap-5 lg:gap-10  text-sm md:text-md 2xl:text-[20px]">

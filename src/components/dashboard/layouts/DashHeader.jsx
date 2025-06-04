@@ -14,10 +14,11 @@ import useAuthStore from "../../../store/authStore";
 import useToastStore from "../../../store/toastStore";
 import useApiRequest from "../../../hooks/useApiRequest";
 import globalApi from "../../../utils/globalApi";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import parseImgUrl from "../../../utils/parseImgUrl";
 
 export default function DashHeader() {
+  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const user = useAuthStore((state) => state.user);
   const clearUser = useAuthStore((state) => state.clearUser);
@@ -29,6 +30,7 @@ export default function DashHeader() {
     if (responseSuccess) {
       showToast("success", "تم تسجيل الخروج بنجاح");
       clearUser();
+      navigate("/");
     } else {
       showToast("error", "فشل تسجيل الخروج");
     }

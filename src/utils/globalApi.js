@@ -44,14 +44,20 @@ const getDoctorByRequestId = (requestId) => axiosClient.get(`users/doctors/reque
 const getDoctorById = (id) => axiosClient.get(`users/doctors/${id}`)
 const getDoctorSlots = (doctorId, date) => axiosClient.get(`/users/doctors/${doctorId}/available-slots?date=${date}`)
 const createConsultation = (data) => axiosClient.post("/consultations", data)
-const getAllPatients = () => axiosClient.get("/users?role=patient");
+const getAllPatients = (queryString) => axiosClient.get(`${queryString ? `/users/patients?${queryString}` : "/users/patients"}`);
 const getMyBalance = () => axiosClient.get("/wallet/my-balance")
-const getAllAppointments = () => axiosClient.get("/consultations")
+const getAllAppointments = (queryString) => axiosClient.get(`${queryString ? `/consultations?${queryString}` : "/consultations"}`)
+const getAllChargeRequests = (queryString) => axiosClient.get(`${queryString ? `/charge?${queryString}` : "/charge"}`)
 const getLastUsers = () => axiosClient.get("/users?limit=10&sort=-createdAt");
 const registerPatient = (userData) => axiosClient.post("/auth/register/patient", userData);
 const registerDoctor = (doctorData) => axiosClient.post("/auth/register/doctor", doctorData)
 const getDoctorsRequests = () => axiosClient.get("/users?role=doctor&doctorProfile.status=pending&sort=-createdAt");
 const getAdminHomeStates = () => axiosClient.get("/dashboard/admin/home");
+const getAdminWalletStates = () => axiosClient.get("/dashboard/admin/wallet");
+const createChargeRequest = (data) => axiosClient.post("/charge", data);
+const getChargeRequestById = (id) => axiosClient.get(`/charge/${id}`);
+const approveChargeRequest = (id) => axiosClient.post(`/charge/${id}/approve`);
+const rejectChargeRequest = (id) => axiosClient.post(`/charge/${id}/reject`);
 const login = (credentials) => axiosClient.post("/auth/login", credentials);
 const logout = () => axiosClient.post("/auth/logout");
 export default {
@@ -74,5 +80,11 @@ export default {
     updateDoctor,
     getDoctorSlots,
     getMyBalance,
-    createConsultation
+    createConsultation,
+    createChargeRequest,
+    getAdminWalletStates,
+    getAllChargeRequests,
+    getChargeRequestById,
+    approveChargeRequest,
+    rejectChargeRequest
 };

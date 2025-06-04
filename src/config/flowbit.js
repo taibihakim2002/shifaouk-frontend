@@ -553,5 +553,88 @@ const customThemeDatePicker = {
     }
 };
 
+const customInlineDatePicker = {
+    "root": {
+        "base": "relative"
+    },
+    "popup": {
+        "root": {
+            "base": "absolute left-0 z-50  block pt-2",
+            "inline": "relative top-0 z-auto ",
+            "inner": "inline-block w-full shadow-none border rounded-lg bg-white p-6 dark:bg-gray-700"
+        },
+        "header": {
+            "base": "",
+            "title": "px-2 py-3 text-center font-semibold text-gray-900 dark:text-white",
+            "selectors": {
+                "base": "mb-2 flex justify-between",
+                "button": {
+                    "base": "rounded-lg bg-white px-5 py-2.5 text-sm font-semibold text-gray-900 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600",
+                    "prev": "",
+                    "next": "",
+                    "view": ""
+                }
+            }
+        },
+        "view": {
+            "base": "p-2"
+        },
+        "footer": {
+            "base": "mt-2 flex gap-2 justify-center",
+            "button": {
+                "base": "w-32 rounded-lg px-5 py-2 text-center text-sm font-medium focus:ring-4 focus:ring-cyan-300",
+                "today": "bg-primaryColor text-white hover:bg-cyan-800 dark:bg-cyan-600 dark:hover:bg-cyan-700",
+                "clear": "border border-gray-300 bg-white text-gray-900 hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
+            }
+        }
+    },
+    "views": {
+        "days": {
+            "header": {
+                "base": "mb-3 grid grid-cols-7",
+                "title": "h-6 text-center text-[12px] font-medium leading-6 text-gray-500 dark:text-gray-400"
+            },
+            "items": {
+                "base": "grid w-full grid-cols-7 gap-2",
+                "item": {
+                    "base": "block flex-1 cursor-pointer rounded-lg border-0 text-center text-sm font-semibold leading-9 text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-600",
+                    "selected": "bg-primaryColor text-white hover:bg-cyan-600",
+                    "disabled": "text-gray-300"
+                }
+            }
+        },
+        "months": {
+            "items": {
+                "base": "grid w-full grid-cols-4 gap-2",
+                "item": {
+                    "base": "block flex-1 cursor-pointer rounded-lg border-0 text-center text-sm font-semibold leading-9 text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-600",
+                    "selected": "bg-primaryColor text-white hover:bg-cyan-600",
+                    "disabled": "text-gray-500"
+                }
+            }
+        },
+        "years": {
+            "items": {
+                "base": "grid w-full grid-cols-4 gap-2",
+                "item": {
+                    "base": "block flex-1 cursor-pointer rounded-lg border-0 text-center text-sm font-semibold leading-9 text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-600",
+                    "selected": "bg-primaryColor text-white hover:bg-cyan-600",
+                    "disabled": "text-gray-500"
+                }
+            }
+        },
+        "decades": {
+            "items": {
+                "base": "grid w-full grid-cols-4 gap-2",
+                "item": {
+                    "base": "block flex-1 cursor-pointer rounded-lg border-0 text-center text-sm font-semibold leading-9 text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-600",
+                    "selected": "bg-cyan-700 text-white hover:bg-cyan-600",
+                    "disabled": "text-gray-500"
+                }
+            }
+        }
+    }
+};
 
-export default { button, drawer, footer, input, tab, checkbox, authDialog, adminSettingsTabs, table, dashSide, customThemeDatePicker }
+
+export default { button, drawer, footer, input, tab, checkbox, authDialog, adminSettingsTabs, table, dashSide, customThemeDatePicker, customInlineDatePicker }
