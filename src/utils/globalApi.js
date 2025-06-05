@@ -13,21 +13,21 @@ const axiosClient = axios.create({
     withCredentials: true
 });
 
-axiosClient.interceptors.response.use(
-    (response) => response,
-    (error) => {
-        console.log(error)
-        if (error.response?.status === 401) {
-            const { clearUser } = useAuthStore.getState();
-            const { showToast } = useToastStore.getState()
-            clearUser();
-            window.location.href = "/";
-            showToast("login")
-        }
+// axiosClient.interceptors.response.use(
+//     (response) => response,
+//     (error) => {
+//         console.log(error)
+//         if (error.response?.status === 401) {
+//             const { clearUser } = useAuthStore.getState();
+//             const { showToast } = useToastStore.getState()
+//             clearUser();
+//             window.location.href = "/";
+//             showToast("login")
+//         }
 
-        return Promise.reject(error);
-    }
-);
+//         return Promise.reject(error);
+//     }
+// );
 
 
 

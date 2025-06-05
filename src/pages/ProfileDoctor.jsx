@@ -670,7 +670,7 @@ export default function ProfileDoctor() {
     if (id) {
       request(() => globalApi.getDoctorById(id));
     }
-  }, [id, request]); // إضافة request إلى مصفوفة الاعتماديات
+  }, [id]); // إضافة request إلى مصفوفة الاعتماديات
 
   // تعريف الثيم المخصص للتبويبات هنا أو استيراده
   const customTabTheme = flowbit.tab || {
