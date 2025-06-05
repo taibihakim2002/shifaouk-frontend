@@ -1,6 +1,7 @@
 import axios from "axios";
 import useAuthStore from "../store/authStore";
 import useToastStore from "../store/toastStore";
+import useAuthModalStore from "../store/authModalStore";
 
 const URL = import.meta.env.VITE_API_URL;
 const TOKEN = import.meta.env.VITE_API_KEY;
@@ -13,21 +14,21 @@ const axiosClient = axios.create({
     withCredentials: true
 });
 
-// axiosClient.interceptors.response.use(
-//     (response) => response,
-//     (error) => {
-//         console.log(error)
-//         if (error.response?.status === 401) {
-//             const { clearUser } = useAuthStore.getState();
-//             const { showToast } = useToastStore.getState()
-//             clearUser();
-//             window.location.href = "/";
-//             showToast("login")
-//         }
+axiosClient.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        console.log(error)
+        if (error.response?.status === 401) {
+            const { clearUser } = useAuthStore.getState();
+            const { openModal } = useAuthModalStore.getState()
+            clearUser();
+            window.location.href = "/";
+            openModal("login")
+        }
 
-//         return Promise.reject(error);
-//     }
-// );
+        return Promise.reject(error);
+    }
+);
 
 
 
