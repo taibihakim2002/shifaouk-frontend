@@ -24,9 +24,11 @@ import {
   Search,
   Users as UsersIcon,
   AlertCircle,
+  ListChecks,
+  SlidersHorizontal,
 } from "lucide-react"; // UsersIcon لتجنب التعارض
 import { GiHealthNormal } from "react-icons/gi";
-import { FaFilter } from "react-icons/fa";
+import { FaFilter, FaRegStar } from "react-icons/fa";
 // import { BsCalendarDateFill } from "react-icons/bs"; // غير مستخدم
 import useApiRequest from "../../../../hooks/useApiRequest";
 import globalApi from "../../../../utils/globalApi";
@@ -152,128 +154,164 @@ export default function AdminDoctors() {
 
   return (
     <div className="p-4 md:p-6 lg:p-8 dark:bg-gray-900 min-h-screen">
-      <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-8 pb-4 border-b dark:border-gray-700">
+      <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-8 pb-5 border-b border-gray-200 dark:border-gray-700">
+        {" "}
+        {/* تعديل طفيف على التباعد والحد */}
         <DashPageHeader
           Icon={HiUsers}
-          title="قائمة الأطباء"
-          description="إدارة وعرض بيانات الأطباء المسجلين في منصة شفاؤك."
+          title="قائمة الأطباء" // تم تعديل العنوان ليكون أكثر تحديدًا
+          description="إدارة وعرض بيانات الأطباء المسجلين والموافق عليهم في المنصة."
         />
-        <div className="flex items-center gap-3 self-start sm:self-center flex-shrink-0">
+        <div className="flex items-center gap-3 self-start sm:self-center flex-shrink-0 mt-4 sm:mt-0">
+          {" "}
+          {/* إضافة mt-4 للشاشات الصغيرة عند التكديس */}
           <Button
             as={Link}
-            to="/dashboard/doctors/new"
+            to="/dashboard/doctors/new" // تأكد من أن هذا المسار صحيح لإنشاء طبيب جديد
             theme={flowbit.button}
             color="primary"
-            className="flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-shadow px-4 py-2"
+            className="flex items-center justify-center gap-2 shadow-md hover:shadow-primary-400/40 dark:hover:shadow-primary-700/40 focus:ring-4 focus:ring-primary-300 dark:focus:ring-primary-800 transition-all duration-300 ease-in-out px-5 py-2.5 text-sm font-medium"
+            // تم إزالة mb-5 من هنا، يتم التحكم بالتباعد من الحاوية الأم
           >
-            <HiMiniPlusCircle size={20} />{" "}
-            {/* أيقونة HiMiniPlusCircle كما كانت */}
+            <HiMiniPlusCircle size={20} /> {/* حجم الأيقونة يمكن تعديله */}
             <span>إضافة طبيب</span>
           </Button>
           <Button
             theme={flowbit.button}
-            color="yellow"
-            className="flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-shadow px-4 py-2"
-            outline
+            color="yellow" // لون مميز لطلبات الانضمام
+            className="flex items-center justify-center gap-2 shadow-md hover:shadow-yellow-400/40 dark:hover:shadow-yellow-700/40 focus:ring-4 focus:ring-yellow-300 dark:focus:ring-yellow-800 transition-all duration-300 ease-in-out px-5 py-2.5 text-sm font-medium"
+            outline // لإعطاء مظهر ثانوي مميز
             onClick={() => navigate("/dashboard/doctors/requests")}
+            // تم إزالة mb-5
           >
-            <LoaderIcon size={18} />
+            <ListChecks size={18} /> {/* تم تغيير الأيقونة إلى ListChecks */}
             <span>طلبات الانضمام</span>
           </Button>
         </div>
       </div>
 
       {/* Filter/Control Panel */}
-      <div className="mb-8 p-4 sm:p-6 bg-white rounded-xl shadow-lg border border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+      <div className="mb-8 p-5 sm:p-6 bg-white rounded-xl shadow-xl border border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+        <div className="flex items-center justify-between mb-5 pb-3 border-b border-gray-200 dark:border-gray-700">
+          <h3 className="text-lg font-semibold text-gray-800 dark:text-white flex items-center gap-2">
+            <SlidersHorizontal
+              size={20}
+              className="text-primaryColor dark:text-primaryColor-400"
+            />
+            تصفية النتائج وترتيبها
+          </h3>
+          {/* يمكنك إضافة زر "مسح الفلاتر" هنا إذا أردت */}
+          {/* <Button size="xs" color="light" outline theme={flowbit.button}>مسح الكل</Button> */}
+        </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-5 items-end">
+          {/* --- حقل البحث --- */}
           <div>
             <Label
-              htmlFor="search-doctors-input"
+              htmlFor="search-doctors-input-panel"
               className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300"
             >
               بحث شامل
             </Label>
             <TextInput
-              theme={flowbit.input} // يفترض أن هذا الثيم معرف
+              theme={flowbit.input}
               color="primary"
-              id="search-doctors-input"
+              id="search-doctors-input-panel"
               type="text"
-              icon={Search} // أيقونة على اليسار (ستظهر يمين في RTL)
+              icon={Search}
               placeholder="اسم، بريد، تخصص..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full text-sm" // حجم خط أصغر قليلاً
+              className="" // تعديل الحشو ليتناسب
             />
           </div>
+
+          {/* --- فلتر التخصص الطبي --- */}
           <div>
             <Label
-              htmlFor="specialization-select"
+              htmlFor="specialization-select-panel"
               className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300"
             >
               التخصص الطبي
             </Label>
             <select
-              id="specialization-select"
-              className="w-full p-1.5 text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+              id="specialization-select-panel"
+              className="w-full p-1 text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primaryColor-300 focus:border-primaryColor-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primaryColor-500 dark:focus:border-primaryColor-500 shadow-sm transition-colors duration-200"
               value={selectedSpecialization}
               onChange={(e) => setSelectedSpecialization(e.target.value)}
             >
-              {specializationsForFilter.map((spec) => (
-                <option key={spec.value} value={spec.value}>
-                  {spec.label}
-                </option>
-              ))}
+              {(specializationsForFilter || []).map(
+                (
+                  spec // إضافة تحقق من وجود المصفوفة
+                ) => (
+                  <option key={spec.value} value={spec.value}>
+                    {spec.label}
+                  </option>
+                )
+              )}
             </select>
           </div>
+
+          {/* --- فلتر التقييم الأدنى --- */}
           <div>
             <Label
-              htmlFor="rating-select"
+              htmlFor="rating-select-panel"
               className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300"
             >
               <span className="inline-flex items-center">
-                <GiHealthNormal className="ml-1" />
+                <FaRegStar className="ml-1.5 w-4 h-4 text-amber-500" />{" "}
+                {/* لون مختلف للأيقونة */}
                 التقييم الأدنى
               </span>
             </Label>
             <select
-              id="rating-select"
-              className="w-full p-1.5 text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+              id="rating-select-panel"
+              className="w-full p-1 text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primaryColor-300 focus:border-primaryColor-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primaryColor-500 dark:focus:border-primaryColor-500 shadow-sm transition-colors duration-200"
               value={selectedRating}
               onChange={(e) => setSelectedRating(e.target.value)}
             >
-              {ratingLevels.map((level) => (
-                <option key={level.value} value={level.value}>
-                  {level.label}
-                </option>
-              ))}
+              {(ratingLevels || []).map(
+                (
+                  level // إضافة تحقق من وجود المصفوفة
+                ) => (
+                  <option key={level.value} value={level.value}>
+                    {level.label}
+                  </option>
+                )
+              )}
             </select>
           </div>
+
+          {/* --- فلتر ترتيب حسب --- */}
           <div>
             <Label
-              htmlFor="sort-select"
+              htmlFor="sort-select-panel"
               className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300"
             >
               <span className="inline-flex items-center">
-                <ArrowUpDown size={16} className="ml-1" />
+                <ArrowUpDown size={16} className="ml-1.5 text-slate-500" />{" "}
+                {/* لون مختلف للأيقونة */}
                 ترتيب حسب
               </span>
             </Label>
             <select
-              id="sort-select"
-              className="w-full p-1.5 text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+              id="sort-select-panel"
+              className="w-full p-1 text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primaryColor-300 focus:border-primaryColor-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primaryColor-500 dark:focus:border-primaryColor-500 shadow-sm transition-colors duration-200"
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
             >
-              {sortOptionsData.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
+              {(sortOptionsData || []).map(
+                (
+                  option // إضافة تحقق من وجود المصفوفة
+                ) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                )
+              )}
             </select>
           </div>
         </div>
       </div>
-
       <div className="bg-white rounded-xl shadow-lg border border-gray-200 dark:bg-gray-800 dark:border-gray-700 overflow-x-auto">
         <Table hoverable className="text-right dark:divide-gray-700">
           <TableHead className="bg-gray-100 dark:bg-gray-700 text-xs text-gray-600 dark:text-gray-300 uppercase">
@@ -348,7 +386,8 @@ export default function AdminDoctors() {
                 return (
                   <TableRow
                     key={doctor._id}
-                    className="bg-white hover:bg-slate-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700/50 transition-colors duration-150 group"
+                    className="bg-white hover:cursor-pointer hover:bg-slate-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700/50 transition-colors duration-150 group"
+                    onClick={() => navigate(`/dashboard/doctors/${doctor._id}`)}
                   >
                     <TableCell className="whitespace-nowrap font-medium text-gray-900 dark:text-white p-3 px-4">
                       <div className="flex items-center gap-3">

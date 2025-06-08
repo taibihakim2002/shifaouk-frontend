@@ -7,7 +7,9 @@ import {
   DropdownHeader,
   DropdownItem,
 } from "flowbite-react";
+
 import flowbit from "../../config/flowbit";
+
 import {
   AlignJustify,
   BriefcaseMedical,
@@ -16,16 +18,27 @@ import {
   ServerIcon,
   WholeWord,
 } from "lucide-react";
+
 import { useState } from "react";
+
 import LoginBtn from "./LoginBtn";
+
 import RegisterBtn from "./RegisterBtn";
+
 import { Link } from "react-router-dom";
+
 import Logo from "./Logo";
+
 import useAuthStore from "../../store/authStore";
+
 import useApiRequest from "../../hooks/useApiRequest";
+
 import globalApi from "../../utils/globalApi";
+
 import useToastStore from "../../store/toastStore";
+
 import parseImgUrl from "../../utils/parseImgUrl";
+
 const menu = [
   {
     title: "الرئيسية",
@@ -59,11 +72,10 @@ export default function Header() {
   const clearUser = useAuthStore((state) => state.clearUser);
   const [isOpen, setIsOpen] = useState(false);
   const { request } = useApiRequest();
-
   const showToast = useToastStore((state) => state.showToast);
+
   const handleLogout = async () => {
     const { success: responseSuccess } = await request(globalApi.logout);
-
     if (responseSuccess) {
       showToast("success", "تم تسجيل الخروج بنجاح");
       clearUser();
@@ -71,6 +83,7 @@ export default function Header() {
       showToast("error", "فشل تسجيل الخروج");
     }
   };
+
   return (
     <div className="w-full flex items-center h-[80px] border-b bg-primary-50">
       <div className="container flex justify-between items-center  border-b-gray-100">
@@ -147,7 +160,7 @@ export default function Header() {
             >
               <DropdownHeader>
                 <span className="block text-sm font-bold">
-                  {`${user.fullName.first}  ${user.fullName.second}`}{" "}
+                  {`${user.fullName.first}  ${user.fullName.second}`}
                 </span>
                 <span className="block truncate text-sm font-medium text-gray-400">
                   {user.email}

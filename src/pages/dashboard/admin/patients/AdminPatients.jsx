@@ -30,6 +30,7 @@ import {
   Users as UsersIcon,
   AlertCircle,
   UserPlus,
+  SlidersHorizontal,
 } from "lucide-react"; // تم استيراد الأيقونات المستخدمة
 // import { GiHealthNormal } from "react-icons/gi"; // غير مستخدمة بشكل مباشر في الفلاتر هنا
 import { FaFilter } from "react-icons/fa";
@@ -81,9 +82,6 @@ export default function AdminPatients() {
     // هذا الشرط لمنع الاستدعاء المزدوج عند التحميل الأولي
     const hasActiveFiltersOrSort = searchQuery || sortBy;
 
-    // إذا لم يكن هناك طلب تحميل أولي جارٍ، وكانت هناك فلاتر نشطة
-    // أو إذا لم يكن هناك فلاتر نشطة ولكن هذا ليس الطلب الأول (لتحديث القائمة بعد مسح الفلاتر)
-    // لتسهيل الأمر، سنقوم بالاستدعاء دائمًا عند تغيير الاعتماديات، والخادم سيتعامل مع queryString فارغ
     const fetchPatients = () => {
       const params = new URLSearchParams();
 
@@ -92,16 +90,10 @@ export default function AdminPatients() {
       const queryString = params.toString();
       request(() => globalApi.getAllPatients(queryString));
     };
-
-    // الاستدعاء الأولي يتم بواسطة الـ useEffect الأول. هذا الـ useEffect سيعمل عند تغيير الفلاتر.
-    // لتجنب استدعاء إضافي فوري عند التحميل، يمكن إضافة شرط.
-    // لكن للحفاظ على المنطق كما هو، سنتركه يستدعي.
-    // إذا كانت جميع القيم فارغة، سيرسل queryString فارغ.
     fetchPatients();
   }, [searchQuery, sortBy]);
 
-  const patientsList =
-    apiResponse?.data?.users || apiResponse?.data?.data || [];
+  const patientsList = apiResponse?.data || [];
 
   // دالة لعرض شارة الحالة
   const getPatientStatusBadge = (status) => {
@@ -149,8 +141,19 @@ export default function AdminPatients() {
       </div>
 
       {/* لوحة الفلاتر والبحث */}
-      <div className="mb-8 p-4 sm:p-6 bg-white rounded-xl shadow-lg border border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+      <div className="mb-8 p-5 sm:p-6 bg-white rounded-xl shadow-xl border border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+        <div className="flex items-center justify-between mb-5 pb-3 border-b border-gray-200 dark:border-gray-700">
+          <h3 className="text-lg font-semibold text-gray-800 dark:text-white flex items-center gap-2">
+            <SlidersHorizontal
+              size={20}
+              className="text-primaryColor dark:text-primaryColor-400"
+            />
+            تصفية النتائج وترتيبها
+          </h3>
+        </div>
+
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-5 items-end">
+          {/* --- حقل البحث عن مريض --- */}
           <div>
             <Label
               htmlFor="search-patients-input"
@@ -161,29 +164,30 @@ export default function AdminPatients() {
             <TextInput
               theme={flowbit.input}
               color="primary"
-              className="w-full text-sm"
               id="search-patients-input"
               type="text"
               icon={Search}
               placeholder="ابحث بالاسم، البريد، الهاتف..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full text-sm"
             />
           </div>
 
-          <div className="w-full">
+          {/* --- فلتر الترتيب --- */}
+          <div>
             <Label
               htmlFor="sort-patients-select"
               className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300"
             >
               <span className="inline-flex items-center">
-                <ArrowUpDown size={16} className="ml-1" />
+                <ArrowUpDown size={16} className="ml-1.5 text-slate-500" />
                 ترتيب حسب
               </span>
             </Label>
-            <select // استخدام عنصر select الأصلي
-              className="w-full p-1.5 text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+            <select
               id="sort-patients-select"
+              className="w-full p-1 text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primaryColor-300 focus:border-primaryColor-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primaryColor-500 dark:focus:border-primaryColor-500 shadow-sm transition-colors duration-200"
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
             >
@@ -274,7 +278,10 @@ export default function AdminPatients() {
                 return (
                   <TableRow
                     key={patient._id}
-                    className="bg-white hover:bg-slate-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700/50 transition-colors duration-150 group"
+                    className="bg-white hover:cursor-pointer hover:bg-slate-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700/50 transition-colors duration-150 group"
+                    onClick={() =>
+                      navigate(`/dashboard/patients/${patient._id}`)
+                    }
                   >
                     <TableCell className="whitespace-nowrap font-medium text-gray-900 dark:text-white p-3 px-4">
                       <div className="flex items-center gap-3">

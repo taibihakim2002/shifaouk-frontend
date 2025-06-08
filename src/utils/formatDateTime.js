@@ -25,20 +25,31 @@ function formatDateTime(value, type) {
         return `${day}-${month}-${year} ${hours}:${minutes}`;
     }
 
-    if (type === "arabic") {
-        const days = [
-            "الأحد", "الاثنين", "الثلاثاء", "الأربعاء",
-            "الخميس", "الجمعة", "السبت"
-        ];
-        const months = [
-            "جانفي", "فيفري", "مارس", "أفريل", "ماي", "جوان",
-            "جويلية", "أوت", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"
-        ];
+    const days = [
+        "الأحد", "الاثنين", "الثلاثاء", "الأربعاء",
+        "الخميس", "الجمعة", "السبت"
+    ];
+    const months = [
+        "جانفي", "فيفري", "مارس", "أفريل", "ماي", "جوان",
+        "جويلية", "أوت", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"
+    ];
 
+    if (type === "arabic") {
         const dayName = days[dateObj.getDay()];
         const dayNumber = dateObj.getDate();
         const monthName = months[dateObj.getMonth()];
         return `${dayName}، ${dayNumber} ${monthName}`;
+    }
+
+    if (type === "arabic-both") {
+        const dayName = days[dateObj.getDay()];
+        const dayNumber = dateObj.getDate();
+        const monthName = months[dateObj.getMonth()];
+        const year = dateObj.getFullYear();
+        const hours = String(dateObj.getHours()).padStart(2, "0");
+        const minutes = String(dateObj.getMinutes()).padStart(2, "0");
+
+        return `${dayName}، ${dayNumber} ${monthName} ${year} على الساعة ${hours}:${minutes}`;
     }
 
     return "";

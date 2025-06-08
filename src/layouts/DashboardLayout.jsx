@@ -23,8 +23,8 @@ export default function DashboardLayout() {
 
   return (
     <div className="w-full min-h-screen">
-      <div className="p-0 lg:ps-[280px] fixed top-0 h-[80px] bg-white border-b w-full">
-        <div className="px-8 h-full flex justify-center items-center ">
+      <div className="p-0 lg:ps-[280px] fixed top-0 h-[80px] bg-white w-full">
+        <div className="px-8 h-full flex justify-center items-center shadow-sm">
           <DashHeader />
         </div>
       </div>

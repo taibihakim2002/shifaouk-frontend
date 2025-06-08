@@ -20,7 +20,13 @@ import {
   TextInput,
 } from "flowbite-react";
 import flowbit from "../../../../config/flowbit";
-import { ArrowUpDown, CalendarDays, Search, Tag } from "lucide-react";
+import {
+  ArrowUpDown,
+  CalendarDays,
+  Search,
+  SlidersHorizontal,
+  Tag,
+} from "lucide-react";
 import { GiHealthNormal } from "react-icons/gi";
 import { FaFilter } from "react-icons/fa";
 import { BsCalendarDateFill } from "react-icons/bs";
@@ -218,6 +224,8 @@ export default function AdminWallet() {
   } = useApiRequest();
   const { loading, data, error, request } = useApiRequest();
 
+  console.log(statesData);
+
   console.log(data);
   useEffect(() => {
     statesRequest(() => globalApi.getAdminWalletStates());
@@ -310,8 +318,21 @@ export default function AdminWallet() {
           />
         ))} */}
       </div>
-      <div className="mb-8 p-4 sm:p-6 bg-white rounded-xl shadow-lg border border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+      <div className="mb-8 p-5 sm:p-6 bg-white rounded-xl shadow-xl border border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+        {/* العنوان */}
+        <div className="flex items-center justify-between mb-5 pb-3 border-b border-gray-200 dark:border-gray-700">
+          <h3 className="text-lg font-semibold text-gray-800 dark:text-white flex items-center gap-2">
+            <SlidersHorizontal
+              size={20}
+              className="text-primaryColor dark:text-primaryColor-400"
+            />
+            تصفية الطلبات وترتيبها
+          </h3>
+        </div>
+
+        {/* الشبكة */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-5 items-end">
+          {/* --- البحث --- */}
           <div>
             <Label
               htmlFor="search-appointments-input"
@@ -326,20 +347,21 @@ export default function AdminWallet() {
               id="search-appointments-input"
               type="text"
               icon={Search}
-              placeholder="اسم طبيب/مريض، رقم موعد..."
-              value={searchQuery} // ربط القيمة
+              placeholder="اسم المستخدم، رقم الطلب..."
+              value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
 
+          {/* --- التاريخ --- */}
           <div>
             <Label
               htmlFor="date-filter-appointments"
               className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300"
             >
               <span className="inline-flex items-center">
-                <CalendarDays size={16} className="ml-1" />
-                تاريخ الموعد
+                <CalendarDays size={16} className="ml-1.5 text-sky-500" />
+                تاريخ الطلب
               </span>
             </Label>
             <Datepicker
@@ -352,19 +374,20 @@ export default function AdminWallet() {
             />
           </div>
 
+          {/* --- الحالة --- */}
           <div>
             <Label
               htmlFor="status-filter-appointments"
               className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300"
             >
               <span className="inline-flex items-center">
-                <Tag size={16} className="ml-1" />
-                حالة الموعد
+                <Tag size={16} className="ml-1.5 text-emerald-500" />
+                حالة الطلب
               </span>
             </Label>
             <select
               id="status-filter-appointments"
-              className="w-full p-1.5 text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+              className="w-full p-1 text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primaryColor-300 focus:border-primaryColor-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primaryColor-500 dark:focus:border-primaryColor-500 shadow-sm transition-colors duration-200"
               value={selectedStatus}
               onChange={(e) => setStatus(e.target.value)}
             >
@@ -376,19 +399,20 @@ export default function AdminWallet() {
             </select>
           </div>
 
+          {/* --- ترتيب حسب --- */}
           <div>
             <Label
               htmlFor="sort-appointments-select"
               className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300"
             >
               <span className="inline-flex items-center">
-                <ArrowUpDown size={16} className="ml-1" />
+                <ArrowUpDown size={16} className="ml-1.5 text-slate-500" />
                 ترتيب حسب
               </span>
             </Label>
             <select
-              className="w-full p-1.5 text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
               id="sort-appointments-select"
+              className="w-full p-1 text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primaryColor-300 focus:border-primaryColor-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primaryColor-500 dark:focus:border-primaryColor-500 shadow-sm transition-colors duration-200"
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
             >
@@ -401,6 +425,7 @@ export default function AdminWallet() {
           </div>
         </div>
       </div>
+
       <div className="bg-white rounded-xl shadow-lg border border-gray-200 dark:bg-gray-800 dark:border-gray-700 overflow-x-auto">
         <Table hoverable className="text-right dark:divide-gray-700">
           <TableHead className="bg-gray-100 dark:bg-gray-700 text-xs text-gray-600 dark:text-gray-300 uppercase">

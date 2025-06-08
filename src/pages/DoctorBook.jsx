@@ -125,6 +125,7 @@ export default function DoctorBook() {
   const [selectedSlote, setSelectedSlote] = useState();
   const [otherInfo, setOtherInfo] = useState();
   const [availableSlots, setAvailableSlots] = useState();
+  const [medicalFiles, setMedicalFiles] = useState([]); // 1. إضافة حالة جديدة للملفات
 
   useEffect(() => {
     slotsRequest(() => globalApi.getDoctorSlots(id, selectedDate));
@@ -134,19 +135,16 @@ export default function DoctorBook() {
     setAvailableSlots(slotsData?.slots);
   }, [slotsData]);
 
-  const [bookingDetails, setBookingDetails] = useState({
-    // doctorName: "د.صخري معاذ",
-    // consultationType: "استشارة عن بعد",
-    // date: "الثلاثاء، 6 يونيو 2023",
-    // time: "21:00",
-    // totalAmount: "250 د.ط",
-    // bookingId: "APT-20230606-1234",
-    // rawConsultationDetails: {
-    //   name: "استشارة عن بعد",
-    //   duration: "30 دقيقة",
-    //   cost: "250 دينار طبي",
-    // },
-  });
+  const handleFileChange = (event) => {
+    if (event.target.files) {
+      setMedicalFiles((prevFiles) => [
+        ...prevFiles,
+        ...Array.from(event.target.files),
+      ]);
+    }
+  };
+
+  const [bookingDetails, setBookingDetails] = useState({});
 
   const handleNext = () => {
     if (step == 1) {
@@ -159,13 +157,23 @@ export default function DoctorBook() {
   const preStep = () => setStep((pre) => pre - 1);
 
   const handleConfirmBooking = async () => {
-    const payload = {
-      doctor: doctorData?.data?._id,
-      patient: user._id,
-      date: selectedSlote.time,
-      type: "online",
-      notes: otherInfo,
-    };
+    if (!selectedDate || !selectedSlote) {
+      return;
+    }
+    const payload = new FormData();
+
+    payload.append("doctor", doctorData?.data?._id);
+    payload.append("patient", user._id);
+    payload.append("date", new Date(selectedSlote.time).toISOString());
+    payload.append("type", "online");
+    if (otherInfo) {
+      payload.append("notes", otherInfo);
+    }
+    if (medicalFiles.length > 0) {
+      medicalFiles.forEach((file) => {
+        payload.append("medicalRecords", file);
+      });
+    }
     const { success, data, error } = await bookRequest(() =>
       globalApi.createConsultation(payload)
     );
@@ -195,10 +203,10 @@ export default function DoctorBook() {
       </div>
     );
   }
-  if (doctorError) {
+  if (doctorError || balanceError) {
     return (
       <div className="w-full h-[calc(100vh-80px)] flex justify-center items-center">
-        <p className="text-sm">حدث خطأ اثناء تحميل بيانات الطبيب </p>
+        <p className="text-sm">حدث خطأ اثناء تحميل البيانات </p>
       </div>
     );
   }
@@ -377,26 +385,46 @@ export default function DoctorBook() {
                   className="text-gray-600 font-bold"
                 >
                   سجلات طبية (اختياري)
-                </Label>{" "}
+                </Label>
                 <Label
                   htmlFor="file-upload-input"
-                  className={`flex h-64 w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:hover:bg-gray-600`} // إضافة bg-gray-50 و hover
+                  className={`flex h-40 md:h-52 w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:hover:bg-gray-600`}
                 >
                   <div className="flex flex-col items-center justify-center pb-6 pt-5">
                     <HiMiniDocumentPlus
-                      size={48}
+                      size={40}
                       className="text-primaryColor mb-3"
                     />
                     <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
-                      <span className="font-semibold"> اسحب الملف هنا </span> أو
+                      <span className="font-semibold">اسحب الملفات هنا</span> أو
                       اضغط للاختيار
                     </p>
                     <p className="text-xs text-gray-500 dark:text-gray-400">
-                      يدعم ملفات PDF, PNG, JPG (الحد الأقصى: 2MB){" "}
+                      يدعم ملفات PDF, PNG, JPG (الحد الأقصى: 2MB لكل ملف)
                     </p>
                   </div>
-                  <FileInput id="file-upload-input" className="hidden" />{" "}
+                  <FileInput
+                    id="file-upload-input"
+                    className="hidden"
+                    multiple
+                    onChange={handleFileChange} // استخدام الدالة الجديدة
+                  />
                 </Label>
+                {/* عرض الملفات المختارة */}
+                {medicalFiles.length > 0 && (
+                  <div className="mt-2 text-sm">
+                    <p className="font-medium text-gray-700 dark:text-gray-200">
+                      الملفات المختارة:
+                    </p>
+                    <ul className="list-disc list-inside space-y-1 mt-1 text-gray-600 dark:text-gray-300">
+                      {medicalFiles.map((file, index) => (
+                        <li key={index}>
+                          {file.name} ({Math.round(file.size / 1024)} KB)
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
               <div className="flex justify-end">
                 <Button
@@ -650,3 +678,483 @@ export default function DoctorBook() {
     </div>
   );
 }
+
+// import React, { useEffect, useState } from "react";
+// import {
+//   Button,
+//   Datepicker,
+//   FileInput,
+//   Label,
+//   Spinner,
+//   Textarea,
+// } from "flowbite-react";
+// import flowbit from "../config/flowbit";
+// import {
+//   HiMiniDocumentPlus,
+//   HiCheckCircle,
+//   HiOutlineArrowLeft,
+//   HiOutlineWallet,
+// } from "react-icons/hi2";
+// import {
+//   HiOutlineCalendar,
+//   HiOutlineClock,
+//   HiOutlineDocumentText,
+//   HiOutlineUserCircle,
+//   HiOutlineVideoCamera,
+// } from "react-icons/hi";
+// import useApiRequest from "../hooks/useApiRequest";
+// import globalApi from "../utils/globalApi";
+// import { Link, useParams } from "react-router-dom";
+// import parseImgUrl from "../utils/parseImgUrl";
+// import Loading from "../components/common/Loading";
+// // import { BiCloset } from "react-icons/bi"; // غير مستخدمة
+// import { IoMdCloseCircle } from "react-icons/io";
+// import formatDateTime from "../utils/formatDateTime";
+// import Skeleton from "../components/common/Skeleton";
+// import useAuthStore from "../store/authStore";
+// import useToastStore from "../store/toastStore";
+// // import { IoTime } from "react-icons/io5"; // غير مستخدمة
+
+// const DoctorProfileCard = ({ doctor }) => (
+//   <div className="lg:w-1/3">
+//     <div className="bg-white p-6 rounded-lg shadow">
+//       <div className="flex flex-col items-center mb-4">
+//         <div className=" bg-gray-300 rounded-full mb-3 flex items-center justify-center">
+//           <img
+//             src={parseImgUrl(doctor.profileImage)}
+//             alt="doctor"
+//             className="w-32 h-32 object-cover rounded-full"
+//           />
+//         </div>
+//         <h3 className="text-xl font-semibold">
+//           {doctor?.fullName?.first} {doctor?.fullName?.second}
+//         </h3>
+//         <p className="text-blue-600 mb-1">
+//           استشاري {doctor?.doctorProfile?.specialization}
+//         </p>
+//         <p className="text-sm text-gray-500 mb-2">
+//           {doctor?.state}-{doctor?.city}
+//         </p>
+//         <div className="flex items-center">
+//           <span className="text-yellow-500">★</span>
+//           <span className="ml-1 font-semibold">
+//             {doctor?.doctorProfile?.rating}
+//           </span>
+//           <span className="ml-2 text-gray-500 text-sm">
+//             ({doctor?.doctorProfile?.totalReviews} تقييم)
+//           </span>
+//         </div>
+//       </div>
+//       <div className="mb-4">
+//         <h4 className="font-semibold mb-2 text-md">نبذة عن الطبيب</h4>
+//         <p className="text-sm text-gray-600 leading-relaxed">
+//           {doctor?.doctorProfile?.doctorBio}
+//         </p>
+//       </div>
+//       <Link
+//         to={`/doctors/${doctor?._id}`}
+//         className="w-full flex justify-center bg-blue-500 text-white py-2.5 px-4 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300"
+//       >
+//         زيارة الملف الشخصي
+//       </Link>
+//     </div>
+//   </div>
+// );
+
+// export default function DoctorBook() {
+//   const user = useAuthStore((state) => state.user);
+//   const { showToast } = useToastStore();
+//   const { id } = useParams();
+
+//   const {
+//     data: doctorData,
+//     error: doctorError,
+//     loading: doctorLoading,
+//     request: doctorRequest,
+//   } = useApiRequest();
+
+//   const {
+//     data: slotsData,
+//     error: slotsError,
+//     loading: slotsLoading,
+//     request: slotsRequest,
+//   } = useApiRequest();
+
+//   const {
+//     data: balanceData,
+//     error: balanceError,
+//     loading: balanceLoading,
+//     request: balanceRequest,
+//   } = useApiRequest();
+
+//   const {
+//     data: bookData,
+//     error: bookError,
+//     loading: bookLoading,
+//     request: bookRequest,
+//   } = useApiRequest();
+
+//   useEffect(() => {
+//     doctorRequest(() => globalApi.getDoctorById(id));
+//     balanceRequest(() => globalApi.getMyBalance());
+//   }, [id]); // تم إضافة الدوال كاعتماديات
+
+//   const [step, setStep] = useState(1);
+//   const today = new Date();
+//   today.setHours(0, 0, 0, 0);
+//   const [errors, setErrors] = useState({});
+//   const [selectedDate, setChoosedDate] = useState(today);
+//   const [selectedSlote, setSelectedSlote] = useState();
+//   const [otherInfo, setOtherInfo] = useState(""); // تهيئة كسلسلة فارغة
+//   const [availableSlots, setAvailableSlots] = useState([]); // تهيئة كمصفوفة فارغة
+
+//   // <<< بداية التعديلات >>>
+//   const [medicalFiles, setMedicalFiles] = useState([]); // 1. إضافة حالة جديدة للملفات
+
+//   const handleFileChange = (event) => {
+//     // 2. دالة للتعامل مع اختيار الملفات
+//     if (event.target.files) {
+//       setMedicalFiles(Array.from(event.target.files)); // تحويل FileList إلى مصفوفة
+//     }
+//   };
+//   // <<< نهاية التعديلات >>>
+
+//   useEffect(() => {
+//     if (id && selectedDate) {
+//       slotsRequest(() =>
+//         globalApi.getDoctorSlots(id, selectedDate.toISOString().split("T")[0])
+//       );
+//     }
+//   }, [selectedDate, id, slotsRequest]);
+
+//   useEffect(() => {
+//     setAvailableSlots(slotsData?.slots);
+//   }, [slotsData]);
+
+//   const [bookingDetails, setBookingDetails] = useState({});
+
+//   const handleNext = () => {
+//     if (step === 1) {
+//       if (!selectedSlote) {
+//         return setErrors({ slote: "يجب اختيار التوقيت قبل المتابعة" });
+//       }
+//       setStep((prev) => prev + 1);
+//     }
+//     // في الخطوة 2، سيتم استدعاء handleConfirmBooking مباشرة من الزر
+//   };
+
+//   const preStep = () => setStep((pre) => pre - 1);
+
+//   // <<< بداية التعديلات >>>
+//   const handleConfirmBooking = async () => {
+//     // 3. تعديل دالة تأكيد الحجز لاستخدام FormData
+//     const payload = new FormData();
+
+//     // إضافة البيانات الأساسية
+//     payload.append("doctor", doctorData?.data?._id);
+//     payload.append("patient", user._id);
+//     payload.append("date", selectedSlote.time); // `selectedSlote.time` يحتوي على التاريخ والوقت الكامل
+//     payload.append("type", "online"); // أو أي نوع تحدده
+
+//     if (otherInfo) {
+//       payload.append("notes", otherInfo);
+//     }
+
+//     // إضافة الملفات إذا تم اختيارها
+//     if (medicalFiles.length > 0) {
+//       medicalFiles.forEach((file) => {
+//         // اسم المفتاح "medicalRecords" يجب أن يتطابق مع ما يتوقعه الخادم
+//         // يمكن للواجهة الخلفية (مثلاً باستخدام multer) استقبال مصفوفة من الملفات تحت هذا المفتاح
+//         payload.append("medicalRecords", file);
+//       });
+//     }
+
+//     // ملاحظة: دالة globalApi.createConsultation يجب أن تكون مهيأة لإرسال FormData
+//     // axios يقوم تلقائيًا بضبط Content-Type إلى multipart/form-data عند إرسال FormData
+//     const { success, data, error } = await bookRequest(() =>
+//       globalApi.createConsultation(payload)
+//     );
+
+//     if (success) {
+//       setBookingDetails(data?.data);
+//       setStep(3);
+//     } else {
+//       showToast("error", error);
+//     }
+//   };
+//   // <<< نهاية التعديلات >>>
+
+//   const dayLabels = [
+//     "الأحد",
+//     "الاثنين",
+//     "الثلاثاء",
+//     "الاربعاء",
+//     "الخميس",
+//     "الجمعة",
+//     "السبت",
+//   ];
+
+//   if (doctorLoading) {
+//     return (
+//       <div className="w-full h-[calc(100vh-80px)]">
+//         <Loading />
+//       </div>
+//     );
+//   }
+//   if (doctorError) {
+//     return (
+//       <div className="w-full h-[calc(100vh-80px)] flex justify-center items-center">
+//         <p className="text-sm">حدث خطأ اثناء تحميل بيانات الطبيب</p>
+//       </div>
+//     );
+//   }
+//   return (
+//     <div>
+//       <div className="container mx-auto py-16 px-4">
+//         {/* ... (Steppr UI remains the same) ... */}
+//         <h3 className="text-center text-gray-600 font-bold text-xl">
+//           حجز استشارة جديدة
+//         </h3>
+//         <div className="py-10 mb-5 flex justify-center">
+//           {/* ... Stepper circles */}
+//         </div>
+
+//         {step === 1 && (
+//           <div className="flex flex-col lg:flex-row gap-8 ">
+//             {doctorData?.data && (
+//               <DoctorProfileCard doctor={doctorData?.data} />
+//             )}
+//             <div className="lg:w-2/3 border p-8 rounded-lg bg-white shadow">
+//               {/* ... (اختيار نوع الاستشارة) ... */}
+//               {/* ... (اختر التاريخ والوقت المناسب) ... */}
+
+//               {/* --- بداية تعديل قسم رفع الملفات --- */}
+//               <div className="flex flex-col gap-2 mb-8">
+//                 <Label
+//                   htmlFor="file-upload-input"
+//                   className="text-gray-600 font-bold"
+//                 >
+//                   سجلات طبية (اختياري)
+//                 </Label>
+//                 <Label
+//                   htmlFor="file-upload-input"
+//                   className={`flex h-40 md:h-52 w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:hover:bg-gray-600`}
+//                 >
+//                   <div className="flex flex-col items-center justify-center pb-6 pt-5">
+//                     <HiMiniDocumentPlus
+//                       size={40}
+//                       className="text-primaryColor mb-3"
+//                     />
+//                     <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
+//                       <span className="font-semibold">اسحب الملفات هنا</span> أو
+//                       اضغط للاختيار
+//                     </p>
+//                     <p className="text-xs text-gray-500 dark:text-gray-400">
+//                       يدعم ملفات PDF, PNG, JPG (الحد الأقصى: 2MB لكل ملف)
+//                     </p>
+//                   </div>
+//                   <FileInput
+//                     id="file-upload-input"
+//                     className="hidden"
+//                     multiple={true} // السماح باختيار عدة ملفات
+//                     onChange={handleFileChange} // استخدام الدالة الجديدة
+//                   />
+//                 </Label>
+//                 {/* عرض الملفات المختارة */}
+//                 {medicalFiles.length > 0 && (
+//                   <div className="mt-2 text-sm">
+//                     <p className="font-medium text-gray-700 dark:text-gray-200">
+//                       الملفات المختارة:
+//                     </p>
+//                     <ul className="list-disc list-inside space-y-1 mt-1 text-gray-600 dark:text-gray-300">
+//                       {medicalFiles.map((file, index) => (
+//                         <li key={index}>
+//                           {file.name} ({Math.round(file.size / 1024)} KB)
+//                         </li>
+//                       ))}
+//                     </ul>
+//                   </div>
+//                 )}
+//               </div>
+//               {/* --- نهاية تعديل قسم رفع الملفات --- */}
+
+//               <div className="flex justify-end">
+//                 <Button
+//                   theme={flowbit.button}
+//                   color="primary"
+//                   onClick={handleNext}
+//                 >
+//                   التالي <HiOutlineArrowLeft className="mr-2 h-5 w-5" />
+//                 </Button>
+//               </div>
+//             </div>
+//           </div>
+//         )}
+
+//         {step === 2 && (
+//           <div className="flex flex-col lg:flex-row gap-8">
+//             {doctorData?.data && (
+//               <DoctorProfileCard doctor={doctorData?.data} />
+//             )}
+//             <div className="lg:w-2/3 border p-8 rounded-lg bg-white shadow space-y-6">
+//               {/* ... (طريقة الدفع وملخص الحجز) ... */}
+
+//               {/* تم تعديل زر تأكيد الحجز ليستدعي الدالة الجديدة */}
+//               <div className="pt-5 space-y-4">
+//                 <Button
+//                   theme={flowbit.button}
+//                   color="primary"
+//                   fullSized // `fullSized` is not a standard prop, use `fullSized` or `w-full` in `className`
+//                   className="w-full shadow-md hover:shadow-lg flex gap-2 items-center justify-center" // تأكد من المحاذاة
+//                   onClick={handleConfirmBooking} // استدعاء الدالة الجديدة
+//                   disabled={bookLoading}
+//                   isProcessing={bookLoading} // لإظهار مؤشر التحميل
+//                 >
+//                   {bookLoading ? "جاري التأكيد..." : "تأكيد الحجز والدفع"}
+//                 </Button>
+//                 <div className="flex justify-end">
+//                   <Button
+//                     theme={flowbit.button}
+//                     color="primary"
+//                     outline
+//                     onClick={preStep}
+//                   >
+//                     السابق{" "}
+//                     <HiOutlineArrowLeft className="mr-2 h-5 w-5 transform scale-x-[-1]" />
+//                   </Button>
+//                 </div>
+//               </div>
+//             </div>
+//           </div>
+//         )}
+
+//         {step === 3 && (
+//           <div className="flex flex-col items-center max-w-[800px] m-auto rounded-lg justify-center text-center py-12 px-4 border">
+//             <HiCheckCircle className="w-20 h-20 md:w-24 md:h-24 text-blue-600 mb-6" />{" "}
+//             <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-3">
+//               تم تأكيد حجزك بنجاح!
+//             </h1>
+//             <p className="text-gray-600 text-sm md:text-base mb-10">
+//               تم استلام طلبك بنجاح وسيتم مراجعته من طرف الطبيب
+//             </p>
+//             <div className="w-full max-w-2xl bg-gray-100 p-6 md:p-8 rounded-xl shadow-lg mb-10">
+//               <h2 className="text-xl font-semibold text-gray-700 mb-6 text-right">
+//                 تفاصيل الحجز
+//               </h2>
+//               <div className="flex flex-col gap-4 text-right">
+//                 <div className="flex justify-between items-center">
+//                   <span className="text-md text-gray-600">الطبيب:</span>
+//                   <div className="flex items-center gap-2">
+//                     <span className="text-md font-medium text-gray-800">
+//                       {bookingDetails?.doctor?.fullName?.first}{" "}
+//                       {bookingDetails?.doctor?.fullName?.second}
+//                     </span>
+//                     <HiOutlineUserCircle className="w-6 h-6 text-gray-500" />
+//                   </div>
+//                 </div>
+//                 <div className="flex justify-between items-center">
+//                   <span className="text-md text-gray-600">نوع الاستشارة: </span>
+//                   <div className="flex items-center gap-2">
+//                     <span className="text-md font-medium text-gray-800">
+//                       {/* !edit-here | يجب ان تجعل نوع الاستشارة ديناميكا عند وجود انواع اخرى */}
+//                       عن بعد
+//                     </span>
+//                     <HiOutlineVideoCamera className="w-6 h-6 text-gray-500" />
+//                   </div>
+//                 </div>
+//                 <div className="flex justify-between items-center">
+//                   <span className="text-md text-gray-600">مدة الاستشارة: </span>
+//                   <div className="flex items-center gap-2">
+//                     <span className="text-md font-medium text-gray-800">
+//                       {bookingDetails?.duration} دقيقة
+//                     </span>
+//                     <IoMdTime className="w-6 h-6 text-gray-500" />
+//                   </div>
+//                 </div>
+//                 <div className="flex justify-between items-center">
+//                   <span className="text-md text-gray-600">التاريخ:</span>
+//                   <div className="flex items-center gap-2">
+//                     <span className="text-md font-medium text-gray-800">
+//                       {formatDateTime(bookingDetails?.date, "arabic")}
+//                     </span>
+//                     <HiOutlineCalendar className="w-6 h-6 text-gray-500" />
+//                   </div>
+//                 </div>
+//                 <div className="flex justify-between items-center">
+//                   <span className="text-md text-gray-600">الوقت:</span>
+//                   <div className="flex items-center gap-2">
+//                     <span className="text-md font-medium text-gray-800">
+//                       {formatDateTime(bookingDetails?.date, "time")}
+//                     </span>
+//                     <HiOutlineClock className="w-6 h-6 text-gray-500" />
+//                   </div>
+//                 </div>
+//               </div>
+//               <hr className="my-6 border-gray-300" />
+//               <div className="text-right mb-3">
+//                 <span className="text-md font-semibold text-gray-600">
+//                   المجموع المدفوع:{" "}
+//                 </span>
+//                 <span className="text-lg font-bold text-blue-600">
+//                   {bookingDetails?.price} دج
+//                 </span>
+//               </div>
+//               <p className="text-sm text-gray-500 text-center">
+//                 رقم الحجز: {bookingDetails?.consultationId}#
+//               </p>
+//             </div>
+//             <div className="w-full px-10 mb-10">
+//               <h3 className="font-semibold text-gray-600 text-lg mb-6 text-right">
+//                 الخطوات التالية:
+//               </h3>
+//               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+//                 <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200 flex flex-col items-center text-center">
+//                   <div className="p-3 bg-blue-100 rounded-full mb-4">
+//                     <HiOutlineClock className="w-10 h-10 text-blue-600" />
+//                   </div>
+//                   <h4 className="text-lg font-semibold text-gray-800 mb-2">
+//                     انضم مبكرًا
+//                   </h4>
+//                   <p className="text-sm text-gray-600">
+//                     ادخل إلى غرفة الانتظار قبل 5 دقائق من الموعد
+//                   </p>
+//                 </div>
+//                 <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200 flex flex-col items-center text-center">
+//                   <div className="p-3 bg-blue-100 rounded-full mb-4">
+//                     <HiOutlineDocumentText className="w-10 h-10 text-blue-600" />
+//                   </div>
+//                   <h4 className="text-lg font-semibold text-gray-800 mb-2">
+//                     جهز مستنداتك
+//                   </h4>
+//                   <p className="text-sm text-gray-600">
+//                     دقق أسئلتك وأعراضك لمناقشتها مع الطبيب
+//                   </p>
+//                 </div>
+//                 <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200 flex flex-col items-center text-center">
+//                   <div className="p-3 bg-blue-100 rounded-full mb-4">
+//                     <HiOutlineVideoCamera className="w-10 h-10 text-blue-600" />
+//                   </div>
+//                   <h4 className="text-lg font-semibold text-gray-800 mb-2">
+//                     تجهيز الاتصال
+//                   </h4>
+//                   <p className="text-sm text-gray-600">
+//                     تأكد من جودة الانترنت والكاميرا والميكروفون قبل الموعد
+//                   </p>
+//                 </div>
+//               </div>
+//             </div>
+//             <Link to={"/"}>
+//               <Button
+//                 theme={flowbit.button}
+//                 color="primary"
+//                 className="min-w-[250px] shadow-lg"
+//               >
+//                 الانتقال الى الصفحة الرئيسية
+//               </Button>
+//             </Link>
+//           </div>
+//         )}
+//       </div>
+//     </div>
+//   );
+// }

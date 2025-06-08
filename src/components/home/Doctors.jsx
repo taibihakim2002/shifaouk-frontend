@@ -160,8 +160,6 @@ export default function Doctors() {
         <SectionHeader sectionTitle="أطباؤنا المميزون" icon={Stethoscope} />
 
         <div className="relative">
-          {" "}
-          {/* حاوية نسبية لأزرار التنقل المطلقة */}
           <Swiper
             ref={swiperRef}
             modules={[Navigation, Pagination, A11y]}
@@ -175,14 +173,6 @@ export default function Doctors() {
             }}
             pagination={{
               clickable: true,
-              // يمكنك تخصيص شكل الـ bullets هنا إذا أردت عبر CSS Variables
-              // انظر: https://swiperjs.com/swiper-api#pagination-css-custom-properties
-              // مثال (يجب وضعه في ملف CSS عام أو <style jsx global>):
-              // :root { --swiper-pagination-color: theme('colors.primary.DEFAULT');
-              //          --swiper-pagination-bullet-inactive-color: theme('colors.slate.300'); }
-              // أو استهداف الفئات مباشرةً
-              // .swiper-pagination-bullet-active { background-color: theme('colors.primary.DEFAULT') !important; }
-              // .swiper-pagination-bullet { background-color: theme('colors.slate.300'); width: 10px; height: 10px; }
             }}
             // navigation // سنستخدم أزرار مخصصة بدلاً من الافتراضية
             className="pb-12 md:pb-16" // إضافة padding سفلي لإظهار الـ pagination بشكل جيد

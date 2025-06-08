@@ -103,11 +103,7 @@ export default function DoctorCard({ ele }) {
         <img
           className="absolute inset-0 w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-350 ease-in-out"
           src={doctorImage} // صورة احتياطية
-          alt={`د. ${doctorName}`}
-          onError={(e) => {
-            e.target.onerror = null;
-            e.target.src = "/placeholder-doctor.jpg";
-          }} // معالجة خطأ تحميل الصورة
+          alt={`د. ${doctorName}`} // معالجة خطأ تحميل الصورة
         />
         {/* يمكنك إضافة شارة هنا مثل "متصل الآن" أو "مميز" */}
         {/* <span className="absolute top-3 right-3 bg-green-500 text-white text-xs font-semibold px-2.5 py-1 rounded-md shadow">متصل</span> */}

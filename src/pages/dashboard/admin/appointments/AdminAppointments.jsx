@@ -24,6 +24,7 @@ import {
   ListFilter,
   Tag,
   UserPlus,
+  SlidersHorizontal,
 } from "lucide-react"; // أيقونات محدثة
 // import { GiHealthNormal } from "react-icons/gi"; // غير مستخدمة
 import { FaFilter } from "react-icons/fa"; // مستخدمة في فلتر الترتيب
@@ -164,8 +165,21 @@ export default function AdminAppointments() {
       </div>
 
       {/* لوحة الفلاتر والبحث */}
-      <div className="mb-8 p-4 sm:p-6 bg-white rounded-xl shadow-lg border border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+      <div className="mb-8 p-5 sm:p-6 bg-white rounded-xl shadow-xl border border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+        {/* العنوان */}
+        <div className="flex items-center justify-between mb-5 pb-3 border-b border-gray-200 dark:border-gray-700">
+          <h3 className="text-lg font-semibold text-gray-800 dark:text-white flex items-center gap-2">
+            <SlidersHorizontal
+              size={20}
+              className="text-primaryColor dark:text-primaryColor-400"
+            />
+            تصفية المواعيد وترتيبها
+          </h3>
+        </div>
+
+        {/* الشبكة */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-5 items-end">
+          {/* --- حقل البحث --- */}
           <div>
             <Label
               htmlFor="search-appointments-input"
@@ -176,23 +190,24 @@ export default function AdminAppointments() {
             <TextInput
               theme={flowbit.input}
               color="primary"
-              className="w-full text-sm"
               id="search-appointments-input"
               type="text"
               icon={Search}
               placeholder="اسم طبيب/مريض، رقم موعد..."
-              value={searchQuery} // ربط القيمة
+              value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full text-sm"
             />
           </div>
 
+          {/* --- فلتر التاريخ --- */}
           <div>
             <Label
               htmlFor="date-filter-appointments"
               className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300"
             >
               <span className="inline-flex items-center">
-                <CalendarDays size={16} className="ml-1" />
+                <CalendarDays size={16} className="ml-1.5 text-sky-500" />
                 تاريخ الموعد
               </span>
             </Label>
@@ -206,19 +221,20 @@ export default function AdminAppointments() {
             />
           </div>
 
+          {/* --- فلتر الحالة --- */}
           <div>
             <Label
               htmlFor="status-filter-appointments"
               className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300"
             >
               <span className="inline-flex items-center">
-                <Tag size={16} className="ml-1" />
+                <Tag size={16} className="ml-1.5 text-emerald-500" />
                 حالة الموعد
               </span>
             </Label>
             <select
               id="status-filter-appointments"
-              className="w-full p-1.5 text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+              className="w-full p-1 text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primaryColor-300 focus:border-primaryColor-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primaryColor-500 dark:focus:border-primaryColor-500 shadow-sm transition-colors duration-200"
               value={selectedStatus}
               onChange={(e) => setStatus(e.target.value)}
             >
@@ -230,19 +246,20 @@ export default function AdminAppointments() {
             </select>
           </div>
 
+          {/* --- فلتر ترتيب حسب --- */}
           <div>
             <Label
               htmlFor="sort-appointments-select"
               className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300"
             >
               <span className="inline-flex items-center">
-                <ArrowUpDown size={16} className="ml-1" />
+                <ArrowUpDown size={16} className="ml-1.5 text-slate-500" />
                 ترتيب حسب
               </span>
             </Label>
             <select
-              className="w-full p-1.5 text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
               id="sort-appointments-select"
+              className="w-full p-1 text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primaryColor-300 focus:border-primaryColor-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primaryColor-500 dark:focus:border-primaryColor-500 shadow-sm transition-colors duration-200"
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
             >
@@ -338,7 +355,8 @@ export default function AdminAppointments() {
                 return (
                   <TableRow
                     key={appointment._id} // استخدام _id للمفتاح
-                    className="bg-white hover:bg-slate-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700/50 transition-colors duration-150 group"
+                    className="bg-white hover:cursor-pointer hover:bg-slate-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700/50 transition-colors duration-150 group"
+                    onClick={() => handleViewDetails(appointment)}
                   >
                     <TableCell className="p-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300 text-center">
                       #

@@ -19,9 +19,7 @@ import PatientWallet from "../pages/dashboard/patient/PatientWallet";
 import PatientFavorite from "../pages/dashboard/patient/PatientFavorite";
 import DoctorProfile from "../pages/dashboard/doctor/DoctorProfile";
 import DoctorWallet from "../pages/dashboard/doctor/DoctorWallet";
-import DoctorAppointments from "../pages/dashboard/doctor/DoctorAppointments";
 import DoctorHistory from "../pages/dashboard/doctor/DoctorHistory";
-import DoctorPatients from "../pages/dashboard/doctor/DoctorPatients";
 import useAuthStore from "../store/authStore";
 import AddDoctor from "../pages/dashboard/admin/doctors/AddDoctor";
 import AdminPatients from "../pages/dashboard/admin/patients/AdminPatients";
@@ -35,6 +33,12 @@ import DoctorBook from "../pages/DoctorBook";
 import AdminDoctorProfile from "../pages/dashboard/admin/doctors/AdminDoctorProfile";
 import AdminPatientProfile from "../pages/dashboard/admin/patients/AdminPatientProfile";
 import AdminChargeRequest from "../pages/dashboard/admin/wallet/AdminChargeRequest";
+import AdminEditPatientProfile from "../pages/dashboard/admin/patients/AdminEditPatientProfile";
+import AdminEditDoctorProfile from "../pages/dashboard/admin/doctors/AdminEditDoctorProfile";
+import DoctorPatients from "../pages/dashboard/doctor/patients/DoctorPatients";
+import DoctorPatientProfile from "../pages/dashboard/doctor/patients/DoctorPatientProfile";
+import DoctorAppointments from "../pages/dashboard/doctor/consultations/DoctorAppointments";
+import DoctorConsultationReport from "../pages/dashboard/doctor/consultations/DoctorConsultationReport";
 
 export default function AppRoutes() {
   const user = useAuthStore((state) => state.user);
@@ -58,6 +62,10 @@ export default function AppRoutes() {
             <Route path="doctors" element={<AdminDoctors />} />
             <Route path="doctors/add-doctor" element={<AddDoctor />} />
             <Route path="doctors/:id" element={<AdminDoctorProfile />} />
+            <Route
+              path="doctors/edit/:id"
+              element={<AdminEditDoctorProfile />}
+            />
             <Route path="doctors/requests" element={<JoiningRequests />} />
             <Route
               path="doctors/requests/:requestId"
@@ -65,6 +73,10 @@ export default function AppRoutes() {
             />
             <Route path="patients" element={<AdminPatients />} />
             <Route path="patients/:id" element={<AdminPatientProfile />} />
+            <Route
+              path="patients/edit/:id"
+              element={<AdminEditPatientProfile />}
+            />
             <Route path="appointments" element={<AdminAppointments />} />
             <Route path="wallet" element={<AdminWallet />} />
             <Route path="wallet/charge/:id" element={<AdminChargeRequest />} />
@@ -87,8 +99,13 @@ export default function AppRoutes() {
             <Route path="profile" element={<DoctorProfile />} />
             <Route path="wallet" element={<DoctorWallet />} />
             <Route path="appointments" element={<DoctorAppointments />} />
+            <Route
+              path="appointments/:id/report"
+              element={<DoctorConsultationReport />}
+            />
             <Route path="history" element={<DoctorHistory />} />
             <Route path="patients" element={<DoctorPatients />} />
+            <Route path="patients/:id" element={<DoctorPatientProfile />} />
           </>
         )}
       </Route>

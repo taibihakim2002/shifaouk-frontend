@@ -1,432 +1,478 @@
-import { FaCircleCheck, FaUserDoctor } from "react-icons/fa6";
+import React, { useEffect, useState } from "react";
+import { useNavigate, useParams, Link } from "react-router-dom";
+import {
+  Button,
+  Avatar, // لعرض صورة الطبيب
+  Badge, // لعرض حالة الحساب
+  Card, // لتغليف أقسام المعلومات
+  Spinner, // لعرض مؤشر التحميل
+  // Dropdown, DropdownItem, // إذا كانت هناك إجراءات إضافية
+} from "flowbite-react";
 import DashPageHeader from "../../../../components/dashboard/common/DashPageHeader";
-import { Button, Label, Select, TextInput, Textarea } from "flowbite-react";
 import flowbit from "../../../../config/flowbit";
-import { FaSave, FaUser } from "react-icons/fa";
-import { FiUser } from "react-icons/fi";
-import { MdEmail } from "react-icons/md";
-import { Phone } from "lucide-react";
-import { BiSolidFilePdf } from "react-icons/bi";
 import useApiRequest from "../../../../hooks/useApiRequest";
-import { useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
 import globalApi from "../../../../utils/globalApi";
-import Skeleton from "../../../../components/common/Skeleton";
-import parseImgUrl from "../../../../utils/parseImgUrl";
-import { CgClose } from "react-icons/cg";
 import formatDateTime from "../../../../utils/formatDateTime";
-import useToastStore from "../../../../store/toastStore";
-import Loading from "../../../../components/common/Loading";
-import states from "../../../../data/states";
-import specializations from "../../../../data/specializations";
+import parseImgUrl from "../../../../utils/parseImgUrl";
+import {
+  // أيقونة لعنوان الصفحة
+  FaStethoscope,
+  FaUserMd,
+  FaMapMarkerAlt,
+  FaCalendarAlt,
+  FaInfoCircle,
+  FaBriefcase,
+  FaGraduationCap,
+  FaVenusMars,
+  FaAddressCard,
+} from "react-icons/fa"; // أيقونات متنوعة
+import {
+  HiOutlineArrowLeft,
+  HiOutlinePencil, // إذا أردت إضافة زر تعديل لاحقًا
+  HiOutlineCheckCircle,
+  HiOutlineClock,
+  HiOutlineExclamationCircle,
+  HiOutlineInformationCircle,
+  HiOutlineDocumentText,
+  HiOutlineLocationMarker,
+  HiOutlineMail,
+  HiOutlinePhone,
+  HiOutlineCalendar,
+  HiOutlineClipboardList,
+} from "react-icons/hi";
+import { BiSolidFilePdf } from "react-icons/bi";
+import { CgClose } from "react-icons/cg"; // إذا كانت تستخدم لعرض حالة "غير مفعل"
+import Loading from "../../../../components/common/Loading"; // افترض وجود مكون Loading
+import { FaUserDoctor } from "react-icons/fa6";
+import { AlertCircle } from "lucide-react";
+
+// Skeleton component for loading state
+const ProfileSkeleton = () => (
+  <div className="animate-pulse mt-8">
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8 items-start">
+      <div className="lg:col-span-4 xl:col-span-3 w-full">
+        <div className="p-6 py-8 bg-white dark:bg-gray-800 rounded-xl shadow-xl border dark:border-gray-700">
+          <div className="flex flex-col items-center">
+            <div className="w-32 h-32 bg-gray-300 dark:bg-gray-600 rounded-full mb-4"></div>
+            <div className="h-7 bg-gray-300 dark:bg-gray-600 rounded w-3/4 mb-2"></div>
+            <div className="h-4 bg-gray-200 dark:bg-gray-500 rounded w-1/2 mb-1"></div>
+            <div className="h-4 bg-gray-200 dark:bg-gray-500 rounded w-1/3 mb-4"></div>
+            <div className="h-6 bg-gray-300 dark:bg-gray-600 rounded-full w-24 mb-4"></div>
+            <div className="space-y-2 w-full">
+              <div className="h-5 bg-gray-200 dark:bg-gray-500 rounded w-full"></div>
+              <div className="h-5 bg-gray-200 dark:bg-gray-500 rounded w-full"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="lg:col-span-8 xl:col-span-9 w-full space-y-6">
+        {[...Array(3)].map((_, i) => (
+          <div
+            key={i}
+            className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow-xl border dark:border-gray-700 min-h-[150px]"
+          >
+            <div className="h-6 bg-gray-300 dark:bg-gray-600 rounded w-1/3 mb-6"></div>
+            <div className="h-4 bg-gray-200 dark:bg-gray-500 rounded w-full mb-2"></div>
+            <div className="h-4 bg-gray-200 dark:bg-gray-500 rounded w-3/4"></div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+);
+
+// DetailItem component لعرض المعلومات بشكل منظم
+const DetailItem = ({
+  icon: Icon,
+  label,
+  value,
+  children,
+  valueClassName = "text-gray-800 dark:text-gray-100",
+}) => (
+  <div className="flex flex-col sm:flex-row py-3 border-b border-gray-100 dark:border-gray-700 last:border-b-0 sm:gap-4">
+    <div className="flex-shrink-0 w-full sm:w-auto sm:min-w-[150px] md:min-w-[180px] mb-1 sm:mb-0 flex items-center">
+      {Icon && (
+        <Icon className="w-5 h-5 text-primaryColor dark:text-primaryColor-400 flex-shrink-0 ml-2.5" />
+      )}
+      <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+        {label}:
+      </p>
+    </div>
+    <div className="flex-1 text-right">
+      {" "}
+      {/* محاذاة لليمين للغة العربية */}
+      {children ? (
+        <div className={`text-sm sm:text-base ${valueClassName}`}>
+          {children}
+        </div>
+      ) : (
+        <p className={`text-sm sm:text-base font-semibold ${valueClassName}`}>
+          {value || (
+            <span className="text-gray-400 dark:text-gray-500 italic">
+              غير متوفر
+            </span>
+          )}
+        </p>
+      )}
+    </div>
+  </div>
+);
+
+// دالة لتحديد معلومات عرض حالة الحساب
+const getDoctorStatusDisplay = (status) => {
+  switch (status) {
+    case "approved":
+      return {
+        text: "حساب مفعل",
+        color: "success",
+        icon: HiOutlineCheckCircle,
+      };
+    case "pending":
+      return { text: "قيد المراجعة", color: "warning", icon: HiOutlineClock };
+    case "rejected":
+      return {
+        text: "مرفوض",
+        color: "failure",
+        icon: HiOutlineExclamationCircle,
+      };
+    case "suspended":
+      return {
+        text: "حساب معلّق",
+        color: "pink",
+        icon: HiOutlineExclamationCircle,
+      };
+    default:
+      return {
+        text: status || "غير معروف",
+        color: "gray",
+        icon: HiOutlineInformationCircle,
+      };
+  }
+};
 
 export default function AdminDoctorProfile() {
   const { id } = useParams();
-  const { showToast } = useToastStore();
-  const [data, setData] = useState({
-    name: "",
-    prename: "",
-    email: "",
-    phone: "",
-    state: "",
-    city: "",
-    gender: "",
-    address: "",
-    specialization: "",
-    experienceYears: "",
-    workplace: "",
-    doctorBio: "",
-  });
+  const navigate = useNavigate();
+  // const { showToast } = useToastStore(); // غير مستخدم في وضع العرض فقط
 
   const {
-    data: doctorData,
+    data: doctorApiResponse, // تم تغيير اسم data لتجنب التعارض
     error: doctorError,
     loading: doctorLoading,
     request: doctorRequest,
   } = useApiRequest();
 
-  const {
-    data: updateData,
-    error: updateError,
-    loading: updateLoading,
-    request: updateRequest,
-  } = useApiRequest();
+  const [doctorData, setDoctorData] = useState(null); // حالة لتخزين بيانات الطبيب الفعلية
+
   useEffect(() => {
-    doctorRequest(() => globalApi.getDoctorById(id));
-  }, [id]);
+    if (id) {
+      doctorRequest(() => globalApi.getDoctorById(id));
+    }
+  }, [id]); // يجب إضافة doctorRequest لأنه دالة خارجية
+
   useEffect(() => {
-    if (doctorData?.data) {
-      const fetched = doctorData.data;
-      setData({
-        name: fetched?.fullName?.first || "",
-        prename: fetched?.fullName?.second || "",
-        email: fetched?.email || "",
-        phone: fetched?.phone || "",
-        state: fetched?.state || "",
-        city: fetched?.city || "",
-        gender: fetched?.gender || "",
-        address: fetched?.address || "",
-        specialization: fetched?.doctorProfile?.specialization || "",
-        experienceYears: fetched?.doctorProfile?.experienceYears || "",
-        workplace: fetched?.doctorProfile?.workplace || "",
-        doctorBio: fetched?.doctorProfile?.doctorBio || "",
-      });
+    if (doctorApiResponse?.data) {
+      setDoctorData(doctorApiResponse.data);
     }
-  }, [doctorData]);
-  const handleChange = (e) => {
-    const { id, value } = e.target;
-    setData((prev) => ({
-      ...prev,
-      [id]: value,
-    }));
-  };
+  }, [doctorApiResponse]);
 
-  const handleSubmit = async () => {
-    const payload = {
-      fullName: { first: data.name, second: data.prename },
-      email: data.email,
-      phone: data.phone,
-      state: data.state,
-      city: data.city,
-      gender: data.gender,
-      address: data.address,
-      doctorProfile: {
-        specialization: data.specialization,
-        experienceYears: data.experienceYears,
-        workplace: data.workplace,
-        doctorBio: data.doctorBio,
-      },
-    };
+  if (doctorLoading && !doctorData) {
+    // عرض هيكل التحميل فقط إذا لم تكن هناك بيانات سابقة
+    return (
+      <div
+        className="p-4 md:p-6 lg:p-8 dark:bg-gray-900 min-h-screen"
+        dir="rtl"
+      >
+        <DashPageHeader
+          Icon={FaUserDoctor}
+          title="ملف الطبيب"
+          description="جاري تحميل تفاصيل الطبيب..."
+        />
+        <ProfileSkeleton />
+      </div>
+    );
+  }
 
-    const {
-      success,
-      data: updateData,
-      error: updateError,
-    } = await updateRequest(() => globalApi.updateDoctor(id, payload));
+  if (doctorError) {
+    return (
+      <div
+        className="p-4 md:p-6 lg:p-8 dark:bg-gray-900 min-h-screen flex flex-col items-center justify-center text-center"
+        dir="rtl"
+      >
+        <DashPageHeader Icon={FaUserDoctor} title="ملف الطبيب" />
+        <div className="py-10">
+          <AlertCircle size={56} className="mx-auto text-red-400 mb-5" />
+          <h3 className="text-2xl font-semibold text-red-500 dark:text-red-400 mb-3">
+            {doctorError ? "خطأ في تحميل البيانات" : "الطبيب غير موجود"}
+          </h3>
+          <p className="text-gray-600 dark:text-gray-400 mb-6">
+            {doctorError
+              ? "حدث خطأ أثناء محاولة جلب تفاصيل الطبيب. يرجى المحاولة مرة أخرى."
+              : "لم نتمكن من العثور على الطبيب المطلوب. يرجى التأكد من صحة المعرّف."}
+          </p>
+          <Button
+            color="light"
+            onClick={() => navigate(-1)}
+            theme={flowbit.button}
+            className="dark:text-gray-200 dark:border-gray-600 dark:hover:bg-gray-700"
+          >
+            <HiOutlineArrowLeft className="ml-2 h-5 w-5 transform scale-x-[-1]" />{" "}
+            العودة للخلف
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
-    if (success) {
-      console.log(updateData);
-      showToast("success", "تم تحديث البيانات بنجاح");
-    } else {
-      showToast("error", "خطأ اثناء تحديث البيانات");
-    }
-  };
-
-  if (doctorLoading) return <Loading />;
+  const statusInfo = getDoctorStatusDisplay(doctorData?.doctorProfile?.status);
 
   return (
-    <div>
-      <DashPageHeader Icon={FaUserDoctor} title="تفاصيل الطبيب" />
-      {!doctorError ? (
-        <>
-          <div className="p-5 border rounded-lg mb-10">
-            <div className="mb-10 flex flex-col gap-5 lg:flex-row justify-between items-center rounded-lg">
-              <div className="flex gap-5 items-center">
-                {doctorLoading ? (
-                  <Skeleton className="w-28 h-28 rounded-full" />
-                ) : doctorData?.data?.profileImage ? (
-                  <img
-                    src={parseImgUrl(doctorData?.data?.profileImage)}
-                    alt="doctor"
-                    className="w-28 h-28 rounded-full object-cover"
-                  />
-                ) : (
-                  ""
-                )}
+    <div className="p-4 md:p-6 lg:p-8 dark:bg-gray-900 min-h-screen" dir="rtl">
+      <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-8 pb-4 border-b dark:border-gray-700">
+        <DashPageHeader
+          Icon={FaUserDoctor}
+          title={`ملف الطبيب: ${doctorData?.fullName?.first || ""} ${
+            doctorData?.fullName?.second || ""
+          }`}
+          description="عرض تفصيلي لبيانات الطبيب المسجلة في المنصة."
+        />
+        {/* يمكنك إضافة أزرار إجراءات عامة هنا إذا أردت، مثل زر تعديل الذي ينقل لصفحة التعديل */}
+        <Button
+          color="light"
+          onClick={() => navigate("/dashboard/doctors")}
+          theme={flowbit.button}
+          className="dark:text-gray-200 dark:border-gray-600 dark:hover:bg-gray-700 flex-shrink-0"
+        >
+          <HiOutlineArrowLeft className="ml-2 h-5 w-5 transform scale-x-[-1]" />{" "}
+          العودة إلى قائمة الاطباء
+        </Button>
+      </div>
 
-                <div className="flex flex-col gap-3">
-                  <div className="flex gap-4 items-center">
-                    {doctorLoading ? (
-                      <Skeleton className="w-72 h-10" />
-                    ) : doctorData?.data?.fullName ? (
-                      <h3 className="text-xl text-gray-600 font-bold">
-                        {doctorData?.data?.fullName?.first}{" "}
-                        {doctorData?.data?.fullName?.second}
-                      </h3>
-                    ) : (
-                      <h3>غير متوفر</h3>
-                    )}
-
-                    <p className="text-sm px-2 py-1 text-[#0D99FF] bg-[#0D99FF44] rounded-lg ">
-                      طبيب
-                    </p>
-                  </div>
-                  <div className="flex gap-4 items-center">
-                    {doctorLoading ? (
-                      <Skeleton className="w-32 h-10" />
-                    ) : doctorData?.data?.doctorProfile.status ===
-                      "approved" ? (
-                      <div className="flex items-center gap-2 text-[#25A85C] bg-[#25A85C44] px-2 lg:px-4 py-2 text-[13px] lg:text-sm rounded-lg">
-                        <span>
-                          <FaCircleCheck size={18} className="" />
-                        </span>
-                        <span>حساب مفعل</span>
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-2 text-[#ff2d2d] bg-[#ff2d2d44] px-2 lg:px-4 py-2 text-[13px] lg:text-sm rounded-lg">
-                        <span>
-                          <CgClose size={18} className="" />
-                        </span>
-                        <span>حساب غير مفعل</span>
-                      </div>
-                    )}
-
-                    <div className="text-[12px] lg:text-sm text-gray-400">
-                      <span className="font-bold text-gray-600">
-                        تم التسجيل:
-                      </span>
-                      {doctorLoading ? (
-                        <Skeleton className="w-72 h-10" />
-                      ) : doctorData?.data?.createdAt ? (
-                        <p>
-                          {formatDateTime(doctorData?.data?.createdAt, "date")}
-                        </p>
-                      ) : (
-                        <p>غير محدد</p>
-                      )}
-                    </div>
-                  </div>
-                </div>
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8 items-start">
+        {/* --- عامود ملخص الطبيب (على اليمين في RTL) --- */}
+        <div className="lg:col-span-5 xl:col-span-4 w-full">
+          <Card
+            theme={flowbit.card}
+            className="shadow-xl dark:bg-gray-800 !p-0 sticky top-24"
+          >
+            <div className="flex flex-col items-center p-6 pt-8">
+              <Avatar
+                img={
+                  doctorData?.profileImage
+                    ? parseImgUrl(doctorData?.profileImage)
+                    : `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                        doctorData?.fullName?.first || "D"
+                      )}+${encodeURIComponent(
+                        doctorData?.fullName?.second || ""
+                      )}&background=048CFF&color=fff&font-size=0.45&bold=true`
+                }
+                rounded
+                size="xl"
+                bordered
+                color="primary" // يمكن تغييره ليتناسب مع primaryColor
+                className="mb-4 shadow-lg ring-4 ring-white dark:ring-gray-700"
+              />
+              <h5 className="mb-1 text-xl md:text-2xl font-bold text-gray-900 dark:text-white text-center">
+                د. {doctorData?.fullName?.first} {doctorData?.fullName?.second}
+              </h5>
+              <span className="text-sm font-medium text-primaryColor dark:text-primaryColor-400 mb-1">
+                {doctorData?.doctorProfile?.specialization || "تخصص غير محدد"}
+              </span>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
+                {doctorData?.doctorProfile?.workplace || "مكان عمل غير محدد"}
+              </p>
+              <div className="mb-4">
+                <Badge
+                  color={statusInfo.color} // يجب أن تكون هذه الألوان معرفة في ثيم Badge
+                  icon={statusInfo.icon}
+                  theme={flowbit.badge} // أو استخدم className مباشرة إذا لم يكن الثيم يدعم الألوان الديناميكية بالكامل
+                  className={`!text-sm !font-medium !px-3 !py-1 ${
+                    statusInfo.colorClasses || ""
+                  }`} // استخدم colorClasses من getStatusDisplayInfo
+                >
+                  {statusInfo.text}
+                </Badge>
               </div>
-              <Button
-                theme={flowbit.button}
-                color="primary"
-                className="flex gap-2"
-                onClick={handleSubmit}
-              >
+            </div>
+            <div className="border-t border-gray-200 dark:border-gray-700 px-6 py-4 space-y-3 text-sm">
+              <div className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
+                {" "}
+                <HiOutlineMail
+                  size={18}
+                  className="text-gray-500 flex-shrink-0"
+                />{" "}
+                <span>{doctorData?.email}</span>
+              </div>
+              <div className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
+                {" "}
+                <HiOutlinePhone
+                  size={18}
+                  className="text-gray-500 flex-shrink-0"
+                />{" "}
+                <span>{doctorData?.phone}</span>
+              </div>
+              {doctorData?.state && (
+                <div className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
+                  {" "}
+                  <HiOutlineLocationMarker
+                    size={18}
+                    className="text-gray-500 flex-shrink-0"
+                  />{" "}
+                  <span>
+                    {doctorData?.state}
+                    {doctorData?.city ? `، ${doctorData?.city}` : ""}
+                  </span>
+                </div>
+              )}
+              {doctorData?.gender && (
+                <div className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
+                  {" "}
+                  <FaVenusMars
+                    size={16}
+                    className="text-gray-500 flex-shrink-0"
+                  />{" "}
+                  <span>
+                    {doctorData?.gender === "male"
+                      ? "ذكر"
+                      : doctorData?.gender === "female"
+                      ? "أنثى"
+                      : doctorData?.gender}
+                  </span>
+                </div>
+              )}
+              <div className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
+                {" "}
+                <HiOutlineClock
+                  size={18}
+                  className="text-gray-500 flex-shrink-0"
+                />{" "}
                 <span>
-                  <FaSave />
+                  مسجل منذ: {formatDateTime(doctorData?.createdAt, "both")}
                 </span>
-                <span> حفظ التغيرات</span>
-              </Button>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 lg:gap-16 mb-5">
-              <div>
-                <h3 className="text-gray-600 mb-5">المعلومات العامة</h3>
-                <div className="flex flex-col gap-1 mb-3">
-                  <Label htmlFor="name" className="text-gray-400">
-                    الاسم
-                  </Label>
-                  <TextInput
-                    id="name"
-                    icon={FiUser}
-                    type="text"
-                    value={data.name}
-                    onChange={handleChange}
-                  />
-                </div>
-                <div className="flex flex-col gap-1 mb-3">
-                  <Label htmlFor="name" className="text-gray-400">
-                    اللقب
-                  </Label>
-                  <TextInput
-                    id="prename"
-                    icon={FaUser}
-                    type="text"
-                    value={data.prename}
-                    onChange={handleChange}
-                  />
-                </div>
-                <div className="flex flex-col gap-1 mb-3">
-                  <Label htmlFor="name" className="text-gray-400">
-                    البريد الالكتروني
-                  </Label>
-                  <TextInput
-                    id="email"
-                    icon={MdEmail}
-                    type="text"
-                    value={data.email}
-                    onChange={handleChange}
-                  />
-                </div>
-                <div className="flex flex-col gap-1 mb-3">
-                  <Label htmlFor="name" className="text-gray-400">
-                    رقم الهاتف
-                  </Label>
-                  <TextInput
-                    id="phone"
-                    icon={Phone}
-                    type="text"
-                    value={data.phone}
-                    onChange={handleChange}
-                  />
-                </div>
-                <div className="flex flex-col gap-1 mb-3">
-                  <Label htmlFor="name" className="text-gray-400">
-                    الجنس
-                  </Label>
-                  <select
-                    id="gender"
-                    className="border rounded-lg p-1 bg-gray-50 focus:outline-blue-400"
-                    value={data.gender}
-                    onChange={handleChange}
-                  >
-                    <option value="ذكر">ذكر</option>
-                    <option value="انثى">انثى</option>
-                  </select>
-                </div>
-              </div>
-              <div>
-                <h3 className="text-gray-600 mb-5">معلومات اضافية </h3>
-                <div className="flex gap-2 items-center">
-                  <div className="flex flex-1 flex-col gap-1 mb-3">
-                    <Label htmlFor="state" className="text-gray-400">
-                      الولاية
-                    </Label>
-                    <select
-                      name="state"
-                      id="state"
-                      value={data.state}
-                      onChange={handleChange}
-                      className="p-1 border rounded-lg focus:outline-blue-400 bg-gray-50"
-                    >
-                      <option value="">اختر ولاية</option>
-                      {states.map((ele, index) => (
-                        <option key={index} value={ele.name}>
-                          {ele.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="flex flex-col gap-1 mb-3">
-                    <Label htmlFor="city" className="text-gray-400">
-                      البلدية
-                    </Label>
-                    <input
-                      className="p-2 border rounded-lg focus:outline-blue-400 bg-gray-50 text-sm"
-                      id="city"
-                      type="text"
-                      value={data.city}
-                      onChange={handleChange}
-                    />
-                  </div>
-                </div>
-                <div className="flex flex-col gap-1 mb-3">
-                  <Label htmlFor="address" className="text-gray-400">
-                    العنوان
-                  </Label>
-                  <TextInput
-                    id="address"
-                    type="text"
-                    value={data.address}
-                    onChange={handleChange}
-                  />
-                </div>
-                <div className="flex flex-col gap-1 mb-3">
-                  <Label htmlFor="name" className="text-gray-400">
-                    التخصص
-                  </Label>
-                  <select
-                    className="w-full border text-sm p-1 rounded-md bg-gray-50 text-gray-900 border-gray-300 "
-                    id="specialization"
-                    required
-                    defaultValue={data.specialization}
-                    onChange={handleChange}
-                  >
-                    {specializations.map((ele) => (
-                      <option key={ele.value} value={ele.value}>
-                        {ele.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div className="flex flex-col gap-1 mb-3">
-                  <Label htmlFor="name" className="text-gray-400">
-                    سنوات الخبرة
-                  </Label>
-                  <TextInput
-                    id="experienceYears"
-                    type="text"
-                    value={data.experienceYears}
-                    onChange={handleChange}
-                  />
-                </div>
-                <div className="flex flex-col gap-1 mb-3">
-                  <Label htmlFor="name" className="text-gray-400">
-                    مكان العمل
-                  </Label>
-                  <TextInput
-                    id="workplace"
-                    type="text"
-                    value={data.workplace}
-                    onChange={handleChange}
-                  />
-                </div>
-              </div>
-              <div>
-                <h3 className="text-gray-600 mb-5">نبذة عامة </h3>
-                <div className="flex flex-col gap-1 mb-3">
-                  <Label htmlFor="name" className="text-gray-400">
-                    نبذة عامة عن الطبيب
-                  </Label>
-                  <Textarea
-                    id="doctorBio"
-                    type="text"
-                    rows={12}
-                    value={data.doctorBio}
-                    onChange={handleChange}
-                  />
-                </div>
               </div>
             </div>
-          </div>
-          <div className="border rounded-lg p-5">
-            <h3 className="text-gray-600 font-bold mb-5">وثائق التحقق</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-              <div className="flex justify-between items-center p-2 border rounded-lg">
-                <div className="flex gap-2 items-center">
-                  <BiSolidFilePdf size={25} className="text-[#F50000]" />
-                  <p className="text-sm text-gray-400"> شهادة البكالوريا.pdf</p>
-                </div>
-                <a
-                  href={parseImgUrl(
-                    doctorData?.data?.doctorProfile?.licenseDocuments[0]
-                  )}
-                  className="text-sm font-bold text-primaryColor"
-                  target="_blank"
-                  rel="noopener noreferrer"
+            <div className="border-t border-gray-200 dark:border-gray-700 p-4">
+              <div className="flex flex-col gap-2 w-full">
+                <Button
+                  color="primary"
+                  onClick={() =>
+                    navigate(`/dashboard/doctors/edit/${doctorData?._id}`)
+                  }
+                  theme={flowbit.button}
+                  size="sm"
+                  className="flex-grow justify-center shadow-sm hover:shadow-md"
                 >
-                  تحميل
-                </a>
-              </div>
-              <div className="flex justify-between items-center p-2 border rounded-lg">
-                <div className="flex gap-2 items-center">
-                  <BiSolidFilePdf size={25} className="text-[#F50000]" />
-                  <p className="text-sm text-gray-400">رخصة مزاولة .pdf</p>
-                </div>
-                <a
-                  href={parseImgUrl(
-                    doctorData?.data?.doctorProfile?.licenseDocuments[1]
-                  )}
-                  className="text-sm font-bold text-primaryColor"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  <HiOutlinePencil className="ml-2 h-4 w-4" /> تعديل الملف
+                  الشخصي
+                </Button>
+                <Button
+                  color="light"
+                  onClick={() =>
+                    navigate(`/dashboard/apointments?doctor=${doctorData?._id}`)
+                  }
+                  theme={flowbit.button}
+                  size="sm"
+                  className="flex-grow justify-center dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600 dark:hover:bg-gray-600 shadow-sm hover:shadow-md"
                 >
-                  تحميل
-                </a>
-              </div>
-              <div className="flex justify-between items-center p-2 border rounded-lg">
-                <div className="flex gap-2 items-center">
-                  <BiSolidFilePdf size={25} className="text-[#F50000]" />
-                  <p className="text-sm text-gray-400">شهادة عمل.pdf</p>
-                </div>
-                <a
-                  href={parseImgUrl(
-                    doctorData?.data?.doctorProfile?.licenseDocuments[2]
-                  )}
-                  className="text-sm font-bold text-primaryColor"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  تحميل
-                </a>
+                  <HiOutlineClipboardList className="ml-2 h-4 w-4" /> عرض مواعيد
+                  الطبيب
+                </Button>
               </div>
             </div>
-          </div>
-        </>
-      ) : (
-        <p>حدث خطأ اثناء تحميل البيانات</p>
-      )}
+            {/* يمكن إضافة أزرار إجراءات إضافية هنا مثل تعليق الحساب، إلخ */}
+          </Card>
+        </div>
+
+        {/* --- عامود التفاصيل (على اليسار في RTL) --- */}
+        <div className="lg:col-span-7 xl:col-span-8 w-full space-y-6">
+          <Card theme={flowbit.card} className="shadow-xl dark:bg-gray-800">
+            <h3 className="text-lg font-semibold text-primaryColor dark:text-primaryColor-400 mb-3 flex items-center gap-2 border-b dark:border-gray-700 pb-2">
+              <FaGraduationCap /> معلومات مهنية
+            </h3>
+            <div className="space-y-1">
+              <DetailItem
+                label="التخصص الدقيق"
+                value={doctorData?.doctorProfile?.specialization}
+                icon={FaStethoscope}
+              />
+              <DetailItem
+                label="سنوات الخبرة"
+                value={`${doctorData?.doctorProfile?.experienceYears || 0} سنة`}
+                icon={FaBriefcase}
+              />
+              <DetailItem
+                label="مكان العمل الأساسي"
+                value={doctorData?.doctorProfile?.workplace}
+                icon={HiOutlineLocationMarker}
+              />
+              {doctorData?.address && (
+                <DetailItem
+                  label="عنوان العيادة/العمل"
+                  value={doctorData?.address}
+                  icon={FaAddressCard}
+                />
+              )}
+            </div>
+          </Card>
+
+          {doctorData?.doctorProfile?.doctorBio && (
+            <Card theme={flowbit.card} className="shadow-xl dark:bg-gray-800">
+              <h3 className="text-lg font-semibold text-primaryColor dark:text-primaryColor-400 mb-3 flex items-center gap-2 border-b dark:border-gray-700 pb-2">
+                <FaInfoCircle /> نبذة عن الطبيب
+              </h3>
+              <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed whitespace-pre-line p-1">
+                {doctorData?.doctorProfile.doctorBio}
+              </p>
+            </Card>
+          )}
+
+          {doctorData?.doctorProfile?.licenseDocuments &&
+            doctorData?.doctorProfile.licenseDocuments.length > 0 && (
+              <Card theme={flowbit.card} className="shadow-xl dark:bg-gray-800">
+                <h3 className="text-lg font-semibold text-primaryColor dark:text-primaryColor-400 mb-4 flex items-center gap-2 border-b dark:border-gray-700 pb-2">
+                  <HiOutlineDocumentText /> وثائق التحقق
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                  {doctorData?.doctorProfile.licenseDocuments.map(
+                    (docUrl, index) => {
+                      const docName =
+                        typeof docUrl === "string"
+                          ? docUrl.split("/").pop().split("?")[0]
+                          : `وثيقة ${index + 1}`;
+                      const decodedDocName = decodeURIComponent(docName);
+                      return (
+                        <a
+                          key={index}
+                          href={parseImgUrl(docUrl)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="group flex flex-col items-center justify-center p-4 bg-slate-50 dark:bg-gray-700/60 hover:bg-slate-100 dark:hover:bg-gray-700 rounded-lg border dark:border-gray-200 dark:border-gray-600 transition-all duration-200 shadow-sm hover:shadow-md text-center"
+                        >
+                          <BiSolidFilePdf
+                            size={36}
+                            className="text-red-500 dark:text-red-400 mb-2 group-hover:scale-110 transition-transform"
+                          />
+                          <span
+                            className="text-xs text-gray-700 dark:text-gray-200 group-hover:text-primaryColor dark:group-hover:text-primaryColor-300 truncate w-full"
+                            title={decodedDocName}
+                          >
+                            {decodedDocName.length > 25
+                              ? `${decodedDocName.substring(0, 22)}...`
+                              : decodedDocName}
+                          </span>
+                          <span className="mt-1 text-[10px] text-blue-500 group-hover:underline">
+                            عرض/تحميل
+                          </span>
+                        </a>
+                      );
+                    }
+                  )}
+                </div>
+              </Card>
+            )}
+          {/* يمكنك إضافة المزيد من الأقسام هنا مثل مواعيد الطبيب، تقييماته، إلخ */}
+        </div>
+      </div>
     </div>
   );
 }
