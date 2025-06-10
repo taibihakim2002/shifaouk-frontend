@@ -196,14 +196,9 @@ export default function ChatBot() {
   ];
 
   return (
-    <div className="bg-slate-50 dark:bg-gray-900 min-h-screen flex flex-col">
-      <div className="w-full flex items-center h-[80px]">
-        <div className="container flex justify-between items-center pb-3 border-b border-b-gray-100">
-          <Logo />
-        </div>
-      </div>
-      <main className="flex-grow flex flex-col items-center justify-center p-4">
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden flex flex-col  h-[calc(100vh-150px)] w-full max-w-4xl">
+    <div className="bg-slate-50 dark:bg-gray-900 h-full w-full flex flex-col">
+      <main className="flex-grow flex flex-col items-center justify-center">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden flex flex-col  h-full min-h-[calc(100vh-200px)] w-full ">
           {/* Header */}
           <div className="bg-primaryColor/5 dark:bg-primaryColor-900/20 text-primaryColor-800 dark:text-primaryColor-200 py-4 px-5 flex items-center justify-between border-b border-primaryColor-200/50 dark:border-primaryColor-900/50">
             <div className="flex items-center gap-3">
