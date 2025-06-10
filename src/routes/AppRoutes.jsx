@@ -11,7 +11,6 @@ import PublicRoutes from "./PublicRoutes";
 import PrivateRoutes from "./PrivateRoutes";
 import NewDoctor from "../pages/NewDoctor";
 import Doctors from "../pages/Doctors";
-import Profile from "../pages/Profile";
 import PatientProfile from "../pages/dashboard/patient/PatientProfile";
 import PatientAppointments from "../pages/dashboard/patient/PatientAppointments";
 import PatientHistory from "../pages/dashboard/patient/PatientHistory";
@@ -39,8 +38,8 @@ import DoctorPatients from "../pages/dashboard/doctor/patients/DoctorPatients";
 import DoctorPatientProfile from "../pages/dashboard/doctor/patients/DoctorPatientProfile";
 import DoctorAppointments from "../pages/dashboard/doctor/consultations/DoctorAppointments";
 import DoctorConsultationReport from "../pages/dashboard/doctor/consultations/DoctorConsultationReport";
-import DoctorconsultationRequestDetails from "../pages/dashboard/doctor/consultations/DoctorconsultationRequestDetails";
 import ChatBot from "../pages/ChatBot";
+import DoctorConsultationRequestDetails from "../pages/dashboard/doctor/consultations/DoctorconsultationRequestDetails";
 
 export default function AppRoutes() {
   const user = useAuthStore((state) => state.user);
@@ -109,7 +108,7 @@ export default function AppRoutes() {
             />
             <Route
               path="appointments/:id/request"
-              element={<DoctorconsultationRequestDetails />}
+              element={<DoctorConsultationRequestDetails />}
             />
             <Route path="history" element={<DoctorHistory />} />
             <Route path="patients" element={<DoctorPatients />} />
