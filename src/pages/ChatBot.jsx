@@ -128,29 +128,53 @@ export default function ChatBot() {
   //   };
 
   const getBotResponse = async (userMessage) => {
+    // إعداد سجل المحادثة: system + كل الرسائل السابقة + الرسالة الحالية
+    const chatHistory = [
+      {
+        role: "system",
+        content: `أنت مساعد طبي ذكي يتحدث اللغة العربية الفصحى المبسطة. دورك هو توجيه المستخدم وتقديم نصائح طبية عامة، ولكن بدون تقديم أي تشخيص طبي مباشر أو قرارات علاجية.
+
+قبل إعطاء أي توجيه، يجب عليك دائمًا طرح أسئلة على المستخدم لفهم حالته بشكل أفضل. استفسر عن الأعراض، المدة، الشدة، والمكان، وكذلك إذا كان يعاني من أمراض مزمنة أو يتناول أدوية.
+
+كن مهذبًا، واضحًا، واهتم بصحة المستخدم، ولكن لا تتجاوز حدود الاستشارة العامة.
+
+ابدأ دائمًا بسؤاله عن مشكلته، ثم تابع بأسئلة استكشافية مناسبة بناءً على ما يقوله.
+
+عند تقديم الإجابة، استخدم تنسيق HTML منظمًا، مع اعتماد تنسيق بصري جميل باستخدام CSS مضمن (inline styles داخل عناصر HTML) لتحسين قابلية القراءة وجعل المحتوى أكثر احترافية.
+
+احرص على استخدام عناصر مثل:
+- <h3 style="..."> للعناوين الرئيسية
+- <p style="..."> للنصوص التوضيحية
+- <ul style="..."> و <li style="..."> للقوائم
+
+استخدم ألوانًا هادئة (مثل الأزرق أو الأخضر)، حجم خط مريح، ومسافات مناسبة (margin/padding).
+
+مهم جدًا: لا تُرسل أي أكواد JavaScript أو خارج HTML. أرسل فقط كود HTML منسقًا ومباشرًا يحتوي على المعلومات المطلوبة.`,
+      },
+      // تحويل سجل المحادثة الحالي إلى التنسيق المناسب
+      ...messages.map((msg) => ({
+        role: msg.sender === "bot" ? "assistant" : "user",
+        content: msg.text,
+      })),
+      // الرسالة الجديدة من المستخدم
+      {
+        role: "user",
+        content: userMessage,
+      },
+    ];
+
+    // طلب من OpenRouter
     const response = await fetch(
       "https://openrouter.ai/api/v1/chat/completions",
       {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${import.meta.env.VITE_OPENIA_KEY}`, // ضع مفتاح OpenRouter
+          Authorization: `Bearer ${import.meta.env.VITE_OPENIA_KEY}`, // مفتاح OpenRouter
         },
         body: JSON.stringify({
-          model: "deepseek/deepseek-chat-v3-0324:free", // نموذج مجاني
-          messages: [
-            {
-              role: "system",
-              content: `أنت مساعد طبي ذكي يتحدث اللغة العربية الفصحى المبسطة. دورك هو توجيه المستخدم وتقديم نصائح طبية عامة، ولكن بدون تقديم أي تشخيص طبي مباشر أو قرارات علاجية.
-
-قبل إعطاء أي توجيه، يجب عليك دائمًا طرح أسئلة على المستخدم لفهم حالته بشكل أفضل. استفسر عن الأعراض، المدة، الشدة، والمكان، وكذلك إذا كان يعاني من أمراض مزمنة أو يأخذ أدوية.
-
-كن مهذبًا، واضحًا، واهتم بصحة المستخدم، ولكن لا تتجاوز حدود الاستشارة العامة.
-
-ابدأ دائمًا بسؤاله عن مشكلته، ثم تابع بأسئلة استكشافية مناسبة بناءً على ما يقوله. أنت مساعد طبي ذكي يتحدث العربية الفصحى. عند الإجابة على الأسئلة، يجب أن تكون الإجابة بتنسيق HTML منظم. استخدم عناصر مثل <h3>، <ul>، <li>، <p>، لتسهيل قراءة المحتوى. لا تضف أي شروحات خارج HTML. فقط أرسل كود HTML النهائي بدون كود JavaScript أو`,
-            },
-            { role: "user", content: userMessage },
-          ],
+          model: "deepseek/deepseek-chat-v3-0324:free",
+          messages: chatHistory,
           temperature: 0.6,
         }),
       }
@@ -158,6 +182,7 @@ export default function ChatBot() {
 
     const data = await response.json();
     console.log(data);
+
     if (data?.choices?.[0]?.message?.content) {
       return data.choices[0].message.content.trim();
     }
