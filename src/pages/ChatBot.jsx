@@ -26,7 +26,7 @@ const ChatMessage = ({ sender, text, avatarSrc }) => {
     >
       {isBot && (
         <Avatar
-          img={avatarSrc}
+          img={"/logo.png"}
           rounded
           size="sm"
           className="flex-shrink-0 border-2 border-primaryColor/50 p-0.5"
@@ -39,7 +39,10 @@ const ChatMessage = ({ sender, text, avatarSrc }) => {
             : "bg-primaryColor text-white dark:bg-primaryColor-600 rounded-br-none"
         }`}
       >
-        <p className="text-sm leading-relaxed">{text}</p>
+        <p
+          className="text-sm leading-relaxed"
+          dangerouslySetInnerHTML={{ __html: text }}
+        ></p>
       </div>
       {!isBot && (
         <Avatar
@@ -73,7 +76,7 @@ export default function ChatBot() {
     scrollToBottom();
   }, [messages, isTyping]);
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     const trimmedMessage = newMessage.trim();
     if (!trimmedMessage) return;
 
@@ -81,24 +84,84 @@ export default function ChatBot() {
     setNewMessage("");
     setIsTyping(true);
 
-    setTimeout(() => {
-      const botResponse = getStaticBotResponse(trimmedMessage);
-      setIsTyping(false);
+    try {
+      const botResponse = await getBotResponse(trimmedMessage);
       setMessages((prev) => [...prev, { sender: "bot", text: botResponse }]);
-    }, 1200);
+    } catch (error) {
+      console.log(error);
+      setMessages((prev) => [
+        ...prev,
+        { sender: "bot", text: "حدث خطأ أثناء الاتصال بالخدمة. حاول لاحقًا." },
+      ]);
+    } finally {
+      setIsTyping(false);
+    }
   };
 
-  const getStaticBotResponse = (userMessage) => {
-    const lowerCaseMessage = userMessage.toLowerCase();
-    if (lowerCaseMessage.includes("صداع")) {
-      return "الصداع له أسباب عديدة، منها الإجهاد أو الجفاف أو قلة النوم. يُنصح بشرب الماء والراحة. إذا كان الصداع شديدًا أو مستمرًا، استشر طبيبًا.";
-    } else if (lowerCaseMessage.includes("دوار")) {
-      return "الشعور بالدوار قد يكون ناتجًا عن انخفاض ضغط الدم أو مشاكل في الأذن الداخلية. إذا تكرر الشعور بالدوار، من الأفضل التحدث مع طبيبك.";
-    } else if (lowerCaseMessage.includes("حمى")) {
-      return "الحمى هي ارتفاع درجة حرارة الجسم وعادة ما تكون علامة على وجود عدوى. إذا كانت الحمى مرتفعة جدًا أو استمرت لأكثر من 3 أيام، يُنصح بزيارة الطبيب.";
-    } else {
-      return "شكرًا لسؤالك. أنا هنا للمساعدة في أي استفسارات طبية عامة أخرى. تذكر دائمًا أن هذه النصائح لا تغني عن استشارة الطبيب المختص.";
+  //   const getBotResponse = async (userMessage) => {
+  //     const response = await fetch("https://api.openai.com/v1/chat/completions", {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //         Authorization: `Bearer ${import.meta.env.VITE_OPENIA_KEY}`,
+  //       },
+  //       body: JSON.stringify({
+  //         model: "gpt-3.5-turbo", // استخدم gpt-3.5-turbo لو أردت
+  //         messages: [
+  //           {
+  //             role: "system",
+  //             content:
+  //               "أنت مساعد طبي ذكي تتحدث العربية. قدم نصائح طبية عامة وبلغة مبسطة، وتجنب تقديم تشخيص مباشر.",
+  //           },
+  //           { role: "user", content: userMessage },
+  //         ],
+  //         temperature: 0.6,
+  //       }),
+  //     });
+
+  //     const data = await response.json();
+  //     console.log(data);
+  //     if (data?.choices?.[0]?.message?.content) {
+  //       return data.choices[0].message.content.trim();
+  //     }
+  //     return "عذرًا، لم أتمكن من فهم سؤالك. حاول مرة أخرى.";
+  //   };
+
+  const getBotResponse = async (userMessage) => {
+    const response = await fetch(
+      "https://openrouter.ai/api/v1/chat/completions",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${import.meta.env.VITE_OPENIA_KEY}`, // ضع مفتاح OpenRouter
+        },
+        body: JSON.stringify({
+          model: "deepseek/deepseek-chat-v3-0324:free", // نموذج مجاني
+          messages: [
+            {
+              role: "system",
+              content: `أنت مساعد طبي ذكي يتحدث اللغة العربية الفصحى المبسطة. دورك هو توجيه المستخدم وتقديم نصائح طبية عامة، ولكن بدون تقديم أي تشخيص طبي مباشر أو قرارات علاجية.
+
+قبل إعطاء أي توجيه، يجب عليك دائمًا طرح أسئلة على المستخدم لفهم حالته بشكل أفضل. استفسر عن الأعراض، المدة، الشدة، والمكان، وكذلك إذا كان يعاني من أمراض مزمنة أو يأخذ أدوية.
+
+كن مهذبًا، واضحًا، واهتم بصحة المستخدم، ولكن لا تتجاوز حدود الاستشارة العامة.
+
+ابدأ دائمًا بسؤاله عن مشكلته، ثم تابع بأسئلة استكشافية مناسبة بناءً على ما يقوله. أنت مساعد طبي ذكي يتحدث العربية الفصحى. عند الإجابة على الأسئلة، يجب أن تكون الإجابة بتنسيق HTML منظم. استخدم عناصر مثل <h3>، <ul>، <li>، <p>، لتسهيل قراءة المحتوى. لا تضف أي شروحات خارج HTML. فقط أرسل كود HTML النهائي بدون كود JavaScript أو`,
+            },
+            { role: "user", content: userMessage },
+          ],
+          temperature: 0.6,
+        }),
+      }
+    );
+
+    const data = await response.json();
+    console.log(data);
+    if (data?.choices?.[0]?.message?.content) {
+      return data.choices[0].message.content.trim();
     }
+    return "عذرًا، لم أتمكن من فهم سؤالك. حاول مرة أخرى.";
   };
 
   const suggestedQuestions = [
