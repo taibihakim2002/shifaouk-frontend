@@ -49,7 +49,7 @@ function formatDateTime(value, type) {
         const hours = String(dateObj.getHours()).padStart(2, "0");
         const minutes = String(dateObj.getMinutes()).padStart(2, "0");
 
-        return `${dayName}، ${dayNumber} ${monthName} ${year} على الساعة ${hours}:${minutes}`;
+        return `${dayName}، ${dayNumber} ${monthName} ${year} | ${hours}:${minutes}`;
     }
 
     return "";

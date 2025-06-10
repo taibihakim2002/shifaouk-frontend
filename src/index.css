@@ -6,6 +6,12 @@
 .hero {
   min-height: calc(100vh - 80px);
 }
+.dashheader {
+  z-index: 500;
+}
+.dashside {
+  z-index: 600;
+}
 .swiper-wrapper {
   margin-bottom: 30px;
 }

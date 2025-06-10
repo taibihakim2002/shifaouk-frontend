@@ -42,6 +42,7 @@ import {
   AlertCircle,
   MessageSquare,
   Video,
+  Droplets,
 } from "lucide-react";
 import { HiMiniPlusCircle } from "react-icons/hi2";
 import { MdOutlineHistory } from "react-icons/md";
@@ -133,23 +134,60 @@ export default function DoctorPatientProfile() {
   const navigate = useNavigate();
 
   // استخدام البيانات الثابتة بدلاً من استدعاء API
-  const [patientData, setPatientData] = useState(mockPatientData);
-  const [consultations, setConsultations] = useState(mockConsultationHistory);
-  const [loading, setLoading] = useState(false); // محاكاة انتهاء التحميل
-  const [error, setError] = useState(null); // محاكاة عدم وجود خطأ
+  const [patientData, setPatientData] = useState();
+  const [consultations, setConsultations] = useState();
 
-  const age = patientData.patientProfile?.birthDate
+  const {
+    data: consultationsData,
+    loading: consultationsLoading,
+    error: consultationsError,
+    request: consultationsRequest,
+  } = useApiRequest();
+
+  const {
+    data: patient,
+    loading: patientLoading,
+    error: patientError,
+    request: patientRequest,
+  } = useApiRequest();
+
+  useEffect(() => {
+    if (patientId) {
+      patientRequest(() => globalApi.getPatientById(patientId));
+    }
+  }, [patientId]);
+
+  useEffect(() => {
+    if (patientId) {
+      consultationsRequest(() =>
+        globalApi.getAllAppointments({
+          patient: patientId,
+          // status: "completed",
+        })
+      );
+    }
+  }, [patientId]);
+
+  useEffect(() => {
+    setPatientData(patient?.data);
+  }, [patient]);
+
+  useEffect(() => {
+    setConsultations(consultationsData?.data);
+  }, [consultationsData]);
+
+  const age = patientData?.patientProfile?.birthDate
     ? Math.floor(
-        (new Date() - new Date(patientData.patientProfile.birthDate)) /
+        (new Date() - new Date(patientData?.patientProfile.birthDate)) /
           (365.25 * 24 * 60 * 60 * 1000)
       )
     : null;
 
-  if (loading) {
+  if (patientLoading) {
     return <div className="p-8">جاري التحميل...</div>; // يمكنك وضع هيكل تحميل هنا
   }
 
-  if (error || !patientData) {
+  if (patientError) {
     return (
       <div className="p-8">خطأ في تحميل البيانات أو المريض غير موجود.</div>
     );
@@ -160,8 +198,8 @@ export default function DoctorPatientProfile() {
       <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-8 pb-4 border-b dark:border-gray-700">
         <DashPageHeader
           Icon={HiOutlineUserCircle}
-          title={`ملف المريض: ${patientData.fullName?.first || ""} ${
-            patientData.fullName?.second || ""
+          title={`ملف المريض: ${patientData?.fullName?.first || ""} ${
+            patientData?.fullName?.second || ""
           }`}
           description="عرض شامل لمعلومات المريض وسجله الطبي والاستشاري."
         />
@@ -187,12 +225,12 @@ export default function DoctorPatientProfile() {
               <div className="flex flex-col items-center p-6 pt-8">
                 <Avatar
                   img={
-                    patientData.profileImage
-                      ? parseImgUrl(patientData.profileImage)
+                    patientData?.profileImage
+                      ? parseImgUrl(patientData?.profileImage)
                       : `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                          patientData.fullName?.first || "P"
+                          patientData?.fullName?.first || "P"
                         )}+${encodeURIComponent(
-                          patientData.fullName?.second || ""
+                          patientData?.fullName?.second || ""
                         )}&background=6366F1&color=fff&font-size=0.45&bold=true`
                   }
                   theme={flowbit.avatar}
@@ -203,18 +241,23 @@ export default function DoctorPatientProfile() {
                   className="mb-4 ring-4 ring-white dark:ring-gray-700 object-cover"
                 />
                 <h5 className="mb-1 text-xl md:text-2xl font-bold text-gray-900 dark:text-white text-center">
-                  {patientData.fullName?.first} {patientData.fullName?.second}
+                  {patientData?.fullName?.first} {patientData?.fullName?.second}
                 </h5>
                 <span className="text-sm text-gray-500 dark:text-gray-400 mb-3">
-                  {patientData.email}
+                  {patientData?.email}
                 </span>
-                <Badge
-                  color={patientData.isActive ? "success" : "failure"}
-                  theme={flowbit.badge}
-                  className="!text-sm !px-3 !py-1"
-                >
-                  {patientData.isActive ? "حساب نشط" : "حساب غير نشط"}
-                </Badge>
+                <div className="flex gap-2 items-center ">
+                  <Badge
+                    color="success"
+                    theme={flowbit.badge}
+                    className="p-2 rounded-xl"
+                  >
+                    نشط
+                  </Badge>
+                  <Badge color="failure" icon={Droplets} theme={flowbit.badge}>
+                    فصيلة الدم: A+
+                  </Badge>
+                </div>
               </div>
               <div className="border-t border-gray-200 dark:border-gray-700 px-6 py-4 space-y-3.5 text-sm">
                 <div className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
@@ -223,7 +266,7 @@ export default function DoctorPatientProfile() {
                     size={18}
                     className="text-primaryColor-500 flex-shrink-0"
                   />{" "}
-                  <span>{patientData.phone || "لم يضف رقم هاتف"}</span>
+                  <span>{patientData?.phone || "لم يضف رقم هاتف"}</span>
                 </div>
                 <div className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
                   {" "}
@@ -240,7 +283,7 @@ export default function DoctorPatientProfile() {
                     className="text-primaryColor-500 flex-shrink-0"
                   />{" "}
                   <span>
-                    {patientData.patientProfile?.gender === "male"
+                    {patientData?.patientProfile?.gender === "male"
                       ? "ذكر"
                       : "أنثى"}
                   </span>
@@ -250,7 +293,7 @@ export default function DoctorPatientProfile() {
                 <div className="flex flex-col gap-2 w-full">
                   <Button
                     as={Link}
-                    to={`/dashboard/chat/${patientData._id}`}
+                    to={`/dashboard/chat/${patientData?._id}`}
                     color="primary"
                     theme={flowbit.button}
                     size="sm"
@@ -260,7 +303,7 @@ export default function DoctorPatientProfile() {
                   </Button>
                   <Button
                     as={Link}
-                    to={`/dashboard/appointments/new?patientId=${patientData._id}`}
+                    to={`/dashboard/appointments/new?patientId=${patientData?._id}`}
                     color="light"
                     theme={flowbit.button}
                     size="sm"
@@ -287,9 +330,9 @@ export default function DoctorPatientProfile() {
                   <MdOutlineHistory className="text-indigo-500" />
                   التاريخ الطبي:
                 </h4>
-                {patientData.patientProfile?.medicalHistory?.length > 0 ? (
+                {patientData?.patientProfile?.medicalHistory?.length > 0 ? (
                   <ul className="list-disc list-inside space-y-1 text-sm text-gray-600 dark:text-gray-300 bg-slate-50 dark:bg-gray-700/60 p-3 rounded-md border dark:border-gray-600/50">
-                    {patientData.patientProfile.medicalHistory.map(
+                    {patientData?.patientProfile?.medicalHistory.map(
                       (item, i) => (
                         <li key={i}>{item}</li>
                       )
@@ -307,9 +350,9 @@ export default function DoctorPatientProfile() {
                     <FaAllergies className="text-orange-500" />
                     الحساسية:
                   </h4>
-                  {patientData.patientProfile?.allergies?.length > 0 ? (
+                  {patientData?.patientProfile?.allergies?.length > 0 ? (
                     <ul className="list-disc list-inside space-y-1 text-sm text-gray-600 dark:text-gray-300 bg-slate-50 dark:bg-gray-700/60 p-3 rounded-md border dark:border-gray-600/50">
-                      {patientData.patientProfile.allergies.map((item, i) => (
+                      {patientData?.patientProfile.allergies.map((item, i) => (
                         <li key={i}>{item}</li>
                       ))}
                     </ul>
@@ -324,9 +367,9 @@ export default function DoctorPatientProfile() {
                     <FaHeartbeat className="text-red-500" />
                     الأمراض المزمنة:
                   </h4>
-                  {patientData.patientProfile?.chronicDiseases?.length > 0 ? (
+                  {patientData?.patientProfile?.chronicDiseases?.length > 0 ? (
                     <ul className="list-disc list-inside space-y-1 text-sm text-gray-600 dark:text-gray-300 bg-slate-50 dark:bg-gray-700/60 p-3 rounded-md border dark:border-gray-600/50">
-                      {patientData.patientProfile.chronicDiseases.map(
+                      {patientData?.patientProfile.chronicDiseases.map(
                         (item, i) => (
                           <li key={i}>{item}</li>
                         )
@@ -339,6 +382,62 @@ export default function DoctorPatientProfile() {
                   )}
                 </div>
               </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <h4 className="text-md font-semibold text-gray-700 dark:text-gray-200 mb-1.5 flex items-center gap-2">
+                    <HiOutlineClipboardList className="text-orange-500" />
+                    العمليات الجراحية السابقة
+                  </h4>
+                  {patientData?.patientProfile?.allergies?.length > 0 ? (
+                    <ul className="list-disc list-inside space-y-1 text-sm text-gray-600 dark:text-gray-300 bg-slate-50 dark:bg-gray-700/60 p-3 rounded-md border dark:border-gray-600/50">
+                      {patientData?.patientProfile.allergies.map((item, i) => (
+                        <li key={i}>{item}</li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="text-sm text-gray-400 italic">
+                      لا توجد حساسية مسجلة.
+                    </p>
+                  )}
+                </div>
+                <div>
+                  <h4 className="text-md font-semibold text-gray-700 dark:text-gray-200 mb-1.5 flex items-center gap-2">
+                    <GiMedicalDrip className="text-red-500" />
+                    الأدوية الحالية
+                  </h4>
+                  {patientData?.patientProfile?.chronicDiseases?.length > 0 ? (
+                    <ul className="list-disc list-inside space-y-1 text-sm text-gray-600 dark:text-gray-300 bg-slate-50 dark:bg-gray-700/60 p-3 rounded-md border dark:border-gray-600/50">
+                      {patientData?.patientProfile.chronicDiseases.map(
+                        (item, i) => (
+                          <li key={i}>{item}</li>
+                        )
+                      )}
+                    </ul>
+                  ) : (
+                    <p className="text-sm text-gray-400 italic">
+                      لا توجد أمراض مزمنة مسجلة.
+                    </p>
+                  )}
+                </div>
+              </div>
+              <div>
+                <h4 className="text-md font-semibold text-gray-700 dark:text-gray-200 mb-1.5 flex items-center gap-2">
+                  الأمراض الوراثية في العائلة
+                </h4>
+                {patientData?.patientProfile?.medicalHistory?.length > 0 ? (
+                  <ul className="list-disc list-inside space-y-1 text-sm text-gray-600 dark:text-gray-300 bg-slate-50 dark:bg-gray-700/60 p-3 rounded-md border dark:border-gray-600/50">
+                    {patientData?.patientProfile.medicalHistory.map(
+                      (item, i) => (
+                        <li key={i}>{item}</li>
+                      )
+                    )}
+                  </ul>
+                ) : (
+                  <p className="text-sm text-gray-400 italic">
+                    لا يوجد تاريخ طبي مسجل.
+                  </p>
+                )}
+              </div>
             </div>
           </Card>
 
@@ -350,52 +449,105 @@ export default function DoctorPatientProfile() {
             <div className="overflow-x-auto">
               <Table
                 hoverable
-                className="min-w-[700px] text-right dark:divide-gray-700"
+                className="min-w-[800px] text-right dark:divide-gray-700"
               >
                 <TableHead className="bg-slate-50 dark:bg-gray-700 text-xs text-gray-600 dark:text-gray-300 uppercase">
+                  <TableHeadCell className="p-3 px-4 text-center">
+                    #
+                  </TableHeadCell>
                   <TableHeadCell className="p-3 px-4">
                     تاريخ الاستشارة
                   </TableHeadCell>
                   <TableHeadCell className="p-3 px-4">نوعها</TableHeadCell>
-                  <TableHeadCell className="p-3 px-4">
-                    الشكوى الرئيسية
+
+                  <TableHeadCell className="p-3 px-4 text-center">
+                    المدة
                   </TableHeadCell>
                   <TableHeadCell className="p-3 px-4 text-center">
+                    السعر
+                  </TableHeadCell>
+                  <TableHeadCell className="p-3 px-4 text-center sticky right-0 bg-slate-50 dark:bg-gray-700">
                     الإجراء
                   </TableHeadCell>
                 </TableHead>
-                <TableBody className="divide-y dark:divide-gray-700">
-                  {consultations.length > 0 ? (
-                    consultations.map((consult) => (
+                <TableBody className="divide-y dark:divide-gray-600">
+                  {consultationsLoading ? (
+                    // Skeleton Loading State
+                    [...Array(3)].map((_, index) => (
+                      <TableRow
+                        key={index}
+                        className="bg-white animate-pulse dark:bg-gray-800"
+                      >
+                        <TableCell className="p-3 px-4 text-center">
+                          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-12 mx-auto"></div>
+                        </TableCell>
+                        <TableCell className="p-3 px-4">
+                          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-32"></div>
+                        </TableCell>
+                        <TableCell className="p-3 px-4">
+                          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-20"></div>
+                        </TableCell>
+                        <TableCell className="p-3 px-4">
+                          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-40"></div>
+                        </TableCell>
+                        <TableCell className="p-3 px-4 text-center">
+                          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-12 mx-auto"></div>
+                        </TableCell>
+                        <TableCell className="p-3 px-4 text-center">
+                          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-16 mx-auto"></div>
+                        </TableCell>
+                        <TableCell className="p-3 px-4 text-center sticky right-0 bg-white dark:bg-gray-800">
+                          <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded-lg w-20 mx-auto"></div>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : consultationsError ? (
+                    // Error State
+                    <TableRow>
+                      <TableCell
+                        colSpan={7}
+                        className="text-center py-12 text-red-500 dark:text-red-400"
+                      >
+                        <AlertCircle
+                          size={32}
+                          className="inline-block ml-2 mb-1"
+                        />
+                        حدث خطأ أثناء تحميل سجل الاستشارات.
+                      </TableCell>
+                    </TableRow>
+                  ) : consultations?.length > 0 ? (
+                    // Data Rows
+                    consultations?.map((consult) => (
                       <TableRow
                         key={consult._id}
                         className="bg-white dark:bg-gray-800 hover:bg-slate-50 dark:hover:bg-gray-700/50"
                       >
-                        <TableCell className="p-3 px-4 text-sm text-gray-600 dark:text-gray-300">
-                          {formatDateTime(consult.date, "arabicDate")}
+                        <TableCell className="p-3 px-4 text-sm font-bold text-gray-500 dark:text-gray-400 text-center">
+                          #{consult.consultationId}
+                        </TableCell>
+                        <TableCell className="p-3 px-4 text-sm text-gray-700 dark:text-gray-300 font-medium">
+                          {formatDateTime(consult.date, "arabic-both")}
                         </TableCell>
                         <TableCell className="p-3 px-4">
                           <div className="inline-flex items-center gap-1.5 text-sm text-gray-600 dark:text-gray-300">
-                            {consult.type === "video" ? (
-                              <Video size={16} className="text-blue-500" />
-                            ) : (
-                              <MessageSquare
-                                size={16}
-                                className="text-purple-500"
-                              />
-                            )}
+                            <Video size={16} className="text-blue-500" />
                             <span>
-                              {consult.type === "video" ? "عن بعد" : "محادثة"}
+                              online
+                              {/* !edit-here */}
                             </span>
                           </div>
                         </TableCell>
-                        <TableCell className="p-3 px-4 text-sm text-gray-500 dark:text-gray-400">
-                          {consult.mainComplaint}
+
+                        <TableCell className="p-3 px-4 text-sm text-gray-600 dark:text-gray-300 text-center">
+                          {consult.duration} دقيقة
                         </TableCell>
-                        <TableCell className="p-3 px-4 text-center">
+                        <TableCell className="p-3 px-4 text-sm font-semibold text-green-600 dark:text-green-400 text-center">
+                          {consult.price} دج
+                        </TableCell>
+                        <TableCell className="p-3 px-4 text-center sticky right-0 bg-white group-hover:bg-slate-50 dark:bg-gray-800 dark:group-hover:bg-gray-700/50">
                           <Button
                             as={Link}
-                            to={`/dashboard/appointments/${consult._id}`}
+                            to={`/dashboard/appointments/${consult._id}/report`} // Adjust link as needed
                             theme={flowbit.button}
                             color="light"
                             size="xs"
@@ -408,12 +560,19 @@ export default function DoctorPatientProfile() {
                       </TableRow>
                     ))
                   ) : (
+                    // Empty State
                     <TableRow>
                       <TableCell
-                        colSpan={4}
-                        className="text-center py-8 text-gray-500 dark:text-gray-400"
+                        colSpan={7}
+                        className="text-center py-12 text-gray-500 dark:text-gray-400"
                       >
-                        لا توجد استشارات مكتملة لعرضها.
+                        <HiOutlineClipboardList
+                          size={48}
+                          className="mx-auto mb-3 text-gray-300 dark:text-gray-500"
+                        />
+                        <p className="font-medium">
+                          لا توجد استشارات مكتملة لعرضها.
+                        </p>
                       </TableCell>
                     </TableRow>
                   )}

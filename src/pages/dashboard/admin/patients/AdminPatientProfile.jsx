@@ -41,7 +41,8 @@ import {
   HiOutlineArrowLeft, // للعودة
   HiOutlinePlusCircle,
   HiOutlineClipboardList,
-  HiOutlinePencilAlt, // لرفع ملف
+  HiOutlinePencilAlt,
+  HiOutlineEye, // لرفع ملف
 } from "react-icons/hi";
 import {
   Cake,

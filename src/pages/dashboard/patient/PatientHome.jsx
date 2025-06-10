@@ -28,6 +28,7 @@ import {
   Lightbulb,
   AlertCircle,
   CalendarClock,
+  HardHat,
 } from "lucide-react"; // Modern icons
 import formatDateTime from "../../../utils/formatDateTime";
 import AppAvatar from "../../../components/common/AppAvatar";
@@ -36,6 +37,7 @@ import globalApi from "../../../utils/globalApi";
 import Skeleton from "../../../components/common/Skeleton";
 import parseImgUrl from "../../../utils/parseImgUrl";
 import { IoVideocam } from "react-icons/io5";
+import useCountdown from "../../../utils/useCountdown";
 
 // --- Static Data for Demonstration ---
 const user = { name: "أحمد" };
@@ -200,6 +202,9 @@ export default function PatientHome() {
     statesRequest(() => globalApi.getPatientHomeStates());
     nextRequest(() => globalApi.getPatientNextAppointment());
   }, []);
+
+  const { formatted } = useCountdown(nextData?.data?.date);
+
   return (
     <div className="p-4 md:p-6 lg:p-8 dark:bg-gray-900 min-h-screen">
       <DashPageHeader
@@ -321,7 +326,7 @@ export default function PatientHome() {
                         <MessageCircleIcon size={16} />
                       )}
                       <span>
-                        {nextData.type === "video"
+                        {nextData?.data?.type === "online"
                           ? "مكالمة فيديو"
                           : "محادثة نصية"}
                       </span>
@@ -341,7 +346,7 @@ export default function PatientHome() {
                     </div>
                     {/* This would be a real countdown component */}
                     <p className="text-lg font-bold tracking-wider animate-pulse">
-                      02:15:15
+                      {formatted}
                     </p>
                   </div>
                 </div>
@@ -397,7 +402,8 @@ export default function PatientHome() {
         </div>
 
         {/* Activity Log Section */}
-        <div className="bg-white dark:bg-gray-800 border dark:border-gray-700 rounded-2xl shadow-xl p-4 sm:p-6 lg:col-span-1">
+        <div className="bg-white dark:bg-gray-800 border dark:border-gray-700 rounded-2xl shadow-xl p-4 sm:p-6 lg:col-span-1 relative overflow-hidden">
+          {/* Existing Content */}
           <div className="flex justify-between items-center mb-5 pb-3 border-b border-gray-200 dark:border-gray-700">
             <h3 className="text-lg font-semibold text-gray-800 dark:text-white flex items-center gap-2">
               <FaHistory
@@ -419,13 +425,31 @@ export default function PatientHome() {
               <ActivityItem key={index} item={item} />
             ))}
           </div>
+
+          {/* --- Under Development Overlay --- */}
+          <div className="absolute inset-0 z-10 bg-white/80 dark:bg-gray-800/90 backdrop-blur-sm flex flex-col items-center justify-center text-center p-4">
+            <div className="relative w-28 h-28 mx-auto mb-4">
+              <div className="absolute inset-0 bg-amber-500/10 dark:bg-amber-400/10 rounded-full animate-pulse"></div>
+              <div className="relative w-full h-full flex items-center justify-center bg-white dark:bg-gray-800 rounded-full shadow-lg border-2 border-amber-500/20 dark:border-amber-400/30">
+                <HardHat className="w-14 h-14 text-amber-500 dark:text-amber-400" />
+              </div>
+            </div>
+            <h4 className="text-xl font-bold text-gray-800 dark:text-white mb-2">
+              قيد التطوير
+            </h4>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              سجل الأنشطة سيكون متاحًا هنا قريبًا!
+            </p>
+          </div>
         </div>
       </div>
 
       {/* New Sections: Favorite Doctors & Health Tip */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10 items-start">
         {/* Favorite Doctors */}
-        <div className="lg:col-span-2 bg-white dark:bg-gray-800 border dark:border-gray-700 rounded-2xl shadow-xl p-5 sm:p-6">
+        <div className="lg:col-span-2 bg-white dark:bg-gray-800 border dark:border-gray-700 rounded-2xl shadow-xl p-5 sm:p-6 relative overflow-hidden">
+          {" "}
+          {/* Added relative and overflow-hidden */}
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-xl font-semibold text-gray-800 dark:text-white flex items-center gap-3">
               <FaHeart size={20} className="text-pink-500" />
@@ -445,7 +469,15 @@ export default function PatientHome() {
                 key={doctor.id}
                 className="flex flex-col items-center gap-2 flex-shrink-0 w-24 text-center group"
               >
-                <AppAvatar url={doctor.avatar} alt={doctor.name} />
+                <Avatar
+                  img={doctor.avatar}
+                  alt={doctor.name}
+                  size="lg"
+                  rounded
+                  bordered
+                  color="light"
+                  className="transition-all duration-300 group-hover:ring-primaryColor dark:group-hover:ring-primaryColor-400"
+                />
                 <p className="text-xs font-medium text-gray-600 dark:text-gray-300 group-hover:text-primaryColor dark:group-hover:text-primaryColor-300 transition-colors truncate w-full">
                   {doctor.name}
                 </p>
@@ -465,6 +497,21 @@ export default function PatientHome() {
                 ابحث عن طبيب
               </p>
             </Link>
+          </div>
+          {/* --- Under Development Overlay --- */}
+          <div className="absolute inset-0 z-10 bg-white/80 dark:bg-gray-800/90 backdrop-blur-sm flex flex-col items-center justify-center text-center p-4">
+            <div className="relative w-28 h-28 mx-auto mb-4">
+              <div className="absolute inset-0 bg-amber-500/10 dark:bg-amber-400/10 rounded-full animate-pulse"></div>
+              <div className="relative w-full h-full flex items-center justify-center bg-white dark:bg-gray-800 rounded-full shadow-lg border-2 border-amber-500/20 dark:border-amber-400/30">
+                <HardHat className="w-14 h-14 text-amber-500 dark:text-amber-400" />
+              </div>
+            </div>
+            <h4 className="text-xl font-bold text-gray-800 dark:text-white mb-2">
+              الميزة قيد التطوير
+            </h4>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              نحن نعمل على هذه الميزة حاليًا وستكون متاحة قريبًا!
+            </p>
           </div>
         </div>
         {/* Health Tip */}

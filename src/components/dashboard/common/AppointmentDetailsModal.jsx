@@ -24,6 +24,8 @@ import { FaUserMd, FaUserInjured, FaTag, FaStickyNote } from "react-icons/fa"; /
 import formatDateTime from "../../../utils/formatDateTime";
 import parseImgUrl from "../../../utils/parseImgUrl";
 import flowbit from "../../../config/flowbit";
+import { TbReportSearch } from "react-icons/tb";
+import { useNavigate } from "react-router-dom";
 
 // مكون مساعد لعرض تفصيلة مع أيقونة
 const DetailItem = ({
@@ -54,10 +56,14 @@ const DetailItem = ({
 );
 
 // مكون مساعد لعرض رابط لملف شخصي
-const ProfileLink = ({ userId, userType, children }) => (
+const ProfileLink = ({ userId, userType, role, children }) => (
   <Button
     as="a" // استخدام as="a" مع flowbite Button قد لا يعمل دائما، استخدم Link من react-router-dom إذا لزم الأمر
-    href={`/dashboard/${userType}s/${userId}`} // مثال: /dashboard/doctors/ID أو /dashboard/patients/ID
+    href={`${
+      role === "patient"
+        ? `/doctors/${userId}`
+        : `/dashboard/${userType}s/${userId}`
+    }`} // مثال: /dashboard/doctors/ID أو /dashboard/patients/ID
     target="_blank" // لفتح في نافذة جديدة
     rel="noopener noreferrer"
     color="light"
@@ -117,6 +123,7 @@ const getStatusBadge = (status) => {
   );
 };
 export default function AppointmentDetailsModal({
+  role,
   open,
   onClose,
   appointment,
@@ -145,7 +152,6 @@ export default function AppointmentDetailsModal({
         </span>
       </ModalHeader>
       <ModalBody className="max-h-[75vh] overflow-y-auto custom-scrollbar">
-
         <div className="space-y-5 p-2 sm:p-4">
           <section className="p-4 bg-slate-50 dark:bg-gray-700 rounded-lg shadow">
             <h3 className="text-md font-semibold text-primaryColor mb-3 flex items-center gap-2">
@@ -230,50 +236,56 @@ export default function AppointmentDetailsModal({
                   <p className="text-sm text-blue-600 dark:text-blue-400">
                     {doctor.doctorProfile?.specialization || "تخصص غير محدد"}
                   </p>
-                  <ProfileLink userId={doctor._id} userType="doctor" />
+                  <ProfileLink
+                    userId={doctor._id}
+                    userType="doctor"
+                    role="patient"
+                  />
                 </div>
               </div>
             </section>
           )}
 
           {/* قسم معلومات المريض */}
-          {patient && (
-            <section className="p-4 bg-slate-50 dark:bg-gray-700 rounded-lg shadow">
-              <h3 className="text-md font-semibold text-primaryColor mb-3 flex items-center gap-2">
-                <FaUserInjured size={18} />
-                معلومات المريض
-              </h3>
-              <div className="flex flex-col sm:flex-row items-center gap-4">
-                <img
-                  src={
-                    patient.profileImage
-                      ? parseImgUrl(patient.profileImage)
-                      : `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                          patient.fullName?.first || ""
-                        )}+${encodeURIComponent(
-                          patient.fullName?.second || ""
-                        )}&background=6D28D9&color=fff&font-size=0.4&format=svg`
-                  }
-                  alt={`${patient.fullName?.first} ${patient.fullName?.second}`}
-                  className="w-20 h-20 rounded-full object-cover border-2 border-gray-200 shadow-sm"
-                />
-                <div className="text-center sm:text-right">
-                  <p className="text-lg font-semibold text-gray-800 dark:text-white">
-                    {patient.fullName?.first} {patient.fullName?.second}
-                  </p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    {patient.email || "لا يوجد بريد إلكتروني"}
-                  </p>
-                  {patient.phone && (
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      هاتف: {patient.phone}
-                    </p>
-                  )}
-                  <ProfileLink userId={patient._id} userType="patient" />
-                </div>
-              </div>
-            </section>
-          )}
+          {role === "patient"
+            ? ""
+            : patient && (
+                <section className="p-4 bg-slate-50 dark:bg-gray-700 rounded-lg shadow">
+                  <h3 className="text-md font-semibold text-primaryColor mb-3 flex items-center gap-2">
+                    <FaUserInjured size={18} />
+                    معلومات المريض
+                  </h3>
+                  <div className="flex flex-col sm:flex-row items-center gap-4">
+                    <img
+                      src={
+                        patient.profileImage
+                          ? parseImgUrl(patient.profileImage)
+                          : `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                              patient.fullName?.first || ""
+                            )}+${encodeURIComponent(
+                              patient.fullName?.second || ""
+                            )}&background=6D28D9&color=fff&font-size=0.4&format=svg`
+                      }
+                      alt={`${patient.fullName?.first} ${patient.fullName?.second}`}
+                      className="w-20 h-20 rounded-full object-cover border-2 border-gray-200 shadow-sm"
+                    />
+                    <div className="text-center sm:text-right">
+                      <p className="text-lg font-semibold text-gray-800 dark:text-white">
+                        {patient.fullName?.first} {patient.fullName?.second}
+                      </p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        {patient.email || "لا يوجد بريد إلكتروني"}
+                      </p>
+                      {patient.phone && (
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          هاتف: {patient.phone}
+                        </p>
+                      )}
+                      <ProfileLink userId={patient._id} userType="patient" />
+                    </div>
+                  </div>
+                </section>
+              )}
 
           {/* قسم الملاحظات */}
           {appointment.notes && (
@@ -298,15 +310,24 @@ export default function AppointmentDetailsModal({
               <DetailItem
                 icon={HiOutlineCalendar}
                 label="تاريخ إنشاء الموعد"
-                value={formatDateTime(appointment.createdAt, "datetime")}
-              />
-              <DetailItem
-                icon={HiOutlineCalendar}
-                label="آخر تحديث للموعد"
-                value={formatDateTime(appointment.updatedAt, "datetime")}
+                value={formatDateTime(appointment.createdAt, "date")}
               />
             </div>
           </section>
+          {appointment.status === "confirmed" ? (
+            <Button
+              href={`/appointments/${appointment._id}/report`}
+              color="gray"
+              outline
+              theme={flowbit.button}
+              className="w-full sm:w-auto !px-5 !py-2 m-auto"
+            >
+              <TbReportSearch size={20} className="ml-2" />
+              عرض التقرير
+            </Button>
+          ) : (
+            ""
+          )}
         </div>
       </ModalBody>
       <ModalFooter className="flex justify-start border-t border-gray-200 dark:border-gray-700 !p-4">

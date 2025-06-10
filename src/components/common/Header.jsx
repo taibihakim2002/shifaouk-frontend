@@ -38,6 +38,7 @@ import globalApi from "../../utils/globalApi";
 import useToastStore from "../../store/toastStore";
 
 import parseImgUrl from "../../utils/parseImgUrl";
+import { LuBot } from "react-icons/lu";
 
 const menu = [
   {
@@ -51,9 +52,9 @@ const menu = [
     icon: BriefcaseMedical,
   },
   {
-    title: "الخدمات",
-    link: "#",
-    icon: ServerIcon,
+    title: "البوت الذكي",
+    link: "/chat-bot",
+    icon: LuBot,
   },
   {
     title: "من نحن",

@@ -122,19 +122,19 @@ export default function PatientProfile() {
         state: user.state || "",
         city: user.city || "",
         address: user.address || "", // Assuming address is top-level
-        bloodType: user.patientProfile.bloodType || "",
-        medicalHistory: user.patientProfile.medicalHistory?.join("\n") || "",
-        surgeries: user.patientProfile.surgeries?.join("\n") || "",
-        familyHistory: user.patientProfile.familyHistory?.join("\n") || "",
-        allergies: user.patientProfile.allergies?.join("\n") || "",
-        chronicDiseases: user.patientProfile.chronicDiseases?.join("\n") || "",
+        bloodType: user.patientProfile?.bloodType || "",
+        medicalHistory: user.patientProfile?.medicalHistory?.join("\n") || "",
+        surgeries: user.patientProfile?.surgeries?.join("\n") || "",
+        familyHistory: user.patientProfile?.familyHistory?.join("\n") || "",
+        allergies: user.patientProfile?.allergies?.join("\n") || "",
+        chronicDiseases: user.patientProfile?.chronicDiseases?.join("\n") || "",
         currentMedications:
-          user.patientProfile.currentMedications?.join("\n") || "",
+          user.patientProfile?.currentMedications?.join("\n") || "",
       });
       setCurrentProfileImageUrl(
         user.profileImage ? parseImgUrl(user.profileImage) : null
       );
-      setExistingFiles(user.patientProfile.uploadedFiles || []);
+      setExistingFiles(user.patientProfile?.uploadedFiles || []);
     }
   }, [user]);
 
@@ -504,7 +504,7 @@ export default function PatientProfile() {
                   </Label>
                   <Select
                     id="bloodType"
-                    value={formData.bloodType}
+                    value={formData?.bloodType}
                     onChange={handleChange}
                     theme={flowbit.select}
                     icon={Droplets}

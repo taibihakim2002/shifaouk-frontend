@@ -62,7 +62,7 @@ import InfoCard from "../../../components/dashboard/common/InfoCard";
 import DashPageHeader from "../../../components/dashboard/common/DashPageHeader";
 import useApiRequest from "../../../hooks/useApiRequest";
 import globalApi from "../../../utils/globalApi";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Skeleton from "../../../components/common/Skeleton";
 import formatDateTime from "../../../utils/formatDateTime";
 import parseImgUrl from "../../../utils/parseImgUrl";
@@ -217,50 +217,52 @@ const recentChats = [
 ];
 
 const ConsultationRequestCard = ({ request }) => (
-  <div className="bg-white dark:bg-gray-700/50 border border-gray-200 dark:border-gray-700 rounded-xl p-4 shadow-lg hover:shadow-xl hover:border-primaryColor/50 dark:hover:border-primaryColor-500/50 transition-all duration-300 ease-in-out">
-    <div className="flex flex-col sm:flex-row items-start gap-4">
-      <Avatar
-        img={request.patient.avatar}
-        size="lg"
-        rounded
-        bordered
-        color="light"
-      />
-      <div className="flex-grow">
-        <div className="flex justify-between items-center">
-          <h4 className="font-semibold text-gray-800 dark:text-white text-md">
-            {request.patient.name}
-          </h4>
-          <p className="text-xs text-gray-400 dark:text-gray-500 flex items-center gap-1">
-            <HiOutlineClock />
-            {request.timeSince}
+  <Link to={`appointments/${request._id}/request`}>
+    <div className="bg-white dark:bg-gray-700/50 border border-gray-200 dark:border-gray-700 rounded-xl p-4 shadow-lg hover:shadow-xl hover:border-primaryColor/50 dark:hover:border-primaryColor-500/50 transition-all duration-300 ease-in-out">
+      <div className="flex flex-col sm:flex-row items-start gap-4">
+        <Avatar
+          img={request.patient.profileImage}
+          size="lg"
+          rounded
+          bordered
+          color="light"
+        />
+        <div className="flex-grow">
+          <div className="flex justify-between items-center">
+            <h4 className="font-semibold text-gray-800 dark:text-white text-md">
+              {request.patient.name}
+            </h4>
+            <p className="text-xs text-gray-400 dark:text-gray-500 flex items-center gap-1">
+              <HiOutlineClock />
+              {formatDateTime(request.date, "arabic-both")}
+            </p>
+          </div>
+          <p className="text-gray-500 dark:text-gray-400 text-sm leading-relaxed line-clamp-2 my-1.5">
+            {request.notes}
           </p>
         </div>
-        <p className="text-gray-500 dark:text-gray-400 text-sm leading-relaxed line-clamp-2 my-1.5">
-          {request.symptoms}
-        </p>
-      </div>
-      <div className="flex sm:flex-col lg:flex-row gap-2 mt-2 sm:mt-0 self-stretch sm:self-center justify-end w-full sm:w-auto">
-        <Button
-          theme={flowbit.button}
-          color="green"
-          size="xs"
-          className="flex-grow sm:flex-grow-0 !px-3 !py-2 shadow-md hover:shadow-lg"
-        >
-          <FaUserCheck className="ml-1.5" size={14} /> قبول
-        </Button>
-        <Button
-          theme={flowbit.button}
-          color="red"
-          size="xs"
-          outline
-          className="flex-grow sm:flex-grow-0 !px-3 !py-2"
-        >
-          <FaUserTimes className="ml-1.5" size={14} /> رفض
-        </Button>
+        <div className="flex sm:flex-col lg:flex-row gap-2 mt-2 sm:mt-0 self-stretch sm:self-center justify-end w-full sm:w-auto">
+          <Button
+            theme={flowbit.button}
+            color="green"
+            size="xs"
+            className="flex-grow sm:flex-grow-0 !px-3 !py-2 shadow-md hover:shadow-lg"
+          >
+            <FaUserCheck className="ml-1.5" size={14} /> قبول
+          </Button>
+          <Button
+            theme={flowbit.button}
+            color="red"
+            size="xs"
+            outline
+            className="flex-grow sm:flex-grow-0 !px-3 !py-2"
+          >
+            <FaUserTimes className="ml-1.5" size={14} /> رفض
+          </Button>
+        </div>
       </div>
     </div>
-  </div>
+  </Link>
 );
 
 // عنصر محادثة حديثة
@@ -294,6 +296,7 @@ const RecentChatItem = ({ chat }) => (
 
 export default function DoctorHome() {
   const { user } = useAuthStore();
+  const [consultationsRequests, setConsultationsRequests] = useState();
   const {
     data: statesData,
     error: statesError,
@@ -308,6 +311,28 @@ export default function DoctorHome() {
     error: patientsError,
     request: patientsRequest,
   } = useApiRequest();
+
+  const {
+    data: consultationsData,
+    loading: consultationsLoading,
+    error: consultationsError,
+    request: consultationsRequest,
+  } = useApiRequest();
+
+  useEffect(() => {
+    if (user._id && user.role === "doctor") {
+      consultationsRequest(() =>
+        globalApi.getAllAppointments({
+          doctor: user._id,
+          status: "pending",
+        })
+      );
+    }
+  }, [user]);
+
+  useEffect(() => {
+    setConsultationsRequests(consultationsData?.data);
+  }, [consultationsData]);
 
   useEffect(() => {
     statesRequest(() => globalApi.getDoctorHomeStates());
@@ -616,12 +641,12 @@ export default function DoctorHome() {
               theme={flowbit.badge}
               className="!px-3 !py-1"
             >
-              {newConsultationRequests.length} طلبات جديدة
+              {consultationsRequests?.length} طلبات جديدة
             </Badge>
           </div>
           <div className="flex flex-col gap-4 max-h-[450px] overflow-y-auto custom-scrollbar pr-2">
-            {newConsultationRequests.length > 0 ? (
-              newConsultationRequests.map((request) => (
+            {consultationsRequests?.length > 0 ? (
+              consultationsRequests?.map((request) => (
                 <ConsultationRequestCard key={request.id} request={request} />
               ))
             ) : (

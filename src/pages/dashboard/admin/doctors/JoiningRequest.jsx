@@ -307,13 +307,7 @@ export default function JoiningRequestDetails() {
               <InfoDetailItem
                 icon={FaVenusMars}
                 label="الجنس"
-                value={
-                  doctor.gender === "male"
-                    ? "ذكر"
-                    : doctor.gender === "female"
-                    ? "أنثى"
-                    : "-"
-                }
+                value={doctor.gender}
               />
             </div>
           </InfoCardContainer>

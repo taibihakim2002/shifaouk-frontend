@@ -1,0 +1,220 @@
+import React, { useState, useEffect, useRef } from "react";
+import { Avatar, Button, TextInput } from "flowbite-react";
+import { Send, Bot, User, BrainCircuit } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+
+import Header from "../components/common/Header"; // Import the main Header
+import flowbit from "../config/flowbit";
+import Logo from "../components/common/Logo";
+
+// --- Helper Component for a single message ---
+const ChatMessage = ({ sender, text, avatarSrc }) => {
+  const isBot = sender === "bot";
+  return (
+    <motion.div
+      layout
+      initial={{ opacity: 0, scale: 0.8, y: 20 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.8 }}
+      transition={{
+        opacity: { duration: 0.2 },
+        layout: { type: "spring", bounce: 0.3, duration: 0.4 },
+      }}
+      className={`flex items-start gap-3 w-full ${
+        isBot ? "justify-start" : "justify-end"
+      }`}
+    >
+      {isBot && (
+        <Avatar
+          img={avatarSrc}
+          rounded
+          size="sm"
+          className="flex-shrink-0 border-2 border-primaryColor/50 p-0.5"
+        />
+      )}
+      <div
+        className={`rounded-xl px-4 py-2.5 max-w-[80%] break-words shadow-md ${
+          isBot
+            ? "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200 rounded-bl-none"
+            : "bg-primaryColor text-white dark:bg-primaryColor-600 rounded-br-none"
+        }`}
+      >
+        <p className="text-sm leading-relaxed">{text}</p>
+      </div>
+      {!isBot && (
+        <Avatar
+          rounded
+          size="sm"
+          icon={User}
+          className="flex-shrink-0 bg-gray-200 text-gray-600"
+        />
+      )}
+    </motion.div>
+  );
+};
+
+// --- Main ChatBot Page Component ---
+export default function ChatBot() {
+  const [messages, setMessages] = useState([
+    {
+      sender: "bot",
+      text: "مرحباً بك! أنا مساعدك الطبي الذكي. كيف يمكنني مساعدتك اليوم؟ (ملاحظة: هذه المعلومات ليست بديلاً عن استشارة طبية حقيقية).",
+    },
+  ]);
+  const [newMessage, setNewMessage] = useState("");
+  const [isTyping, setIsTyping] = useState(false);
+  const messagesEndRef = useRef(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages, isTyping]);
+
+  const handleSendMessage = () => {
+    const trimmedMessage = newMessage.trim();
+    if (!trimmedMessage) return;
+
+    setMessages((prev) => [...prev, { sender: "user", text: trimmedMessage }]);
+    setNewMessage("");
+    setIsTyping(true);
+
+    setTimeout(() => {
+      const botResponse = getStaticBotResponse(trimmedMessage);
+      setIsTyping(false);
+      setMessages((prev) => [...prev, { sender: "bot", text: botResponse }]);
+    }, 1200);
+  };
+
+  const getStaticBotResponse = (userMessage) => {
+    const lowerCaseMessage = userMessage.toLowerCase();
+    if (lowerCaseMessage.includes("صداع")) {
+      return "الصداع له أسباب عديدة، منها الإجهاد أو الجفاف أو قلة النوم. يُنصح بشرب الماء والراحة. إذا كان الصداع شديدًا أو مستمرًا، استشر طبيبًا.";
+    } else if (lowerCaseMessage.includes("دوار")) {
+      return "الشعور بالدوار قد يكون ناتجًا عن انخفاض ضغط الدم أو مشاكل في الأذن الداخلية. إذا تكرر الشعور بالدوار، من الأفضل التحدث مع طبيبك.";
+    } else if (lowerCaseMessage.includes("حمى")) {
+      return "الحمى هي ارتفاع درجة حرارة الجسم وعادة ما تكون علامة على وجود عدوى. إذا كانت الحمى مرتفعة جدًا أو استمرت لأكثر من 3 أيام، يُنصح بزيارة الطبيب.";
+    } else {
+      return "شكرًا لسؤالك. أنا هنا للمساعدة في أي استفسارات طبية عامة أخرى. تذكر دائمًا أن هذه النصائح لا تغني عن استشارة الطبيب المختص.";
+    }
+  };
+
+  const suggestedQuestions = [
+    "ما هي أعراض الأنفلونزا؟",
+    "كيف أتعامل مع الأرق؟",
+    "ما هو أفضل وقت لقياس ضغط الدم؟",
+  ];
+
+  return (
+    <div className="bg-slate-50 dark:bg-gray-900 min-h-screen flex flex-col">
+      <div className="w-full flex items-center h-[80px]">
+        <div className="container flex justify-between items-center pb-3 border-b border-b-gray-100">
+          <Logo />
+        </div>
+      </div>
+      <main className="flex-grow flex flex-col items-center justify-center p-4">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden flex flex-col  h-[calc(100vh-150px)] w-full max-w-4xl">
+          {/* Header */}
+          <div className="bg-primaryColor/5 dark:bg-primaryColor-900/20 text-primaryColor-800 dark:text-primaryColor-200 py-4 px-5 flex items-center justify-between border-b border-primaryColor-200/50 dark:border-primaryColor-900/50">
+            <div className="flex items-center gap-3">
+              <BrainCircuit className="w-8 h-8" />
+              <div>
+                <h3 className="font-bold text-lg">المساعد الطبي الذكي</h3>
+                <p className="text-xs text-primaryColor-600 dark:text-primaryColor-300">
+                  مدعوم بالذكاء الاصطناعي
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-1.5 text-xs text-green-700 dark:text-green-300 bg-green-100 dark:bg-green-500/20 px-2 py-1 rounded-full font-medium">
+              <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
+              <span>متصل</span>
+            </div>
+          </div>
+
+          {/* Conversation Area */}
+          <div className="p-4 md:p-6 overflow-y-auto flex-grow space-y-4 custom-scrollbar bg-white dark:bg-gray-800">
+            <AnimatePresence>
+              {messages.map((msg, index) => (
+                <ChatMessage
+                  key={index}
+                  sender={msg.sender}
+                  text={msg.text}
+                  avatarSrc="/bot-avatar.png"
+                />
+              ))}
+              {isTyping && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="flex items-center gap-3"
+                >
+                  <Avatar rounded size="sm" className="flex-shrink-0" />
+                  <div className="flex items-center gap-1.5 bg-gray-200 dark:bg-gray-700 p-3 rounded-xl rounded-bl-none">
+                    <span className="h-2 w-2 bg-gray-400 rounded-full animate-bounce [animation-delay:-0.3s]"></span>
+                    <span className="h-2 w-2 bg-gray-400 rounded-full animate-bounce [animation-delay:-0.15s]"></span>
+                    <span className="h-2 w-2 bg-gray-400 rounded-full animate-bounce"></span>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+            <div ref={messagesEndRef} />
+          </div>
+
+          {/* Suggested Questions Area */}
+          {messages.length <= 1 && (
+            <div className="p-4 pt-2 bg-white dark:bg-gray-800 border-t border-gray-100 dark:border-gray-700">
+              <p className="text-xs text-center text-gray-500 dark:text-gray-400 mb-3">
+                أو جرب أحد هذه الأسئلة المقترحة:
+              </p>
+              <div className="flex flex-wrap justify-center gap-2">
+                {suggestedQuestions.map((q) => (
+                  <Button
+                    key={q}
+                    color="light"
+                    size="xs"
+                    theme={flowbit.button}
+                    className="dark:bg-gray-700"
+                    onClick={() => setNewMessage(q)}
+                  >
+                    {q}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Input Area */}
+          <div className="bg-gray-50 dark:bg-gray-900/50 p-4 border-t dark:border-gray-700">
+            <div className="flex items-center gap-3">
+              <TextInput
+                type="text"
+                placeholder="اطرح سؤالك الطبي هنا..."
+                theme={flowbit.textInput}
+                color="primary"
+                className="flex-grow"
+                value={newMessage}
+                onChange={(e) => setNewMessage(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
+                autoFocus
+              />
+              <Button
+                color="primary"
+                onClick={handleSendMessage}
+                theme={flowbit.button}
+                className="!p-3 shadow-md"
+              >
+                <Send className="w-5 h-5" />
+              </Button>
+            </div>
+            <p className="text-center text-xs text-gray-400 dark:text-gray-500 mt-3 px-2">
+              تنبيه: هذا المساعد يقدم معلومات عامة ولا يغني عن استشارة الطبيب
+              المختص.
+            </p>
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+}

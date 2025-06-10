@@ -61,7 +61,7 @@ export default function DashHeader() {
     }
   };
   return (
-    <nav className="flex justify-between items-center relative w-full z-50">
+    <nav className=" flex justify-between items-center relative w-full">
       <Drawer
         open={isOpen}
         onClose={() => setIsOpen(false)}

@@ -41,13 +41,13 @@ export default function Register() {
 
     if (!formData.name.trim()) {
       errors.name = "الاسم مطلوب";
-    } else if (formData.name.length < 2 || formData.name.length > 10) {
-      errors.name = "الاسم يجب أن يكون بين 2 و 10 أحرف";
+    } else if (formData.name.length < 2 || formData.name.length > 20) {
+      errors.name = "الاسم يجب أن يكون بين 2 و 20 أحرف";
     }
     if (!formData.prename.trim()) {
       errors.prename = "اللقب مطلوب";
-    } else if (formData.prename.length < 2 || formData.prename.length > 10) {
-      errors.prename = "اللقب يجب أن يكون بين 2 و 10 أحرف";
+    } else if (formData.prename.length < 2 || formData.prename.length > 20) {
+      errors.prename = "اللقب يجب أن يكون بين 2 و 20 أحرف";
     }
 
     if (!formData.email.trim()) {
@@ -95,9 +95,8 @@ export default function Register() {
       email: formData.email,
       phone: formData.phone,
       password: formData.password,
-      patientProfile: {
-        birthDate: formData.birthdate,
-      },
+
+      birthDate: formData.birthdate,
     };
 
     const {

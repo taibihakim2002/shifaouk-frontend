@@ -38,6 +38,7 @@ import parseImgUrl from "../utils/parseImgUrl";
 import Skeleton from "../components/common/Skeleton";
 import { Link, useParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import useToastStore from "../store/toastStore";
 
 // --- Mock Data (for demonstration in Canvas) ---
 const mockReviews = [
@@ -219,9 +220,12 @@ const ArticleCard = ({ article }) => (
 // --- Main Component ---
 export default function ProfileDoctor() {
   const { data: doctorResponse, loading, error, request } = useApiRequest();
+  // const { request: toggelRequest } = useApiRequest();
+
   const { id } = useParams();
   const doctor = doctorResponse?.data;
 
+  const { showToast } = useToastStore();
   useEffect(() => {
     if (id) {
       request(() => globalApi.getDoctorById(id));
@@ -260,6 +264,21 @@ export default function ProfileDoctor() {
   const doctorSpecialty =
     doctor.doctorProfile?.specialization || "التخصص غير محدد";
 
+  // const handleToggelFavorite = async (e) => {
+  //   e.preventDefault();
+  //   const {
+  //     success: toggelSuccess,
+  //     data,
+  //     error,
+  //   } = await toggelRequest(() => globalApi.toggleFavoriteDoctor(doctor._id));
+
+  //   console.log(toggelSuccess);
+  //   if (toggelSuccess) {
+  //     showToast("success", "تمت اضافة الطبيب الى المفضلة");
+  //   } else {
+  //     showToast("error", "خطأ اثناء اضافة الطبيب للمفضلة");
+  //   }
+  // };
   return (
     <div className="bg-slate-50 dark:bg-gray-900 min-h-screen">
       {/* Profile Header Section */}
@@ -297,7 +316,7 @@ export default function ProfileDoctor() {
               )}
             </div>
             <div className="flex items-center gap-3 mt-4 sm:mt-0 self-center sm:self-start">
-              <Button
+              {/* <Button
                 theme={flowbit.button}
                 color="light"
                 size="md"
@@ -315,6 +334,7 @@ export default function ProfileDoctor() {
                 color="light"
                 size="md"
                 className="!p-2.5 !rounded-lg group"
+                onClick={handleToggelFavorite}
               >
                 <Tooltip content="حفظ الطبيب">
                   <Bookmark
@@ -322,7 +342,7 @@ export default function ProfileDoctor() {
                     className="text-slate-500 dark:text-slate-400 group-hover:text-amber-500 transition-colors"
                   />
                 </Tooltip>
-              </Button>
+              </Button> */}
               <Link
                 to={`/doctors/${doctor._id}/book`}
                 className="w-full sm:w-auto"

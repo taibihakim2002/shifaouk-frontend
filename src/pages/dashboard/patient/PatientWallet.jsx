@@ -8,8 +8,8 @@ import {
   TableHeadCell,
   TableRow,
 } from "flowbite-react";
-import { Wallet } from "lucide-react";
-import { HiCurrencyDollar } from "react-icons/hi";
+import { CreditCardIcon, Wallet } from "lucide-react";
+import { HiCurrencyDollar, HiOutlineClipboardList } from "react-icons/hi";
 import flowbit from "../../../config/flowbit";
 import DashPageHeader from "../../../components/dashboard/common/DashPageHeader";
 import {
@@ -42,10 +42,12 @@ import {
   GiftIcon,
   ArrowLeftRightIcon,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { HiMiniPlusCircle } from "react-icons/hi2";
 import formatDateTime from "../../../utils/formatDateTime";
 import ChargeWalletModal from "../../../components/dashboard/common/ChargeWalletModal";
+import useApiRequest from "../../../hooks/useApiRequest";
+import globalApi from "../../../utils/globalApi";
 
 const transactionsHistory = [
   {
@@ -87,51 +89,72 @@ const transactionsHistory = [
 
 function getIconForTransaction(type) {
   switch (type) {
-    case "charge":
-    case "receive":
-      return <ArrowUpIcon className="text-green-600 w-5 h-5" />;
+    // Transactions representing money IN (e.g., green color)
+    case "recharge":
+    case "consultation_income":
+    case "consultation_refund":
+    case "refund":
+      return <ArrowUpIcon className="h-5 w-5 flex-shrink-0 text-green-500" />;
+
+    // Transactions representing money OUT (e.g., red color)
     case "payment":
-      return <ArrowDownIcon className="text-red-600 w-5 h-5" />;
-    case "transfer":
-      return <ArrowLeftRightIcon className="text-red-600 w-5 h-5" />;
-    case "reward":
-      return <GiftIcon className="text-blue-600 w-5 h-5" />;
+    case "consultation":
+      return <ArrowDownIcon className="h-5 w-5 flex-shrink-0 text-red-500" />;
+
     default:
-      return null;
+      // A neutral icon for any other or unknown types
+      return <CreditCardIcon className="h-5 w-5 flex-shrink-0 text-gray-400" />;
   }
 }
 
 function getLabelForTransaction(type) {
   switch (type) {
-    case "charge":
-      return "شحن";
+    case "recharge":
+      return "شحن رصيد";
     case "payment":
-      return "دفع";
-    case "transfer":
-      return "إرسال";
-    case "reward":
-      return "مكافأة";
-    case "receive":
-      return "استلام";
+      return "دفعة";
+    case "consultation":
+      return "دفع استشارة";
+    case "consultation_income":
+      return "عائد استشارة";
+    case "consultation_refund":
+      return "استرداد مبلغ استشارة";
+    case "refund":
+      return "استرداد مبلغ";
     default:
-      return type;
+      return type || "غير محدد"; // Fallback for any unexpected type
   }
 }
-
 export default function PatientWallet() {
   const [isChargeModalOpen, setIsChargeModalOpen] = useState(false);
-  const handleChargeSubmit = async (formData) => {
-    try {
-      alert("سيتم إرسال طلب الشحن الآن (محاكاة)."); // مؤقتًا
-      // لمزيد من الواقعية، يمكنك إضافة تأخير بسيط
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      return true; // افترض النجاح للمحاكاة
-    } catch (error) {
-      console.error("Error submitting charge request:", error);
-      // showToast("error", "حدث خطأ أثناء إرسال طلب الشحن.");
-      return false;
-    }
-  };
+  const [balance, setBalance] = useState();
+  const [transactions, setTransactions] = useState();
+  console.log(transactions);
+  const {
+    data: balanceData,
+    loading: balanceLoading,
+    error: balanceError,
+    request: balanceRequest,
+  } = useApiRequest();
+  const {
+    data: transactionsData,
+    loading: transactionsLoading,
+    error: transactionsError,
+    request: transactionsRequest,
+  } = useApiRequest();
+
+  useEffect(() => {
+    balanceRequest(() => globalApi.getMyBalance());
+    transactionsRequest(() => globalApi.getMyTransactions());
+  }, []);
+
+  useEffect(() => {
+    setBalance(balanceData?.data?.balance);
+  }, [balanceData]);
+  useEffect(() => {
+    setTransactions(transactionsData?.data);
+  }, [transactionsData]);
+
   return (
     <div>
       <DashPageHeader
@@ -147,11 +170,8 @@ export default function PatientWallet() {
         </div>
         <div className="mb-6">
           <h3 className="font-extrabold text-[40px] tracking-tight mb-1">
-            2500 <span className="text-lg font-normal opacity-90">د.ط</span>
+            {balance} <span className="text-lg font-normal opacity-90">دج</span>
           </h3>
-          <p className="font-light text-sm text-primary-200 dark:text-primary-300">
-            يعادل 2500 دينار جزائري
-          </p>
         </div>
         <Button
           theme={flowbit.button}
@@ -236,8 +256,8 @@ export default function PatientWallet() {
               </TableHeadCell>
             </TableHead>
             <TableBody className="divide-y dark:divide-gray-700">
-              {transactionsHistory.length > 0 ? (
-                transactionsHistory.map((tx) => (
+              {transactions?.length > 0 ? (
+                transactions?.map((tx) => (
                   <TableRow
                     key={tx._id}
                     className="bg-white dark:bg-gray-800 hover:bg-slate-50 dark:hover:bg-gray-700/50 transition-colors"
@@ -251,7 +271,7 @@ export default function PatientWallet() {
                       </div>
                     </TableCell>
                     <TableCell className="p-3 px-4 text-sm text-gray-600 dark:text-gray-300 max-w-xs truncate">
-                      {tx.details}
+                      {tx.note}
                     </TableCell>
                     <TableCell
                       className={`p-3 px-4 text-sm font-semibold text-center whitespace-nowrap ${
@@ -263,21 +283,21 @@ export default function PatientWallet() {
                       {tx.amount > 0 ? `+${tx.amount}` : tx.amount}
                     </TableCell>
                     <TableCell className="p-3 px-4 text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">
-                      {tx.date}
+                      {formatDateTime(tx.createdAt, "date")}
                     </TableCell>
                     <TableCell className="p-3 px-4 text-center">
                       <Badge
                         color={
-                          tx.status === "completed"
+                          tx.status === "confirmed"
                             ? "success"
                             : tx.status === "pending"
                             ? "warning"
                             : "failure"
                         }
                         theme={flowbit.badge}
-                        className="!text-xs !px-2 !py-0.5"
+                        className="w-fit"
                       >
-                        {tx.status === "completed"
+                        {tx.status === "confirmed"
                           ? "مكتملة"
                           : tx.status === "pending"
                           ? "قيد المعالجة"
@@ -307,7 +327,6 @@ export default function PatientWallet() {
       <ChargeWalletModal
         open={isChargeModalOpen}
         onClose={() => setIsChargeModalOpen(false)}
-        onSubmit={handleChargeSubmit}
       />
     </div>
   );
