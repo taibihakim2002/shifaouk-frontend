@@ -32,7 +32,30 @@ function App() {
         popup
         theme={flowbit.botDialog}
       >
-        <ModalBody className="">
+        <ModalBody className="relative p-0">
+          {/* زر إغلاق في الأعلى */}
+          <button
+            onClick={() => setOpenModal(false)}
+            className="absolute top-3 left-3 bg-gray-200 hover:bg-gray-300 text-gray-600 rounded-full p-1.5 shadow z-50"
+            title="إغلاق"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
+
+          {/* مكون البوت */}
           <ChatBot />
         </ModalBody>
       </Modal>

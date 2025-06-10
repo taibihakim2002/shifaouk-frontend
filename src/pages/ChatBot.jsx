@@ -210,10 +210,6 @@ export default function ChatBot() {
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-1.5 text-xs text-green-700 dark:text-green-300 bg-green-100 dark:bg-green-500/20 px-2 py-1 rounded-full font-medium">
-              <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
-              <span>متصل</span>
-            </div>
           </div>
 
           {/* Conversation Area */}
