@@ -39,7 +39,7 @@ import DoctorPatientProfile from "../pages/dashboard/doctor/patients/DoctorPatie
 import DoctorAppointments from "../pages/dashboard/doctor/consultations/DoctorAppointments";
 import DoctorConsultationReport from "../pages/dashboard/doctor/consultations/DoctorConsultationReport";
 import ChatBot from "../pages/ChatBot";
-import DoctorConsultationRequestDetails from "../pages/dashboard/doctor/consultations/DoctorconsultationRequestDetails";
+import DoctorConsultationRequestDetails from "../pages/dashboard/doctor/consultations/DoctorConsultationRequestDetails";
 
 export default function AppRoutes() {
   const user = useAuthStore((state) => state.user);
