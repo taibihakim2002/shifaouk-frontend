@@ -15,19 +15,22 @@ function App() {
       <AppRoutes />
 
       {/* زر عائم في الأسفل */}
-      <button
-        onClick={() => setOpenModal(true)}
-        className="fixed bottom-5 right-5 bg-primaryColor hover:bg-primaryColor-600 text-white p-3 rounded-full shadow-lg transition-all z-50"
-        title="المساعد الذكي"
-      >
-        <MessageCircle size={22} />
-      </button>
+
+      {!openModal && (
+        <button
+          onClick={() => setOpenModal(true)}
+          className="fixed bottom-5 right-5 bg-primaryColor hover:bg-primaryColor-600 text-white p-3 rounded-full shadow-lg transition-all z-50"
+          title="المساعد الذكي"
+        >
+          <MessageCircle size={22} />
+        </button>
+      )}
 
       {/* نافذة البوت */}
       <Modal
         show={openModal}
         onClose={() => setOpenModal(false)}
-        size="5xl"
+        size="4xl"
         dir="rtl"
         popup
         theme={flowbit.botDialog}

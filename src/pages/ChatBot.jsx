@@ -143,9 +143,9 @@ export default function ChatBot() {
 عند تقديم الإجابة، استخدم تنسيق HTML منظمًا، مع اعتماد تنسيق بصري جميل باستخدام CSS مضمن (inline styles داخل عناصر HTML) لتحسين قابلية القراءة وجعل المحتوى أكثر احترافية.
 
 احرص على استخدام عناصر مثل:
-- <h3 style="..."> للعناوين الرئيسية
-- <p style="..."> للنصوص التوضيحية
-- <ul style="..."> و <li style="..."> للقوائم
+- <h3 style="direction: rtl; color: #2b6cb0; font-size: 20px; margin-bottom: 10px;"> للعناوين الرئيسية
+- <p style="direction: rtl; font-size: 16px; color: #333; margin: 8px 0;"> للنصوص التوضيحية
+- <ul style="direction: rtl; padding-right: 20px; color: #2d3748;"> و <li style="margin-bottom: 6px;"> للقوائم
 
 استخدم ألوانًا هادئة (مثل الأزرق أو الأخضر)، حجم خط مريح، ومسافات مناسبة (margin/padding).
 
