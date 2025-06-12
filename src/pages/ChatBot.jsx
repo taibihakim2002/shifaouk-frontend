@@ -170,7 +170,7 @@ export default function ChatBot() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer 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`, // مفتاح OpenRouter
+          Authorization: `Bearer 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`, // مفتاح OpenRouter
         },
         body: JSON.stringify({
           model: "deepseek/deepseek-chat-v3-0324:free",
