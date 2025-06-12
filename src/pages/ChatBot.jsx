@@ -127,8 +127,6 @@ export default function ChatBot() {
   //     return "عذرًا، لم أتمكن من فهم سؤالك. حاول مرة أخرى.";
   //   };
 
-  const VITE_OPENIA_KEY =
-    "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";
   const getBotResponse = async (userMessage) => {
     // إعداد سجل المحادثة: system + كل الرسائل السابقة + الرسالة الحالية
     const chatHistory = [
@@ -172,7 +170,7 @@ export default function ChatBot() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${VITE_OPENIA_KEY}`, // مفتاح OpenRouter
+          Authorization: `Bearer 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`, // مفتاح OpenRouter
         },
         body: JSON.stringify({
           model: "deepseek/deepseek-chat-v3-0324:free",
