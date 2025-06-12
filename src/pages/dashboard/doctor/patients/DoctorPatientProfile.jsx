@@ -162,7 +162,7 @@ export default function DoctorPatientProfile() {
       consultationsRequest(() =>
         globalApi.getAllAppointments({
           patient: patientId,
-          // status: "completed",
+          status: "completed",
         })
       );
     }
@@ -556,6 +556,7 @@ export default function DoctorPatientProfile() {
                             <HiOutlineEye size={16} className="ml-1.5" /> عرض
                             التقرير
                           </Button>
+                          {/* {consult.status} */}
                         </TableCell>
                       </TableRow>
                     ))

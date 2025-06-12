@@ -38,6 +38,7 @@ import Skeleton from "../../../components/common/Skeleton";
 import parseImgUrl from "../../../utils/parseImgUrl";
 import { IoVideocam } from "react-icons/io5";
 import useCountdown from "../../../utils/useCountdown";
+import getAppointmentButtonState from "../../../utils/getAppointmentButtonState";
 
 // --- Static Data for Demonstration ---
 const user = { name: "أحمد" };
@@ -203,7 +204,16 @@ export default function PatientHome() {
     nextRequest(() => globalApi.getPatientNextAppointment());
   }, []);
 
-  const { formatted } = useCountdown(nextData?.data?.date);
+  const { formatted, status } = useCountdown(
+    nextData?.data?.date,
+    nextData?.data?.duration
+  );
+
+  const { join: showJoinButton, report: showReportButton } =
+    getAppointmentButtonState(
+      nextData?.data?.date,
+      nextData?.data?.duration // تأكد أن هذا الرقم بوحدة "دقائق"
+    );
 
   return (
     <div className="p-4 md:p-6 lg:p-8 dark:bg-gray-900 min-h-screen">
@@ -309,14 +319,28 @@ export default function PatientHome() {
                         </p>
                       </div>
                     </div>
-                    <Button
-                      theme={flowbit.button}
-                      color="light"
-                      className="!bg-white/95 hover:!bg-white !text-primaryColor gap-2 shadow-lg w-full sm:w-auto !py-3 !px-5 font-semibold transition-transform hover:scale-105"
-                    >
-                      <VideoIcon size={18} />
-                      <span>انضم إلى الجلسة</span>
-                    </Button>
+                    {showJoinButton && (
+                      <Button
+                        theme={flowbit.button}
+                        color="light"
+                        className="!bg-white/95 hover:!bg-white !text-primaryColor gap-2 shadow-lg w-full sm:w-auto !py-3 !px-5 font-semibold transition-transform hover:scale-105"
+                      >
+                        <VideoIcon size={18} />
+                        <span>انضم إلى الجلسة</span>
+                      </Button>
+                    )}
+
+                    {showReportButton && (
+                      <Button
+                        as={Link}
+                        to={`/dashboard/appointments/${nextData?.data?.id}/report`}
+                        theme={flowbit.button}
+                        color="primary"
+                        className="gap-2 shadow-lg w-full sm:w-auto !py-3 !px-5 font-semibold transition-transform hover:scale-105"
+                      >
+                        📝 <span>كتابة تقرير الاستشارة</span>
+                      </Button>
+                    )}
                   </div>
                   <div className="text-center text-white border-y border-white/20 py-2 my-4 text-sm font-medium flex justify-center items-center flex-wrap gap-x-3">
                     <div className="flex items-center gap-1.5">
@@ -345,8 +369,13 @@ export default function PatientHome() {
                       <p>الوقت المتبقي:</p>
                     </div>
                     {/* This would be a real countdown component */}
-                    <p className="text-lg font-bold tracking-wider animate-pulse">
-                      {formatted}
+
+                    <p className="font-bold tracking-wider animate-pulse">
+                      {status === "ongoing"
+                        ? "جارية الآن"
+                        : status === "completed"
+                        ? "مكتملة"
+                        : formatted}
                     </p>
                   </div>
                 </div>

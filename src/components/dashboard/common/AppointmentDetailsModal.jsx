@@ -314,7 +314,7 @@ export default function AppointmentDetailsModal({
               />
             </div>
           </section>
-          {appointment.status === "confirmed" ? (
+          {appointment.status === "completed" ? (
             <Button
               href={`/appointments/${appointment._id}/report`}
               color="gray"

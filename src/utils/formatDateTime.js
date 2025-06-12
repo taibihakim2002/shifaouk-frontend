@@ -1,5 +1,7 @@
 function formatDateTime(value, type) {
+
     if (!value) return "";
+
 
     const dateObj = new Date(value);
 

@@ -12,8 +12,14 @@ import {
   TableHeadCell,
   TableRow,
   Tooltip,
-  Spinner, // For loading states
+  Spinner,
 } from "flowbite-react";
+import DashPageHeader from "../../../../components/dashboard/common/DashPageHeader"; // Adjust path
+import flowbit from "../../../../config/flowbit"; // Adjust path
+import useApiRequest from "../../../../hooks/useApiRequest"; // Your API hook
+import globalApi from "../../../../utils/globalApi"; // Your API functions
+import formatDateTime from "../../../../utils/formatDateTime";
+import parseImgUrl from "../../../../utils/parseImgUrl";
 import {
   HiOutlineClipboardList,
   HiOutlinePrinter,
@@ -25,85 +31,19 @@ import {
   HiOutlineCheckCircle,
   HiOutlinePaperClip,
   HiOutlinePencilAlt,
-  HiOutlineClipboardCheck, // For completed status
-  HiOutlineSparkles, // For lifestyle advice
-  HiOutlineBeaker, // For lab tests
-  HiOutlineRefresh, // For next appointment
+  HiOutlineClipboardCheck,
+  HiOutlineSparkles,
+  HiOutlineBeaker,
+  HiOutlineRefresh,
+  HiOutlineExclamationCircle,
 } from "react-icons/hi";
 import {
   FaFilePrescription,
   FaStethoscope,
   FaNotesMedical,
-  FaHeartbeat, // For patient condition
+  FaHeartbeat,
 } from "react-icons/fa";
 import { MessageSquare, Video, AlertCircle } from "lucide-react";
-import flowbit from "../../../../config/flowbit";
-import formatDateTime from "../../../../utils/formatDateTime";
-import parseImgUrl from "../../../../utils/parseImgUrl";
-import DashPageHeader from "../../../../components/dashboard/common/DashPageHeader";
-
-// --- Static Mock Data Reflecting the New Schema ---
-const mockConsultationData = {
-  _id: "consultation_abc123",
-  consultationId: "SHF-8A4D2",
-  date: "2024-06-15T14:30:00Z",
-  type: "video",
-  status: "completed",
-  duration: 30,
-  price: 2500,
-  patientNotes:
-    "بدأت أعاني من ألم حاد في الصدر عند التنفس بعمق، مع سعال جاف مستمر منذ يومين.",
-  // --- New fields from the report schema ---
-  summary:
-    "زار المريض العيادة الافتراضية وهو يشكو من أعراض تنفسية حادة. تم إجراء فحص شامل ومناقشة تاريخه الطبي. لا توجد علامات خطر فورية، ولكن الحالة تتطلب علاجًا ومتابعة.",
-  diagnosis: "التهاب الشعب الهوائية الحاد (Acute Bronchitis)",
-  patientCondition: "مستقرة",
-  medications: [
-    {
-      name: "Amoxicillin",
-      dosage: "500mg - قرص واحد كل 8 ساعات",
-      duration: "لمدة 7 أيام",
-    },
-    {
-      name: "Ibuprofen",
-      dosage: "400mg - قرص عند اللزوم",
-      duration: "عند الحاجة (بحد أقصى 3 مرات يوميًا)",
-    },
-    {
-      name: "Guaifenesin Syrup",
-      dosage: "10ml - ملعقة واحدة كل 6 ساعات",
-      duration: "حتى يهدأ السعال",
-    },
-  ],
-  recommendedTests: [
-    "فحص صورة دم كاملة (CBC) في حال عدم التحسن",
-    "أشعة سينية على الصدر إذا استمر ضيق التنفس",
-  ],
-  lifestyleAdvice:
-    "ينصح بالراحة التامة وشرب الكثير من السوائل الدافئة. تجنب مسببات تهيج الجهاز التنفسي مثل التدخين والغبار. استخدام مرطب الهواء في الغرفة قد يساعد في تخفيف السعال.",
-  nextConsultationDate: "2024-06-22T14:30:00Z",
-  attachments: [
-    { name: "doctor_notes.pdf", url: "#" },
-    { name: "lab_request.pdf", url: "#" },
-  ],
-  patientUploadedFiles: [
-    { name: "x-ray_chest_scan.jpg", url: "#" },
-    { name: "previous_medical_report.pdf", url: "#" },
-  ],
-  // --- End of new fields ---
-  doctor: {
-    _id: "doc1",
-    fullName: { first: "صخري", second: "معاذ" },
-    profileImage: "/doctor1.jpg",
-    specialization: "أخصائي أمراض قلبية وصدرية",
-  },
-  patient: {
-    _id: "patient123",
-    fullName: { first: "أحمد", second: "علي" },
-    profileImage: "/patient-avatars/avatar1.jpg",
-  },
-};
-// --- End of Mock Data ---
 
 // --- Helper Components ---
 const InfoCard = ({
@@ -130,12 +70,16 @@ const InfoCard = ({
   </Card>
 );
 
-const DetailItem = ({ label, value }) => (
+const DetailItem = ({ label, value, children }) => (
   <div className="flex justify-between items-center py-2">
     <p className="text-sm text-gray-500 dark:text-gray-400">{label}:</p>
-    <p className="text-sm font-semibold text-gray-800 dark:text-gray-100 text-left">
-      {value}
-    </p>
+    {children ? (
+      <div>{children}</div>
+    ) : (
+      <p className="text-sm font-semibold text-gray-800 dark:text-gray-100 text-left">
+        {value || "غير محدد"}
+      </p>
+    )}
   </div>
 );
 
@@ -163,31 +107,97 @@ const getPatientConditionBadge = (condition) => {
   );
 };
 
+// Skeleton component for the loading state
+const ReportPageSkeleton = () => (
+  <div className="animate-pulse mt-8">
+    <div className="h-8 bg-gray-300 dark:bg-gray-700 rounded-md w-1/2 mb-8"></div>
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8 items-start">
+      {/* Main Content Skeleton */}
+      <div className="lg:col-span-8 xl:col-span-9 w-full space-y-6">
+        <div className="h-40 bg-gray-200 dark:bg-gray-700 rounded-xl"></div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="h-24 bg-gray-200 dark:bg-gray-700 rounded-xl"></div>
+          <div className="h-24 bg-gray-200 dark:bg-gray-700 rounded-xl"></div>
+        </div>
+        <div className="h-64 bg-gray-200 dark:bg-gray-700 rounded-xl"></div>
+      </div>
+      {/* Sidebar Skeleton */}
+      <div className="lg:col-span-4 xl:col-span-3 w-full">
+        <div className="sticky top-24 space-y-6">
+          <div className="h-56 bg-gray-200 dark:bg-gray-700 rounded-xl"></div>
+          <div className="h-40 bg-gray-200 dark:bg-gray-700 rounded-xl"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+// --- Main Component ---
 export default function DoctorConsultationReport() {
-  const { id: consultationId } = useParams();
+  const { id: reportId } = useParams();
   const navigate = useNavigate();
 
-  const [consultation, setConsultation] = useState(mockConsultationData);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const {
+    data: reportApiResponse,
+    loading,
+    error,
+    request: fetchReport,
+  } = useApiRequest();
+  const [reportData, setReportData] = useState(null);
 
-  if (loading)
+  console.log(reportData);
+
+  useEffect(() => {
+    if (reportId) {
+      fetchReport(() => globalApi.getConsultationReportById(reportId));
+    }
+  }, [reportId]);
+
+  useEffect(() => {
+    if (reportApiResponse?.data) {
+      setReportData(reportApiResponse.data);
+    }
+  }, [reportApiResponse]);
+
+  if (loading && !reportData) {
     return (
-      <div>
-        <Spinner size="xl" />
-      </div>
-    );
-  if (error || !consultation) {
-    return (
-      <div className="p-8 text-center text-red-500">
-        <AlertCircle size={48} className="mx-auto mb-4" />
-        <h3 className="text-xl font-semibold">خطأ في تحميل تفاصيل الاستشارة</h3>
-        <p>{error || "لم يتم العثور على الاستشارة المطلوبة."}</p>
+      <div
+        className="p-4 md:p-6 lg:p-8 dark:bg-gray-900 min-h-screen"
+        dir="rtl"
+      >
+        <ReportPageSkeleton />
       </div>
     );
   }
 
-  const { doctor, patient } = consultation;
+  if (error || !reportData) {
+    return (
+      <div
+        className="p-4 md:p-6 lg:p-8 dark:bg-gray-900 min-h-screen flex flex-col items-center justify-center text-center"
+        dir="rtl"
+      >
+        <AlertCircle size={56} className="mx-auto text-red-400 mb-5" />
+        <h3 className="text-2xl font-semibold text-red-500 dark:text-red-400 mb-3">
+          {error ? "خطأ في تحميل التقرير" : "التقرير غير موجود"}
+        </h3>
+        <p className="text-gray-600 dark:text-gray-400 mb-6">
+          {error || "لم نتمكن من العثور على تقرير الاستشارة المطلوب."}
+        </p>
+        <Button
+          color="light"
+          onClick={() => navigate(-1)}
+          theme={flowbit.button}
+          className="dark:text-gray-200 dark:border-gray-600 dark:hover:bg-gray-700"
+        >
+          <HiOutlineArrowLeft className="ml-2 h-5 w-5 transform scale-x-[-1]" />{" "}
+          العودة للخلف
+        </Button>
+      </div>
+    );
+  }
+
+  // Extract nested data for easier access
+  const { consultation, doctor, patient } = reportData;
 
   return (
     <div
@@ -197,10 +207,13 @@ export default function DoctorConsultationReport() {
       <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-8 pb-4 border-b dark:border-gray-700">
         <DashPageHeader
           Icon={HiOutlineClipboardList}
-          title={`تقرير الاستشارة #${consultation.consultationId}`}
-          description={`تم إجراؤها بتاريخ ${formatDateTime(
-            consultation.date,
-            "arabic"
+          title={`تقرير الاستشارة #${
+            consultation?.consultationId ||
+            reportData?._id.slice(-6).toUpperCase()
+          }`}
+          description={`خاصة بالمريض ${patient?.name}  بتاريخ ${formatDateTime(
+            consultation?.date,
+            "arabic-both"
           )}`}
         />
         <div className="flex items-center gap-2">
@@ -208,7 +221,7 @@ export default function DoctorConsultationReport() {
             color="light"
             onClick={() => navigate(-1)}
             theme={flowbit.button}
-            className="dark:text-gray-200 dark:border-gray-600 dark:hover:bg-gray-700 flex-shrink-0"
+            className="dark:text-gray-200 dark:border-gray-600 dark:hover:bg-gray-700"
           >
             <HiOutlineArrowLeft className="ml-2 h-5 w-5 transform scale-x-[-1]" />{" "}
             العودة
@@ -217,7 +230,6 @@ export default function DoctorConsultationReport() {
             color="primary"
             onClick={() => window.print()}
             theme={flowbit.button}
-            className="flex-shrink-0"
           >
             <HiOutlinePrinter className="ml-2 h-5 w-5" /> طباعة
           </Button>
@@ -228,17 +240,17 @@ export default function DoctorConsultationReport() {
         {/* --- Main Content --- */}
         <div className="lg:col-span-8 xl:col-span-9 w-full space-y-6">
           <InfoCard title="ملخص الطبيب" icon={HiOutlinePencilAlt}>
-            <p>{consultation.summary}</p>
+            <p>{reportData?.summary}</p>
           </InfoCard>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <InfoCard title="التشخيص النهائي" icon={FaStethoscope}>
               <p className="font-bold text-lg text-primaryColor-700 dark:text-primaryColor-300">
-                {consultation.diagnosis}
+                {reportData?.diagnosis}
               </p>
             </InfoCard>
             <InfoCard title="حالة المريض بعد الجلسة" icon={FaHeartbeat}>
-              {getPatientConditionBadge(consultation.patientCondition)}
+              {getPatientConditionBadge(reportData?.patientCondition)}
             </InfoCard>
           </div>
 
@@ -251,7 +263,7 @@ export default function DoctorConsultationReport() {
                   <TableHeadCell>المدة</TableHeadCell>
                 </TableHead>
                 <TableBody className="divide-y dark:divide-gray-600">
-                  {consultation.medications.map((med, index) => (
+                  {reportData?.medications?.map((med, index) => (
                     <TableRow key={index} className="bg-white dark:bg-gray-800">
                       <TableCell className="font-medium text-gray-900 dark:text-white">
                         {med.name}
@@ -265,23 +277,25 @@ export default function DoctorConsultationReport() {
             </div>
           </InfoCard>
 
-          <InfoCard title="نصائح وتوصيات" icon={HiOutlineSparkles}>
-            <p className="whitespace-pre-line">
-              {consultation.lifestyleAdvice}
-            </p>
-          </InfoCard>
+          {reportData?.lifestyleAdvice && (
+            <InfoCard title="نصائح وتوصيات" icon={HiOutlineSparkles}>
+              <p className="whitespace-pre-line">
+                {reportData?.lifestyleAdvice}
+              </p>
+            </InfoCard>
+          )}
 
-          {consultation.recommendedTests?.length > 0 && (
+          {reportData?.recommendedTests?.length > 0 && (
             <InfoCard title="فحوصات مقترحة" icon={HiOutlineBeaker}>
               <ul className="list-disc list-inside space-y-1.5">
-                {consultation.recommendedTests.map((test, index) => (
+                {reportData?.recommendedTests?.map((test, index) => (
                   <li key={index}>{test}</li>
                 ))}
               </ul>
             </InfoCard>
           )}
 
-          {consultation.nextConsultationDate && (
+          {/* {reportData?.nextConsultationDate && (
             <InfoCard
               title="موعد المتابعة"
               icon={HiOutlineRefresh}
@@ -292,14 +306,14 @@ export default function DoctorConsultationReport() {
                 يوصي الطبيب بموعد متابعة بتاريخ:{" "}
                 <strong className="text-green-700 dark:text-green-300">
                   {formatDateTime(
-                    consultation.nextConsultationDate,
+                    reportData?.nextConsultationDate,
                     "arabicFullDate"
                   )}
                 </strong>
                 .
               </p>
             </InfoCard>
-          )}
+          )} */}
         </div>
 
         {/* --- Sidebar --- */}
@@ -312,7 +326,7 @@ export default function DoctorConsultationReport() {
               <div className="space-y-2">
                 <DetailItem
                   label="رقم الموعد"
-                  value={`#${consultation.consultationId}`}
+                  value={`#${consultation?.consultationId}`}
                 />
                 <DetailItem
                   label="الحالة"
@@ -322,19 +336,14 @@ export default function DoctorConsultationReport() {
                     </Badge>
                   }
                 />
-                <DetailItem
-                  label="نوعها"
-                  value={
-                    consultation.type === "video" ? "مكالمة فيديو" : "محادثة"
-                  }
-                />
+                <DetailItem label="نوعها" value={"عن بعد"} />
                 <DetailItem
                   label="المدة"
-                  value={`${consultation.duration} دقيقة`}
+                  value={`${consultation?.duration} دقيقة`}
                 />
                 <DetailItem
                   label="التكلفة"
-                  value={`${consultation.price.toLocaleString("ar-EG")} دج`}
+                  value={`${consultation?.price?.toLocaleString("ar-EG")} دج`}
                 />
               </div>
             </Card>
@@ -354,10 +363,11 @@ export default function DoctorConsultationReport() {
                 <div>
                   <p className="text-xs text-gray-500">الطبيب</p>
                   <Link
-                    to={`/dashboard/doctors/${doctor?._id}`}
+                    to={`/doctors/${doctor?._id}`}
+                    target="_blank"
                     className="text-sm font-semibold text-gray-700 dark:text-gray-200 hover:underline"
                   >
-                    {doctor?.fullName.first} {doctor?.fullName.second}
+                    {doctor?.name}
                   </Link>
                 </div>
               </div>
@@ -375,19 +385,19 @@ export default function DoctorConsultationReport() {
                     to={`/dashboard/patients/${patient?._id}`}
                     className="text-sm font-semibold text-gray-700 dark:text-gray-200 hover:underline"
                   >
-                    {patient?.fullName.first} {patient?.fullName.second}
+                    {patient?.name}
                   </Link>
                 </div>
               </div>
             </Card>
 
-            {consultation.attachments?.length > 0 && (
+            {/* {reportData.attachments?.length > 0 && (
               <Card theme={flowbit.card} className="shadow-xl dark:bg-gray-800">
                 <h3 className="text-md font-semibold text-gray-800 dark:text-white mb-3 border-b dark:border-gray-700 pb-2">
                   مرفقات الطبيب
                 </h3>
                 <div className="space-y-2">
-                  {consultation.attachments.map((file, index) => (
+                  {reportData?.attachments.map((file, index) => (
                     <a
                       key={index}
                       href={file.url}
@@ -406,7 +416,7 @@ export default function DoctorConsultationReport() {
                   ))}
                 </div>
               </Card>
-            )}
+            )} */}
           </div>
         </div>
       </div>

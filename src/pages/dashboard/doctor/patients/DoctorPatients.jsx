@@ -248,6 +248,19 @@ import { FaFilter, FaInfoCircle, FaRegUserCircle } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom"; // Added useNavigate
 import flowbit from "../../../../config/flowbit";
 import DashPageHeader from "../../../../components/dashboard/common/DashPageHeader";
+import useApiRequest from "../../../../hooks/useApiRequest";
+import globalApi from "../../../../utils/globalApi";
+import formatDateTime from "../../../../utils/formatDateTime";
+
+const getAge = (patient) => {
+  const age = patient?.birthDate
+    ? Math.floor(
+        (new Date() - new Date(patient?.birthDate)) /
+          (365.25 * 24 * 60 * 60 * 1000)
+      )
+    : null;
+  return age;
+};
 
 // Static Data (as provided in the original component)
 const patients = [
@@ -328,15 +341,13 @@ export default function DoctorPatients() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedHealthStatus, setSelectedHealthStatus] = useState("");
   const [sortBy, setSortBy] = useState("");
-  const loading = false;
-  const error = false;
-  // Filtered and Sorted Patients (Client-side for this example)
+  const [patients, setPatients] = useState();
   const filteredAndSortedPatients = patients
-    .filter((patient) => {
+    ?.filter((patient) => {
       const matchesSearch =
-        patient.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (patient.lastConsultationReason &&
-          patient.lastConsultationReason
+        patient?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (patient?.lastConsultationReason &&
+          patient?.lastConsultationReason
             .toLowerCase()
             .includes(searchQuery.toLowerCase()));
       const matchesStatus = selectedHealthStatus
@@ -360,16 +371,13 @@ export default function DoctorPatients() {
       return 0;
     });
 
-  const handlePatientAction = (action) => {
-    // Implement navigation or other actions here
-    // For example, navigate to patient details page:
-    if (action.type === "info") {
-      // navigate(`/dashboard/doctor/patients/${action.patientId}`); // Example route
-      alert(`عرض تفاصيل المريض: ${action.patientId}`);
-    } else if (action.type === "chat") {
-      alert(`بدء محادثة مع المريض: ${action.patientId}`);
-    }
-  };
+  const { data: apiResponse, loading, error, request } = useApiRequest(); // تم تغيير اسم data إلى apiResponse
+  useEffect(() => {
+    request(() => globalApi.getDoctorPatients());
+  }, []);
+  useEffect(() => {
+    setPatients(apiResponse?.data);
+  }, [apiResponse]);
 
   return (
     <div className="p-4 md:p-6 lg:p-8 dark:bg-gray-900 min-h-screen">
@@ -507,9 +515,9 @@ export default function DoctorPatients() {
             حدث خطأ أثناء تحميل بيانات المرضى. يرجى المحاولة مرة أخرى.
           </p>
         </div>
-      ) : filteredAndSortedPatients.length > 0 ? (
+      ) : patients?.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-          {filteredAndSortedPatients.map((patient) => (
+          {patients?.map((patient) => (
             <div
               key={patient.id}
               className="bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-2xl transition-shadow duration-300 border dark:border-gray-700 flex flex-col"
@@ -519,7 +527,7 @@ export default function DoctorPatients() {
                   <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-gray-500">
                     <img
                       src={
-                        patient.avatar ||
+                        patient.profileImage ||
                         `https://ui-avatars.com/api/?name=${encodeURIComponent(
                           patient.name
                         )}&background=4A5568&color=fff&font-size=0.45`
@@ -530,10 +538,11 @@ export default function DoctorPatients() {
                   </div>
                   <div className="flex-1">
                     <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
-                      {patient.name}
+                      {patient.fullName.first} {patient.fullName.second}
                     </h3>
                     <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {patient.age} سنة، {patient.gender}
+                      {getAge(patient) ? getAge(patient) : ""} سنة،{" "}
+                      {patient.gender}
                     </p>
                   </div>
                 </div>
@@ -543,14 +552,19 @@ export default function DoctorPatients() {
                     <strong className="ml-1 font-medium text-gray-700 dark:text-gray-200">
                       آخر استشارة:
                     </strong>
-                    <span>{patient.lastConsultationDate}</span>
+                    <span>
+                      {formatDateTime(
+                        patient.lastConsultationDate,
+                        "arabic-both"
+                      )}
+                    </span>
                   </div>
                   <div className="flex items-start">
                     <strong className="ml-1 font-medium text-gray-700 dark:text-gray-200 flex-shrink-0">
-                      سببها:
+                      تشخيصها:
                     </strong>
                     <p className="line-clamp-2">
-                      {patient.lastConsultationReason || "غير محدد"}
+                      {patient.lastDiagnosis || "غير محدد"}
                     </p>
                   </div>
                 </div>
@@ -563,7 +577,7 @@ export default function DoctorPatients() {
                     theme={flowbit.badge}
                     className="!text-xs !font-medium !px-2 !py-1"
                   >
-                    {patient.healthStatus || "غير محدد"}
+                    {patient.lastConsultationStatus || "غير محدد"}
                   </Badge>
                   <div className="flex items-center gap-2">
                     {patient.messageAction && (

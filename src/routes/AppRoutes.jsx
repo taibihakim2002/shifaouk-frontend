@@ -40,6 +40,7 @@ import DoctorAppointments from "../pages/dashboard/doctor/consultations/DoctorAp
 import DoctorConsultationReport from "../pages/dashboard/doctor/consultations/DoctorConsultationReport";
 import ChatBot from "../pages/ChatBot";
 import DoctorConsultationRequestDetails from "../pages/dashboard/doctor/consultations/DoctorConsultationRequestDetails";
+import DoctorCreateReport from "../pages/dashboard/doctor/consultations/DoctorCreateReport";
 
 export default function AppRoutes() {
   const user = useAuthStore((state) => state.user);
@@ -102,6 +103,10 @@ export default function AppRoutes() {
             <Route path="profile" element={<DoctorProfile />} />
             <Route path="wallet" element={<DoctorWallet />} />
             <Route path="appointments" element={<DoctorAppointments />} />
+            <Route
+              path="appointments/:id/create-report"
+              element={<DoctorCreateReport />}
+            />
             <Route
               path="appointments/:id/report"
               element={<DoctorConsultationReport />}

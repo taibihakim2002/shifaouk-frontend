@@ -68,11 +68,14 @@ const getChargeRequestById = (id) => axiosClient.get(`/charge/${id}`);
 const approveChargeRequest = (id) => axiosClient.post(`/charge/${id}/approve`);
 const rejectChargeRequest = (id) => axiosClient.post(`/charge/${id}/reject`);
 const getPatientNextAppointment = () => axiosClient.get("/consultations/patient/next-appointment")
+const getDoctorNextAppointment = () => axiosClient.get("/consultations/doctor/next-appointment")
 const getMyAppointments = (params) => axiosClient.get("/consultations/patient/my-appointment", { params })
 const getMyTransactions = () => axiosClient.get("/transaction/my-transactions")
 const toggleFavoriteDoctor = (doctorId) =>
     axiosClient.post(`/users/patients/favorite-doctors/${doctorId}`);
 const getFavoriteDoctors = () => axiosClient.get("/users/patients/favorite-doctors");
+const doctorCreateConsultationReport = (consultationId, data) => axiosClient.post(`/consultation-reports/${consultationId}`, data)
+const getConsultationReportById = (consultationId) => axiosClient.get(`/consultation-reports/${consultationId}`)
 
 const login = (credentials) => axiosClient.post("/auth/login", credentials);
 const logout = () => axiosClient.post("/auth/logout");
@@ -116,5 +119,8 @@ export default {
     getMyAppointments,
     getMyTransactions,
     toggleFavoriteDoctor,
-    getFavoriteDoctors
+    getFavoriteDoctors,
+    getDoctorNextAppointment,
+    doctorCreateConsultationReport,
+    getConsultationReportById
 };

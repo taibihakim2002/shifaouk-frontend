@@ -97,9 +97,6 @@ export default function AdminPatients() {
 
   // دالة لعرض شارة الحالة
   const getPatientStatusBadge = (status) => {
-    // تم تغيير اسم الدالة
-    // هنا يجب تحديد منطق لحالة المريض (هل هو نشط، محظور، إلخ)
-    // حاليًا، الكود الأصلي يعرض "نشط" بشكل ثابت. سأبقيها كذلك مع إمكانية التوسع.
     if (status === "active" || status === "نشط") {
       // مثال
       return { text: "نشط", color: "success", icon: HiOutlineCheckCircle };

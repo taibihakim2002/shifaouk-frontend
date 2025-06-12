@@ -7,11 +7,19 @@ import {
   Rating,
   RatingStar,
 } from "flowbite-react";
-import { FaUserAlt, FaUserCheck, FaUserTimes, FaWallet } from "react-icons/fa";
+import {
+  FaCalendarCheck,
+  FaHistory,
+  FaUserAlt,
+  FaUserCheck,
+  FaUserTimes,
+  FaWallet,
+} from "react-icons/fa";
 import { FaCircleCheck, FaUserDoctor } from "react-icons/fa6";
 import { GoArrowDown, GoArrowUp } from "react-icons/go";
 import {
   HiChartPie,
+  HiOutlineCalendar,
   HiOutlineChatAlt2,
   HiOutlineCheckCircle,
   HiOutlineClipboardList,
@@ -42,6 +50,10 @@ import {
   MailQuestion,
   ChevronRight,
   AlertCircle,
+  CalendarClock,
+  HardHat,
+  VideoIcon,
+  MessageCircleIcon,
 } from "lucide-react";
 import {
   BarChart,
@@ -67,6 +79,9 @@ import Skeleton from "../../../components/common/Skeleton";
 import formatDateTime from "../../../utils/formatDateTime";
 import parseImgUrl from "../../../utils/parseImgUrl";
 import useAuthStore from "../../../store/authStore";
+import useCountdown from "../../../utils/useCountdown";
+import { HiMiniInformationCircle } from "react-icons/hi2";
+import getAppointmentButtonState from "../../../utils/getAppointmentButtonState";
 
 const chartData = [
   { day: "05 يوليو", patients: 6, consultations: 8 },
@@ -79,6 +94,29 @@ const chartData = [
   // ... more data
 ];
 
+const activityLog = [
+  {
+    icon: FaCalendarCheck,
+    title: "حجز استشارة جديدة",
+    description: "مع د. صخري معاذ",
+    time: "منذ ساعة",
+    color: "purple",
+  },
+  {
+    icon: HiOutlineCurrencyDollar,
+    title: "شحن رصيد المحفظة",
+    description: "تمت إضافة 100 د.ط",
+    time: "منذ 3 ساعات",
+    color: "blue",
+  },
+  {
+    icon: FaUserAlt,
+    title: "تحديث الملف الشخصي",
+    description: "تم تغيير رقم الهاتف.",
+    time: "أمس",
+    color: "green",
+  },
+];
 // Custom Tooltip for Recharts
 const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
@@ -101,7 +139,38 @@ const CustomTooltip = ({ active, payload, label }) => {
   }
   return null;
 };
+const UpcomingAppointmentSkeleton = () => (
+  <div className="lg:col-span-2 bg-white dark:bg-gray-800 border dark:border-gray-700 rounded-2xl shadow-xl p-5 sm:p-6 animate-pulse">
+    {/* Title Skeleton */}
+    <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded-md w-1/3 mb-5"></div>
 
+    {/* Main Card Skeleton */}
+    <div className="rounded-xl bg-gray-200 dark:bg-gray-700/50 p-5 sm:p-6">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-4">
+        <div className="flex items-center gap-4">
+          <div className="w-20 h-20 bg-gray-300 dark:bg-gray-600 rounded-full flex-shrink-0"></div>
+          <div className="space-y-2">
+            <div className="h-5 bg-gray-300 dark:bg-gray-600 rounded w-32"></div>
+            <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-24"></div>
+          </div>
+        </div>
+        <div className="h-11 bg-gray-300 dark:bg-gray-600 rounded-lg w-full sm:w-32"></div>
+      </div>
+      <div className="h-px bg-gray-300 dark:bg-gray-600 my-4"></div>
+      <div className="flex justify-between items-center">
+        <div className="h-5 bg-gray-300 dark:bg-gray-600 rounded w-1/4"></div>
+        <div className="h-6 bg-gray-300 dark:bg-gray-600 rounded w-1/3"></div>
+      </div>
+    </div>
+
+    {/* Details Skeleton */}
+    <div className="mt-5 space-y-3">
+      <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded w-1/4 mb-2"></div>
+      <div className="h-12 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
+      <div className="h-12 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
+    </div>
+  </div>
+);
 // Custom Card for Account Settings Links
 const SettingsLinkCard = ({
   to,
@@ -215,7 +284,29 @@ const recentChats = [
     unread: 0,
   },
 ];
-
+const ActivityItem = ({ item }) => (
+  <div className="relative pl-8 rtl:pl-0 rtl:pr-8">
+    <div
+      className={`absolute top-0 left-1.5 rtl:left-auto rtl:right-1.5 w-5 h-5 rounded-full bg-${item.color}-100 dark:bg-${item.color}-500/20 flex items-center justify-center ring-4 ring-white dark:ring-gray-800`}
+    >
+      <item.icon
+        className={`text-${item.color}-600 dark:text-${item.color}-300`}
+        size={10}
+      />
+    </div>
+    <div className="ml-4 rtl:mr-4">
+      <h4 className="font-semibold text-gray-700 dark:text-gray-200 text-sm">
+        {item.title}
+      </h4>
+      <p className="text-xs text-gray-500 dark:text-gray-400">
+        {item.description}
+      </p>
+      <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+        {item.time}
+      </p>
+    </div>
+  </div>
+);
 const ConsultationRequestCard = ({ request }) => (
   <Link to={`appointments/${request._id}/request`}>
     <div className="bg-white dark:bg-gray-700/50 border border-gray-200 dark:border-gray-700 rounded-xl p-4 shadow-lg hover:shadow-xl hover:border-primaryColor/50 dark:hover:border-primaryColor-500/50 transition-all duration-300 ease-in-out">
@@ -319,6 +410,13 @@ export default function DoctorHome() {
     request: consultationsRequest,
   } = useApiRequest();
 
+  const {
+    data: nextData,
+    error: nextError,
+    loading: nextLoading,
+    request: nextRequest,
+  } = useApiRequest();
+
   useEffect(() => {
     if (user._id && user.role === "doctor") {
       consultationsRequest(() =>
@@ -327,9 +425,14 @@ export default function DoctorHome() {
           status: "pending",
         })
       );
+      nextRequest(() => globalApi.getDoctorNextAppointment());
     }
   }, [user]);
 
+  const { formatted, status } = useCountdown(
+    nextData?.data?.date,
+    nextData?.data?.duration
+  );
   useEffect(() => {
     setConsultationsRequests(consultationsData?.data);
   }, [consultationsData]);
@@ -352,6 +455,13 @@ export default function DoctorHome() {
       icon: HiOutlineInformationCircle,
     };
   };
+
+  const { join: showJoinButton, report: showReportButton } =
+    getAppointmentButtonState(
+      nextData?.data?.date,
+      nextData?.data?.duration // تأكد أن هذا الرقم بوحدة "دقائق"
+    );
+
   return (
     <div>
       <DashPageHeader
@@ -359,7 +469,7 @@ export default function DoctorHome() {
         title="لوحة التحكم"
         description="مرحباً بك، أحمد! هذا هو ملخص نشاط منصة شفاؤك."
       />
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-10">
         {statesLoading
           ? [0, 1, 2, 3].map((index) => (
               <Skeleton key={index} className="h-32" />
@@ -412,6 +522,218 @@ export default function DoctorHome() {
               />
             ))}
       </div>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10 items-start">
+        <div className="lg:col-span-2">
+          {nextLoading ? (
+            <UpcomingAppointmentSkeleton />
+          ) : nextError ? (
+            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700/50 rounded-2xl shadow-lg p-6 text-center h-full flex flex-col justify-center items-center">
+              <AlertCircle size={40} className="text-red-500 mb-3" />
+              <h3 className="font-semibold text-red-700 dark:text-red-300">
+                خطأ في تحميل الموعد
+              </h3>
+              <p className="text-sm text-red-600 dark:text-red-400 mt-1">
+                لم نتمكن من جلب بيانات موعدك القادم. يرجى المحاولة مرة أخرى.
+              </p>
+            </div>
+          ) : nextData?.data ? (
+            <div className="bg-white dark:bg-gray-800 border dark:border-gray-700 rounded-2xl shadow-xl p-5 sm:p-6">
+              <div className="flex justify-between items-center mb-5">
+                <h2 className="text-xl font-semibold text-gray-800 dark:text-white">
+                  استشارتك القادمة
+                </h2>
+                <Link to="/dashboard/appointments">
+                  <Button
+                    size="xs"
+                    color="light"
+                    theme={flowbit.button}
+                    className="dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700"
+                  >
+                    كل المواعيد{" "}
+                    <ChevronRight
+                      size={16}
+                      className="mr-1 transform scale-x-[-1]"
+                    />
+                  </Button>
+                </Link>
+              </div>
+              <div className="rounded-xl bg-gradient-to-tr from-primaryColor to-blue-500 dark:from-primary-700 dark:to-blue-600 bg-cover bg-center p-5 sm:p-6 relative overflow-hidden shadow-lg">
+                <div className="relative z-10">
+                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-4">
+                    <div className="flex items-center gap-4">
+                      <Avatar
+                        img={parseImgUrl(nextData?.data?.patient?.profileImage)}
+                        alt={nextData?.patient?.name}
+                        size="lg"
+                        rounded
+                        bordered
+                        color="light"
+                      />
+                      <div>
+                        <h3 className="text-lg font-bold text-white mb-1">
+                          {nextData?.data?.patient?.name}
+                        </h3>
+                        {/* <p className="text-blue-100 text-sm">
+                          {
+                            nextData?.data?.doctor?.doctorProfile
+                              ?.specialization
+                          }
+                        </p> */}
+                      </div>
+                    </div>
+                    {showJoinButton && (
+                      <Button
+                        theme={flowbit.button}
+                        color="light"
+                        className="!bg-white/95 hover:!bg-white !text-primaryColor gap-2 shadow-lg w-full sm:w-auto !py-3 !px-5 font-semibold transition-transform hover:scale-105"
+                      >
+                        <VideoIcon size={18} />
+                        <span>انضم إلى الجلسة</span>
+                      </Button>
+                    )}
+
+                    {showReportButton && (
+                      <Button
+                        as={Link}
+                        to={`/dashboard/appointments/${nextData?.data?._id}/create-report`}
+                        theme={flowbit.button}
+                        color="primary"
+                        className="gap-2 shadow-lg w-full sm:w-auto !py-3 !px-5 font-semibold transition-transform hover:scale-105"
+                      >
+                        📝 <span>كتابة تقرير الاستشارة</span>
+                      </Button>
+                    )}
+                  </div>
+                  <div className="text-center text-white border-y border-white/20 py-2 my-4 text-sm font-medium flex justify-center items-center flex-wrap gap-x-3">
+                    <div className="flex items-center gap-1.5">
+                      {nextData.type === "video" ? (
+                        <IoVideocam />
+                      ) : (
+                        <MessageCircleIcon size={16} />
+                      )}
+                      <span>
+                        {nextData?.data?.type === "online"
+                          ? "مكالمة فيديو"
+                          : "محادثة نصية"}
+                      </span>
+                    </div>
+                    <span className="hidden sm:inline opacity-50">|</span>
+                    <div className="flex items-center gap-1.5">
+                      <HiOutlineCalendar size={16} />
+                      <span>
+                        {formatDateTime(nextData?.data?.date, "arabic-both")}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex justify-between items-center text-white">
+                    <div className="flex gap-2 items-center text-sm">
+                      <MdAccessTimeFilled size={18} className="opacity-80" />
+                      <p>الوقت المتبقي:</p>
+                    </div>
+                    {/* This would be a real countdown component */}
+
+                    <p className="font-bold tracking-wider animate-pulse">
+                      {status === "ongoing"
+                        ? "جارية الآن"
+                        : status === "completed"
+                        ? "مكتملة"
+                        : formatted}
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="mt-5 space-y-3">
+                <h3 className="text-md font-semibold text-gray-700 dark:text-gray-200">
+                  تفاصيل الاستشارة
+                </h3>
+                <div className="flex items-start gap-3 p-3 rounded-lg bg-slate-50 dark:bg-gray-700/50">
+                  <HiMiniInformationCircle
+                    size={22}
+                    className="text-primaryColor-500 flex-shrink-0 mt-0.5"
+                  />
+                  <p className="text-gray-700 dark:text-gray-300 text-sm">
+                    {nextData?.data?.notes}
+                  </p>
+                </div>
+                <div className="flex items-start gap-3 p-3 rounded-lg bg-slate-50 dark:bg-gray-700/50">
+                  <MdAccessTimeFilled
+                    size={22}
+                    className="text-green-500 flex-shrink-0 mt-0.5"
+                  />
+                  <p className="text-gray-700 dark:text-gray-300 text-sm">
+                    مدة الجلسة {nextData?.data?.duration}
+                  </p>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="bg-white dark:bg-gray-800 border dark:border-gray-700 rounded-2xl shadow-xl p-6 text-center h-full flex flex-col justify-center items-center">
+              <CalendarClock
+                size={48}
+                className="text-gray-300 dark:text-gray-500 mb-4"
+              />
+              <h3 className="font-semibold text-gray-700 dark:text-gray-200">
+                لا توجد مواعيد قادمة
+              </h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 mb-4">
+                جميع مواعيدك مكتملة. هل ترغب في حجز موعد جديد؟
+              </p>
+              <Button
+                as={Link}
+                to="/doctors"
+                theme={flowbit.button}
+                color="primary"
+                size="sm"
+                outline
+              >
+                حجز استشارة جديدة
+              </Button>
+            </div>
+          )}
+        </div>
+
+        {/* Activity Log Section */}
+        <div className="bg-white dark:bg-gray-800 border dark:border-gray-700 rounded-2xl shadow-xl p-4 sm:p-6 lg:col-span-1 relative overflow-hidden">
+          {/* Existing Content */}
+          <div className="flex justify-between items-center mb-5 pb-3 border-b border-gray-200 dark:border-gray-700">
+            <h3 className="text-lg font-semibold text-gray-800 dark:text-white flex items-center gap-2">
+              <FaHistory
+                size={18}
+                className="text-primaryColor dark:text-primaryColor-400"
+              />
+              آخر الأنشطة
+            </h3>
+            <Link
+              to="/dashboard/history"
+              className="text-xs text-primaryColor hover:underline font-medium"
+            >
+              عرض الكل
+            </Link>
+          </div>
+          <div className="relative space-y-6">
+            <div className="absolute left-4 rtl:left-auto rtl:right-4 top-2 bottom-2 w-0.5 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
+            {activityLog.map((item, index) => (
+              <ActivityItem key={index} item={item} />
+            ))}
+          </div>
+
+          {/* --- Under Development Overlay --- */}
+          <div className="absolute inset-0 z-10 bg-white/80 dark:bg-gray-800/90 backdrop-blur-sm flex flex-col items-center justify-center text-center p-4">
+            <div className="relative w-28 h-28 mx-auto mb-4">
+              <div className="absolute inset-0 bg-amber-500/10 dark:bg-amber-400/10 rounded-full animate-pulse"></div>
+              <div className="relative w-full h-full flex items-center justify-center bg-white dark:bg-gray-800 rounded-full shadow-lg border-2 border-amber-500/20 dark:border-amber-400/30">
+                <HardHat className="w-14 h-14 text-amber-500 dark:text-amber-400" />
+              </div>
+            </div>
+            <h4 className="text-xl font-bold text-gray-800 dark:text-white mb-2">
+              قيد التطوير
+            </h4>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              سجل الأنشطة سيكون متاحًا هنا قريبًا!
+            </p>
+          </div>
+        </div>
+      </div>
       <div className="my-10">
         <h2 className="text-lg font-bold text-gray-600 mb-5">أحدث المرضى</h2>
         <div className="bg-white rounded-xl shadow-xl border border-gray-200 dark:bg-gray-800 dark:border-gray-700 overflow-x-auto">
@@ -420,19 +742,15 @@ export default function DoctorHome() {
             className="min-w-[1100px] text-right dark:divide-gray-700"
           >
             <TableHead className="bg-slate-50 dark:bg-gray-700 text-xs text-gray-600 dark:text-gray-300 uppercase">
-              <TableHeadCell className="p-3 px-4">المريض</TableHeadCell>
-              <TableHeadCell className="p-3 px-4">رقم الهاتف</TableHeadCell>
-              <TableHeadCell className="p-3 px-4 text-center">
-                الجنس
-              </TableHeadCell>
-              <TableHeadCell className="p-3 px-4 text-center">
+              <TableHeadCell className="">المريض</TableHeadCell>
+              <TableHeadCell className="">رقم الهاتف</TableHeadCell>
+              <TableHeadCell className="">الجنس</TableHeadCell>
+              <TableHeadCell className=" text-center">
                 عدد الاستشارات
               </TableHeadCell>
-              <TableHeadCell className="p-3 px-4">تاريخ التسجيل</TableHeadCell>
-              <TableHeadCell className="p-3 px-4 text-center">
-                الحالة
-              </TableHeadCell>
-              <TableHeadCell className="p-3 px-4 text-center sticky right-0 bg-slate-50 dark:bg-gray-700 z-10">
+              <TableHeadCell className="">تاريخ التسجيل</TableHeadCell>
+              <TableHeadCell className="text-center">الحالة</TableHeadCell>
+              <TableHeadCell className="text-center sticky right-0 bg-slate-50 dark:bg-gray-700 z-10">
                 الإجراءات
               </TableHeadCell>
             </TableHead>
@@ -495,7 +813,7 @@ export default function DoctorHome() {
                         navigate(`/dashboard/patients/${patient._id}`)
                       }
                     >
-                      <TableCell className="whitespace-nowrap p-3 px-4">
+                      <TableCell className="whitespace-nowrap ">
                         <div className="flex items-center gap-3">
                           <Avatar
                             img={
@@ -529,19 +847,19 @@ export default function DoctorHome() {
                           </div>
                         </div>
                       </TableCell>
-                      <TableCell className="p-3 px-4 text-sm text-gray-600 dark:text-gray-300">
+                      <TableCell className=" text-sm text-gray-600 dark:text-gray-300">
                         {patient.phone}
                       </TableCell>
-                      <TableCell className="p-3 px-4 text-sm text-gray-600 dark:text-gray-300 text-center">
+                      <TableCell className="text-sm text-gray-600 dark:text-gray-300 text-center">
                         {patient?.gender}
                       </TableCell>
-                      <TableCell className="p-3 px-4 text-sm text-gray-600 dark:text-gray-300 text-center">
+                      <TableCell className="text-sm text-gray-600 dark:text-gray-300 text-center">
                         {patient.consultationsCount || 0}
                       </TableCell>
-                      <TableCell className="p-3 px-4 text-sm text-gray-500 dark:text-gray-400">
+                      <TableCell className="text-sm text-gray-500 dark:text-gray-400">
                         {formatDateTime(patient?.createdAt, "arabic")}
                       </TableCell>
-                      <TableCell className="p-3 px-4 text-center">
+                      <TableCell className="text-center">
                         <Badge
                           color={statusInfo.color}
                           // icon={statusInfo.icon} // Icon can make it look crowded, optional
