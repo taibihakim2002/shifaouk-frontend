@@ -240,7 +240,12 @@ import {
   SlidersHorizontal,
 } from "lucide-react"; // Added Users for header
 import { GiHealthNormal } from "react-icons/gi";
-import { FaFilter, FaInfoCircle, FaRegUserCircle } from "react-icons/fa";
+import {
+  FaFilter,
+  FaInfoCircle,
+  FaRegUserCircle,
+  FaUser,
+} from "react-icons/fa";
 // import { BsCalendarDateFill } from "react-icons/bs"; // Not used in the new filter design
 // import useApiRequest from "../../../hooks/useApiRequest"; // Not used with static data
 // import globalApi from "../../../utils/globalApi"; // Not used with static data
@@ -577,36 +582,21 @@ export default function DoctorPatients() {
                     theme={flowbit.badge}
                     className="!text-xs !font-medium !px-2 !py-1"
                   >
-                    {patient.lastConsultationStatus || "غير محدد"}
+                    {patient.healthStatus || "غير محدد"}
                   </Badge>
                   <div className="flex items-center gap-2">
-                    {patient.messageAction && (
-                      <Button
-                        theme={flowbit.button}
-                        color="light"
-                        size="xs"
-                        outline
-                        className="!px-2.5 !py-1.5 dark:!border-gray-600 dark:!text-gray-300 dark:hover:!bg-gray-700"
-                        onClick={() =>
-                          handlePatientAction(patient.messageAction)
-                        }
-                      >
-                        <MessageCircle size={14} className="ml-1" />
-                        {patient.messageAction.label}
-                      </Button>
-                    )}
-                    {patient.action && (
+                    <Link to={`/dashboard/patients/${patient._id}`}>
                       <Button
                         theme={flowbit.button}
                         color="primary"
                         size="xs"
-                        className="!px-2.5 !py-1.5"
-                        onClick={() => handlePatientAction(patient.action)}
+                        outline
+                        className="!px-2.5 !py-1.5 dark:!border-gray-600 dark:!text-gray-300 dark:hover:!bg-gray-700"
                       >
-                        <FaInfoCircle size={14} className="ml-1" />
-                        {patient.action.label}
+                        <FaUser size={14} className="ml-1" />
+                        عرض الملف الشخصي
                       </Button>
-                    )}
+                    </Link>
                   </div>
                 </div>
               </div>

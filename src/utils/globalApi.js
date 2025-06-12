@@ -48,6 +48,7 @@ const getDoctorPatients = (id) => axiosClient.get(`users/doctors/${id}/patients`
 const getPatientById = (id) => axiosClient.get(`users/patients/${id}`)
 const adminUpdatePatient = (id, data) => axiosClient.patch(`users/patients/edit/${id}`, data)
 const updatePatient = (data) => axiosClient.patch(`users/patients`, data)
+const updateDoctorProfile = (data) => axiosClient.patch(`users/doctors/profile`, data)
 const getDoctorSlots = (doctorId, date) => axiosClient.get(`/users/doctors/${doctorId}/available-slots?date=${date}`)
 const createConsultation = (data) => axiosClient.post("/consultations", data)
 const getConsultationById = (id) => axiosClient.get(`/consultations/${id}`)
@@ -122,5 +123,6 @@ export default {
     getFavoriteDoctors,
     getDoctorNextAppointment,
     doctorCreateConsultationReport,
-    getConsultationReportById
+    getConsultationReportById,
+    updateDoctorProfile
 };

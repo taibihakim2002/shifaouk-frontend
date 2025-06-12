@@ -5,11 +5,12 @@ import {
   GiftIcon,
   Wallet,
 } from "lucide-react";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import DashPageHeader from "../../../components/dashboard/common/DashPageHeader";
-import { HiCurrencyDollar } from "react-icons/hi";
+import { HiCurrencyDollar, HiOutlineClipboardList } from "react-icons/hi";
 import flowbit from "../../../config/flowbit";
 import {
+  Badge,
   Button,
   Table,
   TableBody,
@@ -27,6 +28,9 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import formatDateTime from "../../../utils/formatDateTime";
+import useApiRequest from "../../../hooks/useApiRequest";
+import globalApi from "../../../utils/globalApi";
 
 const data = [
   { name: "يناير", received: 400, sent: 650 },
@@ -80,6 +84,45 @@ const transactions = [
   },
 ];
 
+function getIconForTransaction(type) {
+  switch (type) {
+    // Transactions representing money IN (e.g., green color)
+    case "recharge":
+    case "consultation_income":
+    case "consultation_refund":
+    case "refund":
+      return <ArrowUpIcon className="h-5 w-5 flex-shrink-0 text-green-500" />;
+
+    // Transactions representing money OUT (e.g., red color)
+    case "payment":
+    case "consultation":
+      return <ArrowDownIcon className="h-5 w-5 flex-shrink-0 text-red-500" />;
+
+    default:
+      // A neutral icon for any other or unknown types
+      return <CreditCardIcon className="h-5 w-5 flex-shrink-0 text-gray-400" />;
+  }
+}
+
+function getLabelForTransaction(type) {
+  switch (type) {
+    case "recharge":
+      return "شحن رصيد";
+    case "payment":
+      return "دفعة";
+    case "consultation":
+      return "دفع استشارة";
+    case "consultation_income":
+      return "عائد استشارة";
+    case "consultation_refund":
+      return "استرداد مبلغ استشارة";
+    case "refund":
+      return "استرداد مبلغ";
+    default:
+      return type || "غير محدد"; // Fallback for any unexpected type
+  }
+}
+
 function getIcon(type) {
   switch (type) {
     case "charge":
@@ -114,6 +157,33 @@ function getLabel(type) {
 }
 
 export default function DoctorWallet() {
+  const [balance, setBalance] = useState();
+  const [transactions, setTransactions] = useState();
+  const {
+    data: balanceData,
+    loading: balanceLoading,
+    error: balanceError,
+    request: balanceRequest,
+  } = useApiRequest();
+  const {
+    data: transactionsData,
+    loading: transactionsLoading,
+    error: transactionsError,
+    request: transactionsRequest,
+  } = useApiRequest();
+
+  useEffect(() => {
+    balanceRequest(() => globalApi.getMyBalance());
+    transactionsRequest(() => globalApi.getMyTransactions());
+  }, []);
+
+  useEffect(() => {
+    setBalance(balanceData?.data?.balance);
+  }, [balanceData]);
+  useEffect(() => {
+    setTransactions(transactionsData?.data);
+  }, [transactionsData]);
+
   return (
     <div>
       <DashPageHeader
@@ -122,24 +192,15 @@ export default function DoctorWallet() {
         description="قم بادارة محفظتك "
       />
 
-      <div className="rounded-lg bg-[url('/imgs/website/dash-next.png')] bg-cover p-5 px-10 lg:w-2/3 lg:mx-auto mb-8">
-        <div className="flex items-center justify-between gap-2 text-white mb-5">
+      <div className="mb-10 max-w-2xl m-auto bg-gradient-to-br from-primary-600 to-primary-500 dark:from-primary-700 dark:to-primary-600 text-white rounded-xl shadow-2xl p-6 py-8 transform hover:scale-105 transition-transform duration-300">
+        <div className="flex items-center justify-between mb-4">
           <h3 className="text-xl font-bold">رصيدك الحالي</h3>
-          <HiCurrencyDollar size={33} />
+          <HiCurrencyDollar size={36} className="opacity-80" />
         </div>
-        <div className="flex flex-col gap-3 md:flex-row items-center md:justify-between">
-          <div className="text-white text-center md:text-start">
-            <h3 className="font-bold mb-3">
-              <span className="text-xl">25.000</span>{" "}
-              <span className="text-md">دينار طبي</span>
-            </h3>
-            <p className="font-light text-sm text-gray-200">
-              يعادل 25.000 دينار جزائري
-            </p>
-          </div>
-          <Button theme={flowbit.button} color="green" className="w-32">
-            شحن
-          </Button>
+        <div className="mb-6">
+          <h3 className="font-extrabold text-[40px] tracking-tight mb-1">
+            {balance} <span className="text-lg font-normal opacity-90">دج</span>
+          </h3>
         </div>
       </div>
 
@@ -188,40 +249,97 @@ export default function DoctorWallet() {
           </div>
         </div>
       </div>
-      <div className="border rounded-lg p-5">
-        <h3 className="text-lg font-bold mb-10">نشاط المعاملات</h3>
-        <div className="overflow-x-auto mb-3">
-          <Table className="text-right">
-            <TableHead className="bg-gray-100">
-              <TableHeadCell>نوع المعاملة</TableHeadCell>
-              <TableHeadCell>تفاصيل</TableHeadCell>
-              <TableHeadCell>المبلغ</TableHeadCell>
-              <TableHeadCell>التاريخ</TableHeadCell>
-              <TableHeadCell>الحالة</TableHeadCell>
+      <div className="bg-white dark:bg-gray-800 border dark:border-gray-700 rounded-xl shadow-lg p-4 sm:p-6">
+        <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-6">
+          سجل المعاملات الأخير
+        </h3>
+        <div className="overflow-x-auto">
+          <Table
+            hoverable
+            className="min-w-[700px] text-right dark:divide-gray-700"
+          >
+            <TableHead className="bg-slate-100 dark:bg-gray-700 text-xs text-gray-600 dark:text-gray-300 uppercase">
+              <TableHeadCell className="p-3 px-4 whitespace-nowrap">
+                نوع المعاملة
+              </TableHeadCell>
+              <TableHeadCell className="p-3 px-4 whitespace-nowrap">
+                التفاصيل
+              </TableHeadCell>
+              <TableHeadCell className="p-3 px-4 whitespace-nowrap text-center">
+                المبلغ (دج)
+              </TableHeadCell>
+              <TableHeadCell className="p-3 px-4 whitespace-nowrap">
+                التاريخ والوقت
+              </TableHeadCell>
+              <TableHeadCell className="p-3 px-4 whitespace-nowrap text-center">
+                الحالة
+              </TableHeadCell>
             </TableHead>
-            <TableBody>
-              {transactions.map((tx, index) => (
-                <TableRow key={index} className="bg-white">
-                  <TableCell className="flex items-center gap-2">
-                    {getIcon(tx.type)}
-                    {getLabel(tx.type)}
-                  </TableCell>
-                  <TableCell>{tx.details}</TableCell>
-                  <TableCell
-                    className={
-                      tx.amount < 0 ? "text-red-600" : "text-green-600"
-                    }
+            <TableBody className="divide-y dark:divide-gray-700">
+              {transactions?.length > 0 ? (
+                transactions?.map((tx) => (
+                  <TableRow
+                    key={tx._id}
+                    className="bg-white dark:bg-gray-800 hover:bg-slate-50 dark:hover:bg-gray-700/50 transition-colors"
                   >
-                    {tx.amount > 0 ? `+${tx.amount}` : tx.amount}
-                  </TableCell>
-                  <TableCell>{tx.date}</TableCell>
-                  <TableCell>
-                    <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm">
-                      {tx.status}
-                    </span>
+                    <TableCell className="p-3 px-4 whitespace-nowrap">
+                      <div className="flex items-center gap-2.5">
+                        {getIconForTransaction(tx.type)}
+                        <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
+                          {getLabelForTransaction(tx.type)}
+                        </span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="p-3 px-4 text-sm text-gray-600 dark:text-gray-300 max-w-xs truncate">
+                      {tx.note}
+                    </TableCell>
+                    <TableCell
+                      className={`p-3 px-4 text-sm font-semibold text-center whitespace-nowrap ${
+                        tx.amount < 0
+                          ? "text-red-600 dark:text-red-400"
+                          : "text-green-600 dark:text-green-400"
+                      }`}
+                    >
+                      {tx.amount > 0 ? `+${tx.amount}` : tx.amount}
+                    </TableCell>
+                    <TableCell className="p-3 px-4 text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                      {formatDateTime(tx.createdAt, "date")}
+                    </TableCell>
+                    <TableCell className="p-3 px-4 text-center">
+                      <Badge
+                        color={
+                          tx.status === "confirmed"
+                            ? "success"
+                            : tx.status === "pending"
+                            ? "warning"
+                            : "failure"
+                        }
+                        theme={flowbit.badge}
+                        className="w-fit"
+                      >
+                        {tx.status === "confirmed"
+                          ? "مكتملة"
+                          : tx.status === "pending"
+                          ? "قيد المعالجة"
+                          : "فشلت"}
+                      </Badge>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={5}
+                    className="text-center py-10 text-gray-500 dark:text-gray-400"
+                  >
+                    <HiOutlineClipboardList
+                      size={40}
+                      className="mx-auto mb-2 text-gray-400 dark:text-gray-500"
+                    />
+                    لا توجد معاملات لعرضها حاليًا.
                   </TableCell>
                 </TableRow>
-              ))}
+              )}
             </TableBody>
           </Table>
         </div>
