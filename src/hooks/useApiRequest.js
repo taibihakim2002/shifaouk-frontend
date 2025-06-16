@@ -12,7 +12,7 @@ const useApiRequest = () => {
         setError("");
         try {
             const response = await apiCall();
-
+            console.log(response)
             setData(response.data);
             return { success: true, data: response.data };
         } catch (err) {

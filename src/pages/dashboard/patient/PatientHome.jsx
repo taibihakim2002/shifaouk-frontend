@@ -320,26 +320,16 @@ export default function PatientHome() {
                       </div>
                     </div>
                     {showJoinButton && (
-                      <Button
-                        theme={flowbit.button}
-                        color="light"
-                        className="!bg-white/95 hover:!bg-white !text-primaryColor gap-2 shadow-lg w-full sm:w-auto !py-3 !px-5 font-semibold transition-transform hover:scale-105"
-                      >
-                        <VideoIcon size={18} />
-                        <span>انضم إلى الجلسة</span>
-                      </Button>
-                    )}
-
-                    {showReportButton && (
-                      <Button
-                        as={Link}
-                        to={`/dashboard/appointments/${nextData?.data?.id}/report`}
-                        theme={flowbit.button}
-                        color="primary"
-                        className="gap-2 shadow-lg w-full sm:w-auto !py-3 !px-5 font-semibold transition-transform hover:scale-105"
-                      >
-                        📝 <span>كتابة تقرير الاستشارة</span>
-                      </Button>
+                      <a href={nextData?.data?.meetingLink} target="_blank">
+                        <Button
+                          theme={flowbit.button}
+                          color="light"
+                          className="!bg-white/95 hover:!bg-white !text-primaryColor gap-2 shadow-lg w-full sm:w-auto !py-3 !px-5 font-semibold transition-transform hover:scale-105"
+                        >
+                          <VideoIcon size={18} />
+                          <span>انضم إلى الجلسة</span>
+                        </Button>
+                      </a>
                     )}
                   </div>
                   <div className="text-center text-white border-y border-white/20 py-2 my-4 text-sm font-medium flex justify-center items-center flex-wrap gap-x-3">

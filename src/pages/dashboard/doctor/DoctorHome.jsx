@@ -563,7 +563,7 @@ export default function DoctorHome() {
                     <div className="flex items-center gap-4">
                       <Avatar
                         img={parseImgUrl(nextData?.data?.patient?.profileImage)}
-                        alt={nextData?.patient?.name}
+                        alt={nextData?.data?.patient?.name}
                         size="lg"
                         rounded
                         bordered
@@ -582,14 +582,16 @@ export default function DoctorHome() {
                       </div>
                     </div>
                     {showJoinButton && (
-                      <Button
-                        theme={flowbit.button}
-                        color="light"
-                        className="!bg-white/95 hover:!bg-white !text-primaryColor gap-2 shadow-lg w-full sm:w-auto !py-3 !px-5 font-semibold transition-transform hover:scale-105"
-                      >
-                        <VideoIcon size={18} />
-                        <span>انضم إلى الجلسة</span>
-                      </Button>
+                      <a href={nextData?.data?.meetingLink} target="_blank">
+                        <Button
+                          theme={flowbit.button}
+                          color="light"
+                          className="!bg-white/95 hover:!bg-white !text-primaryColor gap-2 shadow-lg w-full sm:w-auto !py-3 !px-5 font-semibold transition-transform hover:scale-105"
+                        >
+                          <VideoIcon size={18} />
+                          <span>انضم إلى الجلسة</span>
+                        </Button>
+                      </a>
                     )}
 
                     {showReportButton && (

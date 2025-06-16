@@ -128,6 +128,11 @@ export default function DoctorCreateReport() {
     error: fetchError,
     request: fetchConsultation,
   } = useApiRequest();
+  useEffect(() => {
+    if (consultationId) {
+      fetchConsultation(() => globalApi.getConsultationById(consultationId));
+    }
+  }, []);
   const { loading: submitting, request: submitReportRequest } = useApiRequest();
 
   const consultation = consultationData?.data;
@@ -148,11 +153,6 @@ export default function DoctorCreateReport() {
   const [attachments, setAttachments] = useState([]);
 
   // Fetch consultation details on mount
-  useEffect(() => {
-    if (consultationId) {
-      fetchConsultation(() => globalApi.getConsultationById(consultationId));
-    }
-  }, [consultationId]);
 
   const handleChange = (e) => {
     const { id, value } = e.target;
@@ -233,9 +233,12 @@ export default function DoctorCreateReport() {
       </div>
     );
   }
-
-  const { patient } = consultation;
-  const age = patient.patientProfile?.birthDate
+  let patient = null;
+  if (consultation) {
+    patient = consultation.patient;
+  }
+  // const { patient } = ;
+  const age = patient?.patientProfile?.birthDate
     ? Math.floor(
         (new Date() - new Date(patient.patientProfile.birthDate)) / 31557600000
       )
@@ -246,7 +249,7 @@ export default function DoctorCreateReport() {
       <DashPageHeader
         Icon={HiOutlinePencilAlt}
         title="كتابة تقرير الاستشارة"
-        description={`للموعد رقم #${consultation.consultationId} مع المريض ${patient.fullName.first} ${patient.fullName.second}`}
+        description={`للموعد رقم #${consultation?.consultationId} مع المريض ${patient?.fullName?.first} ${patient?.fullName?.second}`}
       />
       <form onSubmit={handleSubmit} className="mt-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8 items-start">
@@ -258,22 +261,24 @@ export default function DoctorCreateReport() {
               >
                 <div className="flex flex-col items-center p-4 text-center">
                   <Avatar
-                    img={parseImgUrl(patient.profileImage)}
+                    img={parseImgUrl(patient?.profileImage)}
                     rounded
                     size="lg"
                     bordered
                     color="indigo"
                   />
                   <h5 className="mt-3 mb-1 text-lg font-bold text-gray-900 dark:text-white">
-                    {patient.fullName.first} {patient.fullName.second}
+                    {patient?.fullName?.first} {patient?.fullName?.second}
                   </h5>
                   <p className="text-sm text-gray-500 dark:text-gray-400">
                     {age ? `${age} سنة` : ""} -{" "}
-                    {patient.patientProfile.gender === "male" ? "ذكر" : "أنثى"}
+                    {patient?.patientProfile?.gender === "male"
+                      ? "ذكر"
+                      : "أنثى"}
                   </p>
                   <Button
                     as={Link}
-                    to={`/dashboard/patients/${patient._id}`}
+                    to={`/dashboard/patients/${patient?._id}`}
                     target="_blank"
                     color="light"
                     size="xs"

@@ -41,6 +41,7 @@ import DoctorConsultationReport from "../pages/dashboard/doctor/consultations/Do
 import ChatBot from "../pages/ChatBot";
 import DoctorConsultationRequestDetails from "../pages/dashboard/doctor/consultations/DoctorConsultationRequestDetails";
 import DoctorCreateReport from "../pages/dashboard/doctor/consultations/DoctorCreateReport";
+import Home2 from "../pages/Home2";
 
 export default function AppRoutes() {
   const user = useAuthStore((state) => state.user);
@@ -50,6 +51,7 @@ export default function AppRoutes() {
       <Route path="/chat-bot" element={<ChatBot />} />
       <Route element={<PublicRoutes />}>
         <Route path="/" element={<Home />} />
+        <Route path="/home2" element={<Home2 />} />
 
         <Route path="/doctors" element={<Doctors />} />
         <Route path="/doctors/:id" element={<ProfileDoctor />} />
