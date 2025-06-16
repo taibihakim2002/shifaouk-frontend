@@ -680,16 +680,6 @@ export default function DoctorHome() {
               <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 mb-4">
                 جميع مواعيدك مكتملة. هل ترغب في حجز موعد جديد؟
               </p>
-              <Button
-                as={Link}
-                to="/doctors"
-                theme={flowbit.button}
-                color="primary"
-                size="sm"
-                outline
-              >
-                حجز استشارة جديدة
-              </Button>
             </div>
           )}
         </div>
