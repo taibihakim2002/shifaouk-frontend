@@ -39,9 +39,9 @@ import parseImgUrl from "../../../utils/parseImgUrl";
 import { IoVideocam } from "react-icons/io5";
 import useCountdown from "../../../utils/useCountdown";
 import getAppointmentButtonState from "../../../utils/getAppointmentButtonState";
+import useAuthStore from "../../../store/authStore";
 
 // --- Static Data for Demonstration ---
-const user = { name: "أحمد" };
 // --- Helper Component: Skeleton Loader ---
 const UpcomingAppointmentSkeleton = () => (
   <div className="lg:col-span-2 bg-white dark:bg-gray-800 border dark:border-gray-700 rounded-2xl shadow-xl p-5 sm:p-6 animate-pulse">
@@ -115,30 +115,32 @@ const healthTip = {
 
 // --- Helper Components for Styling ---
 
-const StatCard = ({ icon: Icon, title, value, valueText, color }) => (
-  <div className="group block bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-5 border border-gray-200 dark:border-gray-700 hover:shadow-2xl hover:border-primaryColor/50 dark:hover:border-primaryColor-500/50 transition-all duration-300 transform hover:-translate-y-1.5">
-    <div className="flex items-center justify-between">
-      <h3 className="font-semibold text-md text-gray-600 dark:text-gray-300">
-        {title}
-      </h3>
-      <div
-        className={`w-12 h-12 rounded-lg flex items-center justify-center bg-${color}-100 dark:bg-${color}-500/20 transition-colors duration-300 group-hover:bg-${color}-200 dark:group-hover:bg-${color}-500/30`}
-      >
-        <Icon
-          size={24}
-          className={`text-${color}-600 dark:text-${color}-300`}
-        />
+const StatCard = ({ icon: Icon, title, value, valueText, color, link }) => (
+  <Link to={link}>
+    <div className="group block bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-5 border border-gray-200 dark:border-gray-700 hover:shadow-2xl hover:border-primaryColor/50 dark:hover:border-primaryColor-500/50 transition-all duration-300 transform hover:-translate-y-1.5">
+      <div className="flex items-center justify-between">
+        <h3 className="font-semibold text-md text-gray-600 dark:text-gray-300">
+          {title}
+        </h3>
+        <div
+          className={`w-12 h-12 rounded-lg flex items-center justify-center bg-${color}-100 dark:bg-${color}-500/20 transition-colors duration-300 group-hover:bg-${color}-200 dark:group-hover:bg-${color}-500/30`}
+        >
+          <Icon
+            size={24}
+            className={`text-${color}-600 dark:text-${color}-300`}
+          />
+        </div>
+      </div>
+      <div className="mt-2">
+        <p className="text-4xl font-extrabold text-gray-600 dark:text-white">
+          {value}
+          {valueText && (
+            <span className="text-xl font-medium ml-1">{valueText}</span>
+          )}
+        </p>
       </div>
     </div>
-    <div className="mt-2">
-      <p className="text-4xl font-extrabold text-gray-600 dark:text-white">
-        {value}
-        {valueText && (
-          <span className="text-xl font-medium ml-1">{valueText}</span>
-        )}
-      </p>
-    </div>
-  </div>
+  </Link>
 );
 
 const ActivityItem = ({ item }) => (
@@ -185,6 +187,8 @@ const QuickActionCard = ({ action }) => (
 );
 
 export default function PatientHome() {
+  const { user } = useAuthStore();
+
   const {
     data: statesData,
     error: statesError,
@@ -233,6 +237,7 @@ export default function PatientHome() {
                 icon: FaCalendarCheck,
                 value: statesData?.data?.completedConsultations,
                 color: "green",
+                link: "/dashboard/history",
               },
               {
                 title: "رصيد المحفظة",
@@ -240,12 +245,14 @@ export default function PatientHome() {
                 value: statesData?.data?.walletBalance,
                 valueText: "دج",
                 color: "blue",
+                link: "/dashboard/wallet",
               },
               {
                 title: "الأطباء المفضلين",
                 icon: FaHeart,
                 value: statesData?.data?.totalfavoriteDoctors,
                 color: "pink",
+                link: "/dashboard/favorite",
               },
             ].map((card, index) => (
               <StatCard
@@ -257,6 +264,7 @@ export default function PatientHome() {
                 valueText={card?.valueText}
                 percentage={card?.percentage}
                 percentageText={card?.percentageText}
+                link={card.link}
               />
             ))}
       </div>
@@ -542,12 +550,12 @@ export default function PatientHome() {
           <p className="text-sm font-medium leading-relaxed mb-4 flex-grow">
             {healthTip.description}
           </p>
-          <a
+          {/* <a
             href="/blog"
             className="text-xs font-semibold bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-full transition-colors"
           >
             اقرأ المزيد من النصائح
-          </a>
+          </a> */}
         </div>
       </div>
 
@@ -572,13 +580,13 @@ export default function PatientHome() {
             },
             {
               title: "محادثة طبيب",
-              link: "/dashboard/chat",
+              link: "/dashboard/chats",
               icon: MessageCircleIcon,
               color: "purple",
             },
             {
               title: "سجلاتي الطبية",
-              link: "/dashboard/records",
+              link: "/dashboard/history",
               icon: HeartPulse,
               color: "pink",
             },

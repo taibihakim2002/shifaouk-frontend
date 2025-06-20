@@ -1,4 +1,4 @@
-import { BiHistory, BiWallet } from "react-icons/bi";
+import { BiChat, BiHistory, BiWallet } from "react-icons/bi";
 import { FaCalendarCheck, FaUserAlt } from "react-icons/fa";
 import { FaUserDoctor } from "react-icons/fa6";
 import { HiCalendar, HiChartPie, HiStar, HiUsers, HiViewBoards } from "react-icons/hi";
@@ -70,6 +70,11 @@ export const sidebarDoctorItems = [
         "icon": BiWallet
     },
     {
+        "title": " الدردشات",
+        "href": "/dashboard/chats",
+        "icon": BiChat
+    },
+    {
         "title": "السجل ",
         "href": "/dashboard/history",
         "icon": BiHistory
@@ -103,6 +108,11 @@ export const sidebarPatientItems = [
         "title": "السجل ",
         "href": "/dashboard/history",
         "icon": BiHistory
+    },
+    {
+        "title": " الدردشات",
+        "href": "/dashboard/chats",
+        "icon": BiChat
     },
     {
         "title": "المفضلة ",

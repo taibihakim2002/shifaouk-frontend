@@ -40,6 +40,7 @@ import {
   HiOutlineEye,
   HiOutlinePencil,
   HiOutlineInformationCircle,
+  HiDotsVertical,
 } from "react-icons/hi";
 import {
   Video as VideoIcon,
@@ -393,7 +394,7 @@ export default function PatientAppointments() {
         </div>
 
         {/* Appointments Table */}
-        <div className="overflow-x-auto">
+        <div className="relative overflow-x-auto overflow-y-visible">
           <Table
             hoverable
             className="min-w-[800px] text-right dark:divide-gray-700"
@@ -524,18 +525,27 @@ export default function PatientAppointments() {
                           {statusInfo.text}
                         </Badge>
                       </TableCell>
-                      <TableCell className="p-3 px-4 text-center sticky right-0 bg-white group-hover:bg-slate-50 dark:bg-gray-800 dark:group-hover:bg-gray-700/50">
-                        <Button
-                          as={Link}
-                          to={`/dashboard/appointments/${appointment.id}`}
-                          theme={flowbit.button}
-                          color="light"
-                          size="xs"
-                          className="!px-3 !py-1.5 dark:!border-gray-600 dark:!text-gray-300 dark:hover:!bg-gray-700"
+                      <TableCell onClick={(e) => e.stopPropagation()}>
+                        <Dropdown
+                          label=""
+                          dismissOnClick={false}
+                          renderTrigger={() => (
+                            <button className="p-2 hover:bg-gray-100 rounded-full">
+                              <HiDotsVertical className="w-5 h-5 text-gray-600" />
+                            </button>
+                          )}
+                          placement="bottom-start"
                         >
-                          <HiOutlineEye size={16} className="ml-1.5" /> عرض
-                          التفاصيل
-                        </Button>
+                          <DropdownItem onClick={() => console.log("تعديل")}>
+                            تعديل
+                          </DropdownItem>
+                          <DropdownItem
+                            onClick={() => console.log("حذف")}
+                            className="text-red-600"
+                          >
+                            حذف
+                          </DropdownItem>
+                        </Dropdown>
                       </TableCell>
                     </TableRow>
                   );

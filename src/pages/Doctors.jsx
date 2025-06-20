@@ -1,30 +1,32 @@
+// src/pages/Doctors.jsx
+
 import {
   Button,
   Label,
-  Select,
-  TextInput,
-  Radio,
   Modal,
-  // ModalHeader, // Not used directly, Modal.Header is used
-  // ModalBody,   // Not used directly, Modal.Body is used
-  Pagination, // Added for potential pagination
+  ModalHeader,
+  ModalBody,
+  Pagination,
 } from "flowbite-react";
 import DoctorCard from "../components/common/DoctorCard";
 import {
-  Filter,
   Search,
-  XCircle,
+  X,
   ListFilter,
   ArrowUpDown,
   RotateCcw,
+  Star,
+  Filter,
+  Frown,
+  XCircle,
 } from "lucide-react";
-import flowbit from "../config/flowbit";
 import useApiRequest from "../hooks/useApiRequest";
 import { useEffect, useState } from "react";
 import globalApi from "../utils/globalApi";
 import Skeleton from "../components/common/Skeleton";
 import specializations from "../data/specializations";
 
+// --- DATA & Debounce Hook (Unchanged) ---
 const wilayasData = [
   { value: "", label: "كل الولايات" },
   { value: "الجزائر", label: "الجزائر" },
@@ -33,48 +35,31 @@ const wilayasData = [
   { value: "وهران", label: "وهران" },
   { value: "قسنطينة", label: "قسنطينة" },
 ];
-
 const priceRanges = [
   { value: "", label: "كل الأسعار" },
-  { value: "0-199", label: "أقل من 200 دج" },
-  { value: "200-399", label: "من 200 دج إلى 399 دج" },
-  { value: "400-599", label: "من 400 دج إلى 599 دج" },
-  { value: "600-800", label: "من 600 دج إلى 800 دج" },
-  { value: "801-Infinity", label: "أكبر من 800 دج" },
+  { value: "0-1999", label: "أقل من 2000 دج" },
+  { value: "2000-3999", label: "2000 - 3999 دج" },
+  { value: "4000-5999", label: "4000 - 5999 دج" },
+  { value: "6000-Infinity", label: "أكثر من 6000 دج" },
 ];
-
-const ratingLevels = [
-  { value: "", label: "كل التقييمات" },
-  { value: "5", label: "5 نجوم فقط" },
-  { value: "4", label: "4 نجوم فأكثر" },
-  { value: "3", label: "3 نجوم فأكثر" },
-  { value: "2", label: "نجمتين فأكثر" },
-  { value: "1", label: "نجمة فأكثر" },
-];
-
 const sortOptionsData = [
-  { value: "", label: "الفرز الافتراضي" },
-  { value: "rating_desc", label: "التقييم (الأعلى أولاً)" },
-  { value: "rating_asc", label: "التقييم (الأقل أولاً)" },
-  { value: "price_asc", label: "السعر (الأقل أولاً)" },
-  { value: "price_desc", label: "السعر (الأعلى أولاً)" },
-  { value: "name_asc", label: "الاسم (أ-ي)" },
-  { value: "name_desc", label: "الاسم (ي-أ)" },
-  { value: "experience_desc", label: "الخبرة (الأكثر أولاً)" },
+  { value: "", label: "فرز حسب" },
+  { value: "rating_desc", label: "الأعلى تقييماً" },
+  { value: "price_asc", label: "الأقل سعراً" },
+  { value: "price_desc", label: "الأعلى سعراً" },
+  { value: "experience_desc", label: "الأكثر خبرة" },
 ];
-
 function useDebounce(value, delay) {
   const [debouncedValue, setDebouncedValue] = useState(value);
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedValue(value);
     }, delay);
-    return () => {
-      clearTimeout(handler);
-    };
+    return () => clearTimeout(handler);
   }, [value, delay]);
   return debouncedValue;
 }
+// --- END Unchanged Data ---
 
 export default function Doctors() {
   const { data: apiResponse, loading, error, request } = useApiRequest();
@@ -82,6 +67,7 @@ export default function Doctors() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const doctorsPerPage = 9;
+
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedSpecialization, setSelectedSpecialization] = useState("");
   const [selectedWilaya, setSelectedWilaya] = useState("");
@@ -89,13 +75,13 @@ export default function Doctors() {
   const [selectedRating, setSelectedRating] = useState("");
   const [selectedGender, setSelectedGender] = useState("");
   const [sortBy, setSortBy] = useState("");
-
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const debouncedSearchQuery = useDebounce(searchQuery, 500);
 
+  // --- API & Data Handling Logic (Unchanged) ---
   useEffect(() => {
     const fetchFilteredDoctors = () => {
-      const paramsForQuery = {
+      const params = {
         page: currentPage,
         limit: doctorsPerPage,
         search: debouncedSearchQuery,
@@ -106,23 +92,12 @@ export default function Doctors() {
         gender: selectedGender,
         sort: sortBy,
       };
-
-      const activeParams = {};
-      for (const key in paramsForQuery) {
-        if (
-          paramsForQuery[key] !== undefined &&
-          paramsForQuery[key] !== null &&
-          paramsForQuery[key] !== ""
-        ) {
-          activeParams[key] = paramsForQuery[key];
-        }
-      }
+      const activeParams = Object.fromEntries(
+        Object.entries(params).filter(([, v]) => v)
+      );
       const queryString = new URLSearchParams(activeParams).toString();
-
-      console.log(queryString);
       request(() => globalApi.getAllApprovedDoctors(queryString));
     };
-
     fetchFilteredDoctors();
   }, [
     debouncedSearchQuery,
@@ -133,7 +108,6 @@ export default function Doctors() {
     selectedGender,
     sortBy,
     currentPage,
-    doctorsPerPage,
   ]);
 
   useEffect(() => {
@@ -145,19 +119,11 @@ export default function Doctors() {
         (apiResponse.data.totalPages || 1) > 0
       ) {
         setCurrentPage(apiResponse.data.totalPages);
-      } else if (
-        !apiResponse.data.users &&
-        (apiResponse.data.totalPages || 1) === 0
-      ) {
-        setCurrentPage(1);
       }
-    } else if (!loading && apiResponse !== undefined) {
-      setDoctorsList([]);
-      setTotalPages(1);
-      setCurrentPage(1);
     }
-  }, [apiResponse, loading]);
+  }, [apiResponse, loading, currentPage]);
 
+  // --- Filter Controls & Page Logic ---
   const handleClearFilters = () => {
     setSearchQuery("");
     setSelectedSpecialization("");
@@ -167,207 +133,178 @@ export default function Doctors() {
     setSelectedGender("");
     setSortBy("");
     setCurrentPage(1);
+    setIsFilterModalOpen(false); // Close modal on clear
   };
+
+  const activeFilterCount = [
+    selectedSpecialization,
+    selectedWilaya,
+    selectedPrice,
+    selectedRating,
+    selectedGender,
+  ].filter(Boolean).length;
 
   const onPageChange = (page) => {
     setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
+
+  // --- ⭐ NEW: Interactive Components ---
+  const RatingFilter = ({ selected, onChange }) => (
+    <div className="flex items-center justify-end gap-1" dir="ltr">
+      {[...Array(5)].map((_, index) => {
+        const ratingValue = 5 - index;
+        return (
+          <button
+            key={ratingValue}
+            type="button"
+            onClick={() =>
+              onChange(selected === ratingValue ? "" : ratingValue)
+            }
+            className="focus:outline-none"
+          >
+            <Star
+              size={22}
+              className={`transition-all duration-200 ${
+                ratingValue <= selected
+                  ? "text-yellow-400 fill-yellow-400"
+                  : "text-gray-300 hover:text-yellow-300"
+              }`}
+            />
+          </button>
+        );
+      })}
+    </div>
+  );
+
+  const GenderFilter = ({ selected, onChange }) => (
+    <div className="flex items-center gap-2">
+      {[
+        { value: "", label: "الكل" },
+        { value: "male", label: "ذكر" },
+        { value: "female", label: "أنثى" },
+      ].map(({ value, label }) => (
+        <button
+          key={value}
+          type="button"
+          onClick={() => onChange(value)}
+          className={`px-4 py-2 text-sm font-semibold rounded-full transition-colors duration-200 ${
+            selected === value
+              ? "bg-primaryColor text-white shadow"
+              : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+          }`}
+        >
+          {label}
+        </button>
+      ))}
+    </div>
+  );
 
   const renderFilters = (isModal = false) => (
     <div
       className={`p-1 ${
         isModal
           ? ""
-          : "bg-white rounded-xl border sticky top-24 overflow-y-auto max-h-[calc(100vh-7rem)]"
+          : "bg-white rounded-xl border border-gray-200/80 sticky top-24 max-h-[calc(100vh-8rem)] overflow-y-auto"
       }`}
     >
-      <div className="flex justify-between items-center mb-6 px-4 pt-4">
-        <h3 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
-          <ListFilter size={22} className="text-primaryColor" />
+      <div className="flex justify-between items-center p-5 border-b border-gray-100">
+        <h3 className="text-md font-bold text-gray-800 flex items-center gap-2">
+          <ListFilter size={18} className="text-primaryColor" />
           فلاتر البحث
         </h3>
-        <Button
-          onClick={handleClearFilters}
-          size="xs"
-          color="light"
-          theme={flowbit.button}
-          className="hover:text-red-700 text-red-500 border-red-300 hover:bg-red-50"
-        >
-          <RotateCcw size={14} className="mr-1" /> {/* Changed icon */}
-          مسح الكل
-        </Button>
+        {activeFilterCount > 0 && (
+          <button
+            onClick={handleClearFilters}
+            className="text-xs font-semibold text-red-600 hover:text-red-700 transition-colors flex items-center gap-1"
+          >
+            <RotateCcw size={14} />
+            مسح ({activeFilterCount})
+          </button>
+        )}
       </div>
-      <div className="space-y-5 p-4">
-        <div>
-          <Label
-            htmlFor="specialization-filter"
-            className="mb-1.5 block text-sm font-medium text-gray-700"
-          >
-            التخصص
-          </Label>
-          <select
-            id="specialization-filter"
-            className="p-1 rounded-lg border w-full text-sm focus:outline-blue-400"
-            value={selectedSpecialization}
-            onChange={(e) => {
-              setSelectedSpecialization(e.target.value);
-              setCurrentPage(1);
-            }}
-            theme={flowbit.select}
-          >
-            {specializations.map((spec) => (
-              <option key={spec.value} value={spec.value}>
-                {spec.label}
-              </option>
-            ))}
-          </select>
-        </div>
-        {/* Wilaya */}
-        <div>
-          <Label
-            htmlFor="wilaya-filter"
-            className="mb-1.5 block text-sm font-medium text-gray-700"
-          >
-            الولاية
-          </Label>
-          <select
-            id="wilaya-filter"
-            className="p-1 rounded-lg border w-full text-sm focus:outline-blue-400"
-            value={selectedWilaya}
-            onChange={(e) => {
-              setSelectedWilaya(e.target.value);
-              setCurrentPage(1);
-            }}
-            theme={flowbit.select}
-          >
-            {wilayasData.map((wilaya) => (
-              <option key={wilaya.value} value={wilaya.value}>
-                {wilaya.label}
-              </option>
-            ))}
-          </select>
-        </div>
-        {/* Price */}
-        <div>
-          <Label
-            htmlFor="price-filter"
-            className="mb-1.5 block text-sm font-medium text-gray-700"
-          >
-            السعر
-          </Label>
-          <select
-            id="price-filter"
-            className="p-1 rounded-lg border w-full text-sm focus:outline-blue-400"
-            value={selectedPrice}
-            onChange={(e) => {
-              setSelectedPrice(e.target.value);
-              setCurrentPage(1);
-            }}
-            theme={flowbit.select}
-          >
-            {priceRanges.map((range) => (
-              <option key={range.value} value={range.value}>
-                {range.label}
-              </option>
-            ))}
-          </select>
-        </div>
+      <div className="space-y-6 p-5">
+        {/* Specialization, Wilaya, Price (Dropdowns) */}
+        {[
+          {
+            id: "spec",
+            label: "التخصص",
+            value: selectedSpecialization,
+            onChange: setSelectedSpecialization,
+            options: specializations,
+          },
+          {
+            id: "wilaya",
+            label: "الولاية",
+            value: selectedWilaya,
+            onChange: setSelectedWilaya,
+            options: wilayasData,
+          },
+          {
+            id: "price",
+            label: "السعر",
+            value: selectedPrice,
+            onChange: setSelectedPrice,
+            options: priceRanges,
+          },
+        ].map((filter) => (
+          <div key={filter.id}>
+            <Label
+              htmlFor={filter.id}
+              className="mb-2 block text-sm font-medium text-gray-700"
+            >
+              {filter.label}
+            </Label>
+            <select
+              id={filter.id}
+              className="w-full bg-gray-50 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primaryColor focus:border-primaryColor block p-2.5 transition"
+              value={filter.value}
+              onChange={(e) => {
+                filter.onChange(e.target.value);
+                setCurrentPage(1);
+              }}
+            >
+              {filter.options.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+          </div>
+        ))}
+
         {/* Rating */}
         <div>
-          <Label
-            htmlFor="rating-filter"
-            className="mb-1.5 block text-sm font-medium text-gray-700"
-          >
-            التقييم
+          <Label className="mb-2 block text-sm font-medium text-gray-700">
+            التقييم (أو أعلى)
           </Label>
-          <select
-            id="rating-filter"
-            className="p-1 rounded-lg border w-full text-sm focus:outline-blue-400"
-            value={selectedRating}
-            onChange={(e) => {
-              setSelectedRating(e.target.value);
+          <RatingFilter
+            selected={selectedRating}
+            onChange={(val) => {
+              setSelectedRating(val);
               setCurrentPage(1);
             }}
-            theme={flowbit.select}
-          >
-            {ratingLevels.map((level) => (
-              <option key={level.value} value={level.value}>
-                {level.label}
-              </option>
-            ))}
-          </select>
+          />
         </div>
+
         {/* Gender */}
         <div>
-          <Label className="mb-2 block text-sm font-medium text-gray-700">
+          <Label className="mb-3 block text-sm font-medium text-gray-700">
             الجنس
           </Label>
-          <fieldset className="flex flex-wrap gap-x-4 gap-y-2">
-            <div className="flex items-center gap-2">
-              <Radio
-                id="gender-any-filter"
-                name="gender-filter"
-                value=""
-                checked={selectedGender === ""}
-                onChange={(e) => {
-                  setSelectedGender(e.target.value);
-                  setCurrentPage(1);
-                }}
-                theme={flowbit.radio}
-              />
-              <Label
-                htmlFor="gender-any-filter"
-                className="text-gray-600 text-sm"
-              >
-                الكل
-              </Label>
-            </div>
-            <div className="flex items-center gap-2">
-              <Radio
-                id="gender-male-filter"
-                name="gender-filter"
-                value="male"
-                checked={selectedGender === "male"}
-                onChange={(e) => {
-                  setSelectedGender(e.target.value);
-                  setCurrentPage(1);
-                }}
-                theme={flowbit.radio}
-              />
-              <Label
-                htmlFor="gender-male-filter"
-                className="text-gray-600 text-sm"
-              >
-                ذكر
-              </Label>
-            </div>
-            <div className="flex items-center gap-2">
-              <Radio
-                id="gender-female-filter"
-                name="gender-filter"
-                value="female"
-                checked={selectedGender === "female"}
-                onChange={(e) => {
-                  setSelectedGender(e.target.value);
-                  setCurrentPage(1);
-                }}
-                theme={flowbit.radio}
-              />
-              <Label
-                htmlFor="gender-female-filter"
-                className="text-gray-600 text-sm"
-              >
-                أنثى
-              </Label>
-            </div>
-          </fieldset>
+          <GenderFilter
+            selected={selectedGender}
+            onChange={(val) => {
+              setSelectedGender(val);
+              setCurrentPage(1);
+            }}
+          />
         </div>
+
         {isModal && (
           <Button
-            color="primary"
             onClick={() => setIsFilterModalOpen(false)}
-            className="w-full mt-6"
-            theme={flowbit.button}
+            className="w-full !bg-primaryColor hover:!bg-cyan-700"
           >
             عرض النتائج
           </Button>
@@ -376,37 +313,26 @@ export default function Doctors() {
     </div>
   );
 
-  if (error && !loading) {
-    return (
-      <div className="container py-16 text-center text-red-600 text-lg">
-        {" "}
-        <XCircle className="inline-block mr-2" size={24} /> حدث خطأ أثناء تحميل
-        بيانات الأطباء. الرجاء المحاولة مرة أخرى.
-      </div>
-    );
-  }
-
+  // --- ⭐ REDESIGNED JSX Structure ---
   return (
     <div className="bg-slate-50 min-h-screen">
-      <div className="container py-10 mx-auto px-4">
-        <div className="text-center lg:text-right mb-10">
-          <h1 className="text-3xl lg:text-4xl font-bold text-gray-800 mb-2">
+      {/* Hero Section */}
+      <div className="bg-gradient-to-br from-cyan-50 to-blue-100 border-b border-gray-200">
+        <div className="container pt-16 pb-20 mx-auto px-4 text-center">
+          <h1 className="text-3xl md:text-5xl font-extrabold text-gray-800 mb-4">
             ابحث عن طبيبك المثالي
           </h1>
-          <p className="text-md lg:text-lg text-gray-600">
-            اعثر على أفضل الأطباء الخبراء لتلبية احتياجاتك الصحية بكل سهولة.
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            اعثر بكل سهولة على أفضل الأطباء الخبراء لتلبية احتياجاتك الصحية.
           </p>
-        </div>
-
-        <div className="mb-8 p-4 bg-white rounded-xl shadow-lg flex flex-col md:flex-row items-center gap-3 md:gap-4 sticky top-4 z-20">
-          <div className="md:flex-grow">
-            <TextInput
-              theme={flowbit.input}
-              color="primary"
-              className="w-full"
-              id="search-doctors"
+          <div className="mt-8 max-w-2xl mx-auto relative">
+            <Search
+              className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400"
+              size={22}
+            />
+            <input
               type="text"
-              icon={Search}
+              className="w-full py-4 ps-14 pe-6 border-gray-300 rounded-full text-md shadow-sm focus:ring-2 focus:ring-cyan-400 focus:border-primaryColor transition"
               placeholder="ابحث بالاسم، التخصص، أو المستشفى..."
               value={searchQuery}
               onChange={(e) => {
@@ -415,160 +341,157 @@ export default function Doctors() {
               }}
             />
           </div>
-          <div className="w-full md:w-auto md:min-w-[240px]">
-            <select
-              className="p-1 rounded-lg border w-full text-sm focus:outline-blue-400"
-              id="sortOptions-doctors"
-              value={sortBy}
-              onChange={(e) => {
-                setSortBy(e.target.value);
-                setCurrentPage(1);
-              }}
-              theme={flowbit.select}
-              icon={ArrowUpDown}
-            >
-              {sortOptionsData.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </div>
-          <Button
-            theme={flowbit.button}
-            color="primary"
-            className="flex lg:hidden items-center gap-2 w-full md:w-auto justify-center py-2.5"
-            outline
-            onClick={() => setIsFilterModalOpen(true)}
-          >
-            <Filter size={18} />
-            <span>فلاتر البحث</span>
-          </Button>
         </div>
+      </div>
 
-        <div className="flex flex-col lg:flex-row gap-8">
-          <aside className="hidden lg:block lg:w-[300px] xl:w-[340px] flex-shrink-0">
-            {" "}
-            {/* Explicit wider width */}
+      <div className="container py-12 mx-auto px-4">
+        <div className="flex flex-col lg:flex-row gap-8 items-start">
+          {/* Filters Sidebar (Desktop) */}
+          <aside className="hidden lg:block lg:w-1/3 xl:w-1/4 flex-shrink-0">
             {renderFilters()}
           </aside>
+
+          {/* Main Content */}
           <main className="w-full lg:flex-grow">
-            {loading && doctorsList.length === 0 ? ( // Show skeletons only if list is empty and loading
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-                {" "}
-                {/* Adjusted grid for larger screens */}
-                {[...Array(doctorsPerPage)].map((_, index) => (
-                  <Skeleton
-                    key={index}
-                    className="w-full h-80 rounded-xl shadow-lg"
-                  />
+            {/* Controls: Filter Button & Sort */}
+            <div className="flex flex-col sm:flex-row gap-4 mb-6">
+              <Button
+                color="light"
+                className="flex lg:hidden items-center justify-center gap-2 w-full sm:w-auto border-gray-300 shadow-sm"
+                onClick={() => setIsFilterModalOpen(true)}
+              >
+                <Filter size={18} />
+                <span>
+                  فلاتر البحث{" "}
+                  {activeFilterCount > 0 && `(${activeFilterCount})`}
+                </span>
+              </Button>
+              <div className="relative w-full sm:w-56 sm:ms-auto">
+                <ArrowUpDown
+                  size={16}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                />
+                <select
+                  id="sortOptions-doctors"
+                  className="w-full bg-white border-gray-300 text-gray-800 text-sm rounded-lg focus:ring-primaryColor focus:border-primaryColor block p-2.5 ps-9 appearance-none shadow-sm"
+                  value={sortBy}
+                  onChange={(e) => {
+                    setSortBy(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                >
+                  {sortOptionsData.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* Content Display */}
+            {loading && doctorsList.length === 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                {[...Array(doctorsPerPage)].map((_, i) => (
+                  <Skeleton key={i} className="w-full h-[420px] rounded-xl" />
                 ))}
               </div>
-            ) : !loading && doctorsList.length === 0 ? (
-              <div className="text-center py-16 px-6 bg-white rounded-xl shadow-xl h-full flex flex-col justify-center items-center">
-                <ListFilter size={56} className="mx-auto text-gray-300 mb-5" />
-                <h3 className="text-2xl font-semibold text-gray-700 mb-3">
-                  لا يوجد أطباء تطابق بحثك
+            ) : !loading && error ? (
+              <div className="text-center py-16 px-6 bg-white rounded-2xl min-h-[400px] flex flex-col justify-center items-center">
+                <div className="bg-red-100 p-4 rounded-full mb-5">
+                  <XCircle size={40} className="text-red-600" />
+                </div>
+                <h3 className="text-2xl font-bold text-gray-800 mb-2">
+                  حدث خطأ
                 </h3>
-                <p className="text-gray-500 mb-6 max-w-md mx-auto">
-                  نأسف، لم نتمكن من العثور على أي أطباء يطابقون معايير الفلترة
-                  والبحث الحالية. حاول تعديل الفلاتر أو توسيع نطاق البحث.
+                <p className="text-gray-500">
+                  فشل في تحميل بيانات الأطباء. يرجى المحاولة مرة أخرى.
+                </p>
+              </div>
+            ) : !loading && doctorsList.length === 0 ? (
+              <div className="text-center py-16 px-6 bg-white rounded-xl min-h-[400px] flex flex-col justify-center items-center">
+                <div className="bg-cyan-50 p-4 rounded-full mb-5">
+                  <Frown size={40} className="text-primaryColor" />
+                </div>
+                <h3 className="text-2xl font-bold text-gray-800 mb-2">
+                  لا يوجد نتائج مطابقة
+                </h3>
+                <p className="text-gray-500 mb-6 max-w-sm mx-auto">
+                  حاول تعديل الفلاتر أو توسيع نطاق البحث للعثور على الطبيب
+                  المناسب لك.
                 </p>
                 <Button
                   onClick={handleClearFilters}
-                  color="primary"
+                  color="light"
                   outline
-                  className="mt-6 group"
-                  theme={flowbit.button}
+                  className="group"
                 >
                   <RotateCcw
-                    size={18}
-                    className="mr-2 group-hover:rotate-[-90deg] transition-transform duration-300"
+                    size={16}
+                    className="mr-2 group-hover:rotate-[-90deg] transition-transform"
                   />
                   مسح جميع الفلاتر
                 </Button>
               </div>
             ) : (
               <>
-                <div className="mb-4 flex flex-col sm:flex-row justify-between items-center">
-                  <p className="text-md text-gray-700">
-                    عرض{" "}
-                    <span className="font-bold text-primaryColor">
-                      {doctorsList.length}
-                    </span>{" "}
-                    من الأطباء
-                    {apiResponse?.data?.totalDocs
-                      ? ` (من أصل ${apiResponse.data.totalDocs})`
-                      : ""}
-                    .
-                  </p>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-x-6 gap-y-8">
+                <p className="mb-4 text-gray-600">
+                  عدد الاطباء{" "}
+                  <span className="font-bold text-cyan-700">
+                    {doctorsList.length}
+                  </span>{" "}
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                   {doctorsList.map((ele) => (
                     <DoctorCard ele={ele} key={ele._id || ele.id} />
                   ))}
                 </div>
                 {totalPages > 1 && (
-                  <div className="flex justify-center mt-10">
+                  <div className="flex justify-center mt-12">
                     <Pagination
                       currentPage={currentPage}
                       totalPages={totalPages}
                       onPageChange={onPageChange}
-                      theme={flowbit.pagination} // تأكد من أن لديك ثيم مخصص للترقيم
                       showIcons
+                      theme={{
+                        pages: {
+                          base: "xs:mt-0 mt-2 inline-flex items-center -space-x-px",
+                          previous: {
+                            base: "h-10 px-3 ml-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700",
+                          },
+                          next: {
+                            base: "h-10 px-3 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-gray-700",
+                          },
+                          selector: {
+                            base: "w-10 h-10 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700",
+                            active:
+                              "bg-primaryColor text-white hover:bg-cyan-700 border-primaryColor",
+                          },
+                        },
+                      }}
                     />
                   </div>
                 )}
               </>
             )}
-            {/* Show loading indicator at bottom if loading more pages or initial but list not empty */}
-            {loading && doctorsList.length > 0 && (
-              <div className="text-center py-6">
-                <Button color="light" disabled theme={flowbit.button}>
-                  <svg
-                    aria-hidden="true"
-                    role="status"
-                    className="inline w-4 h-4 me-3 text-gray-200 animate-spin dark:text-gray-600"
-                    viewBox="0 0 100 101"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
-                      fill="currentColor"
-                    />
-                    <path
-                      d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0492C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
-                      fill="#1C64F2"
-                    />
-                  </svg>
-                  جاري التحميل ...
-                </Button>
-              </div>
-            )}
           </main>
         </div>
       </div>
 
+      {/* Filter Modal (Mobile) */}
       <Modal
         show={isFilterModalOpen}
         onClose={() => setIsFilterModalOpen(false)}
         popup
-        position="right"
-        theme={flowbit.modal}
+        position="center"
       >
-        <Modal.Header className="text-right px-4 pt-4 pb-2 border-b">
-          {" "}
-          {/* Added border-b */}
-          <span className="font-semibold text-lg text-gray-700">
+        <ModalHeader className="px-5 pt-4 pb-2 border-b items-center">
+          <span className="text-lg font-semibold text-gray-800">
             تصفية النتائج
           </span>
-        </Modal.Header>
-        <Modal.Body className="p-0">
-          {" "}
-          {/* Changed to p-0 to let renderFilters handle padding */}
-          {renderFilters(true)}
-        </Modal.Body>
+          {/* The close button is part of the header */}
+        </ModalHeader>
+        <ModalBody className="p-0">{renderFilters(true)}</ModalBody>
       </Modal>
     </div>
   );

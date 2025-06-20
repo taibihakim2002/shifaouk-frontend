@@ -654,9 +654,9 @@ const avatar = {
             "pink": "ring-pink-500 dark:ring-pink-500"
         },
         "img": {
-            "base": "rounded object-cover",
+            "base": "rounded-full w-full h-full object-cover",
             "off": "relative overflow-hidden bg-gray-100 dark:bg-gray-600",
-            "on": "",
+            "on": "object-cover",
             "placeholder": "absolute -bottom-1 h-auto w-auto text-gray-400"
         },
         "size": {

@@ -49,6 +49,7 @@ import {
   FilePlus2,
 } from "lucide-react";
 import { HiOutlineDocumentDuplicate, HiOutlinePencil } from "react-icons/hi2";
+import AppAvatar from "../../../components/common/AppAvatar";
 
 // --- Static Data for Demonstration ---
 const allWilayas = [
@@ -255,8 +256,8 @@ export default function PatientProfile() {
               >
                 <div className="flex flex-col items-center p-6 text-center">
                   <div className="relative mb-4">
-                    <Avatar
-                      img={
+                    <AppAvatar
+                      url={
                         currentProfileImageUrl ||
                         `https://ui-avatars.com/api/?name=${encodeURIComponent(
                           formData.firstName || "P"
@@ -264,11 +265,10 @@ export default function PatientProfile() {
                           formData.lastName || ""
                         )}&background=6366F1&color=fff&size=128&font-size=0.45&bold=true`
                       }
-                      rounded
+                      alt={`${formData.firstName || "P"} ${
+                        formData.lastName || ""
+                      }`}
                       size="xl"
-                      bordered
-                      color="indigo"
-                      className="ring-4 ring-white dark:ring-gray-700 shadow-lg"
                     />
                     <Label
                       htmlFor="profileImageFile"

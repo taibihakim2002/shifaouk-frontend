@@ -14,21 +14,27 @@ const axiosClient = axios.create({
     withCredentials: true
 });
 
-// axiosClient.interceptors.response.use(
-//     (response) => response,
-//     (error) => {
-//         console.log(error)
-//         if (error.response?.status === 401) {
-//             const { clearUser } = useAuthStore.getState();
-//             const { openModal } = useAuthModalStore.getState()
-//             clearUser();
-//             window.location.href = "/";
-//             openModal("login")
-//         }
+axiosClient.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        console.log(error)
+        // if (error.response?.data?.isAuthError) {
+        //     const { clearUser } = useAuthStore.getState();
+        //     const { openModal } = useAuthModalStore.getState()
+        //     clearUser();
+        //     window.location.href = "/";
+        //     openModal("login")
+        // }
+        if (error.response?.status === 401) {
+            const { clearUser } = useAuthStore.getState();
+            const { openModal } = useAuthModalStore.getState()
+            clearUser();
+            openModal("login")
+        }
 
-//         return Promise.reject(error);
-//     }
-// );
+        return Promise.reject(error);
+    }
+);
 
 
 
@@ -80,7 +86,23 @@ const getConsultationReportById = (consultationId) => axiosClient.get(`/consulta
 
 const login = (credentials) => axiosClient.post("/auth/login", credentials);
 const logout = () => axiosClient.post("/auth/logout");
+
+
+
+// إرسال رسالة جديدة
+const sendMessage = (data) => axiosClient.post("/message", data);
+
+// جلب الرسائل لمحادثة معينة
+const getMessagesByConversationId = (conversationId) =>
+    axiosClient.get(`/message/${conversationId}`);
+
+// جلب كل المحادثات الخاصة بالمستخدم (مريض أو طبيب)
+const getMyConversations = () => axiosClient.get("/message");
+
 export default {
+    sendMessage,
+    getMessagesByConversationId,
+    getMyConversations,
     registerPatient,
     registerDoctor,
     login,

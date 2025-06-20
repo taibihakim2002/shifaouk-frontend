@@ -1,154 +1,155 @@
-// import { Button } from "flowbite-react";
-// import { Star } from "lucide-react";
-// import flowbit from "../../config/flowbit";
-// import { Link, useNavigate } from "react-router-dom";
-// import parseImgUrl from "../../utils/parseImgUrl";
-
-// export default function DoctorCard({ ele, key }) {
-//   const navigate = useNavigate();
-//   return (
-//     <div className="rounded-xl relative h-80 overflow-hidden group" key={key}>
-//       <img
-//         className="w-full h-full absolute object-cover group-hover:scale-105 transition"
-//         src={parseImgUrl(ele?.profileImage)}
-//         alt="Doctor"
-//       />
-//       <div className="absolute w-full h-56 bottom-0 left-0 bg-gradient-to-t from-secondaryColor to-transparent"></div>
-//       <div className="relative z-10 flex flex-col justify-end items-center h-full py-5 px-5">
-//         <h3 className="text-[18px] text-white font-bold  mb-3">
-//           {ele.fullName.first} {ele.fullName.second}
-//         </h3>
-//         <div className="flex justify-between w-full text-sm text-white mb-3">
-//           <p className=" ">اخصائي {ele.doctorProfile.specialization}</p>
-//           <div className="flex gap-1 items-center justify-center">
-//             <Star className="text-yellow-300" size={15} strokeWidth={3} />
-//             <p className="text-yellow-300 font-bold">
-//               {ele.doctorProfile.rating}
-//             </p>
-//           </div>
-//         </div>
-
-//         <Link to={`/doctors/${ele._id}`} className="w-full">
-//           <div className="w-full">
-//             <Button
-//               theme={flowbit.button}
-//               color="primary"
-//               className="w-full"
-//               size="sm"
-//             >
-//               إستشر الان
-//             </Button>
-//           </div>
-//         </Link>
-//       </div>
-//     </div>
-//   );
-// }
-
 import { Button } from "flowbite-react";
-import { Star, ShieldCheck } from "lucide-react"; // ShieldCheck كأيقونة إضافية محتملة
-import flowbit from "../../config/flowbit"; // تأكد من أن هذا الملف مهيأ بشكل صحيح
-import { Link } from "react-router-dom"; // useNavigate غير مستخدم في هذا المكون مباشرة
+import { Star } from "lucide-react";
+import flowbit from "../../config/flowbit";
+import { Link, useNavigate } from "react-router-dom";
 import parseImgUrl from "../../utils/parseImgUrl";
 
-// مكون لإنشاء النجوم بناءً على التقييم
-const RatingStars = ({ rating, starSize = 16, className = "" }) => {
-  const totalStars = 5;
-  const fullStars = Math.floor(rating);
-  // const halfStar = rating % 1 >= 0.5; // إذا أردت دعم نصف نجمة
-  const emptyStars = totalStars - fullStars; // - (halfStar ? 1 : 0);
-
+export default function DoctorCard({ ele, key }) {
+  const navigate = useNavigate();
   return (
-    <div className={`flex items-center ${className}`}>
-      {[...Array(fullStars)].map((_, i) => (
-        <Star
-          key={`full-${i}`}
-          size={starSize}
-          className="text-amber-400 fill-amber-400"
-          strokeWidth={1.5}
-        />
-      ))}
-      {/* Placeholder for half star logic if needed */}
-      {[...Array(emptyStars)].map((_, i) => (
-        <Star
-          key={`empty-${i}`}
-          size={starSize}
-          className="text-slate-300 dark:text-slate-600 fill-slate-300 dark:fill-slate-600"
-          strokeWidth={1.5}
-        />
-      ))}
-      {rating > 0 && (
-        <span className="ml-1.5 text-xs text-slate-500 dark:text-slate-400 font-medium">
-          ({rating % 1 === 0 ? rating.toFixed(0) : rating.toFixed(1)}){" "}
-          {/* عرض رقم التقييم */}
-        </span>
-      )}
-    </div>
-  );
-};
-
-export default function DoctorCard({ ele }) {
-  // تمت إزالة key من props، يجب أن يوضع في مكان استدعاء المكون ضمن map
-  const doctorName = `${ele.fullName.first || ""} ${
-    ele.fullName.second || ""
-  }`.trim();
-  const doctorImage = parseImgUrl(ele?.profileImage);
-  const doctorSpecialty = ele.doctorProfile?.specialization || "تخصص عام";
-  const doctorRating = ele.doctorProfile?.rating || 0;
-
-  return (
-    <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg group transform-gpu transition-all duration-300 ease-in-out hover:shadow-2xl hover:-translate-y-1.5 flex flex-col overflow-hidden h-full min-h-[380px] sm:min-h-[400px] md:min-h-[420px]">
-      {/* منطقة الصورة */}
-      <div className="relative w-full h-52 sm:h-56 md:h-60 lg:h-56 xl:h-60 2xl:h-64 overflow-hidden">
-        <img
-          className="absolute inset-0 w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-350 ease-in-out"
-          src={doctorImage} // صورة احتياطية
-          alt={`د. ${doctorName}`} // معالجة خطأ تحميل الصورة
-        />
-        {/* يمكنك إضافة شارة هنا مثل "متصل الآن" أو "مميز" */}
-        {/* <span className="absolute top-3 right-3 bg-green-500 text-white text-xs font-semibold px-2.5 py-1 rounded-md shadow">متصل</span> */}
-      </div>
-
-      {/* منطقة المحتوى */}
-      <div className="p-4 md:p-5 flex flex-col flex-grow text-center">
-        <h3
-          className="text-lg md:text-xl font-bold text-slate-800 dark:text-white mb-1 truncate"
-          title={`د. ${doctorName}`}
-        >
-          د. {doctorName}
+    <div className="rounded-xl relative h-80 overflow-hidden group" key={key}>
+      <img
+        className="w-full h-full absolute object-cover group-hover:scale-105 transition"
+        src={parseImgUrl(ele?.profileImage)}
+        alt="Doctor"
+      />
+      <div className="absolute w-full h-56 bottom-0 left-0 bg-gradient-to-t from-secondaryColor to-transparent"></div>
+      <div className="relative z-10 flex flex-col justify-end items-center h-full py-5 px-5">
+        <h3 className="text-[18px] text-white font-bold  mb-3">
+          {ele.fullName.first} {ele.fullName.second}
         </h3>
-        <p
-          className="text-sm text-primary dark:text-primary-400 font-medium mb-2.5 md:mb-3 capitalize truncate"
-          title={doctorSpecialty}
-        >
-          {doctorSpecialty}
-        </p>
-
-        {/* عرض التقييم */}
-        <RatingStars
-          rating={doctorRating}
-          starSize={18}
-          className="justify-center mb-3 md:mb-4"
-        />
-
-        {/* زر الإجراء */}
-        <div className="mt-auto w-full pt-2">
-          {" "}
-          {/* mt-auto لدفع الزر للأسفل */}
-          <Link to={`/doctors/${ele._id}`} className="block w-full">
-            <Button
-              theme={flowbit.button} // افتراض أن لديك تخصيص لـ primary
-              color="primary" // كخيار احتياطي
-              className="w-full !font-semibold !py-2.5 md:!py-3 !text-sm md:!text-base group/button" // فئات لفرض النمط إذا لزم الأمر
-              size="sm" // حجم الزر من Flowbite (قد يتم تجاوز الحشو الداخلي والنص بالفئات أعلاه)
-            >
-              <span className="transition-all duration-300 group-hover/button:tracking-wider">
-                عرض الملف الشخصي
-              </span>
-            </Button>
-          </Link>
+        <div className="flex justify-between w-full text-sm text-white mb-3">
+          <p className=" ">اخصائي {ele.doctorProfile.specialization}</p>
+          <div className="flex gap-1 items-center justify-center">
+            <Star className="text-yellow-300" size={15} strokeWidth={3} />
+            <p className="text-yellow-300 font-bold">
+              {ele.doctorProfile.rating}
+            </p>
+          </div>
         </div>
+
+        <Link to={`/doctors/${ele._id}`} className="w-full">
+          <div className="w-full">
+            <Button
+              theme={flowbit.button}
+              color="primary"
+              className="w-full"
+              size="sm"
+            >
+              إستشر الان
+            </Button>
+          </div>
+        </Link>
       </div>
     </div>
   );
 }
+// import { Button, Badge } from "flowbite-react";
+// import {
+//   Star,
+//   GraduationCap,
+//   MapPin,
+//   CircleDollarSign,
+//   Clock,
+// } from "lucide-react";
+// import { Link } from "react-router-dom";
+// import flowbit from "../../config/flowbit"; // تأكد من صحة مسار ملف الإعدادات
+// import parseImgUrl from "../../utils/parseImgUrl"; // تأكد من صحة مسار الدالة
+
+// // بيانات افتراضية للتعامل مع أي نقص في البيانات الواردة
+// const getDoctorData = (ele) => ({
+//   id: ele?._id || "1",
+//   name: `${ele?.fullName?.first || "صدري"} ${
+//     ele?.fullName?.second || "معاذ"
+//   }`.trim(),
+//   image: parseImgUrl(ele?.profileImage),
+//   specialty: ele?.doctorProfile?.specialization || "استشاري امراض قلبية",
+//   rating: ele?.doctorProfile?.rating || 4.5,
+//   totalRatings: ele?.doctorProfile?.totalRatings || 230,
+//   isOnline: ele?.doctorProfile?.isOnline ?? true,
+//   experience: ele?.doctorProfile?.experienceYears || 15,
+//   location: `${(ele.city, ele.state)}` || "غير محدد",
+//   fee: ele?.doctorProfile?.consultationPrice || 150,
+//   nextSlot: ele?.doctorProfile?.nextAvailableSlot || "اليوم، 04:30 م",
+// });
+
+// export default function DoctorCard({ ele }) {
+//   const doctor = getDoctorData(ele);
+
+//   return (
+//     <div className="relative overflow-hidden bg-white border border-gray-200 rounded-2xl shadow-sm hover:shadow-lg transition-shadow duration-300 p-5 flex flex-col gap-4 w-full">
+//       {/* ====== القسم العلوي: الصورة، الاسم، والتقييم ====== */}
+//       <div className="absolute right-0 top-0 w-2 h-full bg-primaryColor"></div>
+
+//       <div className="flex justify-between items-start">
+//         <div className="flex items-center gap-4">
+//           <div className="relative flex-shrink-0">
+//             <img
+//               src={doctor.image}
+//               alt={`د. ${doctor.name}`}
+//               className="w-20 h-20 rounded-full object-cover border-4 border-white shadow-md"
+//             />
+//             {doctor.isOnline && (
+//               <span className="absolute bottom-1 right-1 block h-4 w-4 rounded-full bg-green-500 border-2 border-white" />
+//             )}
+//           </div>
+//           <div>
+//             <h3 className="text-xl font-bold text-gray-800">
+//               د. {doctor.name}
+//             </h3>
+//             <p className="text-md text-primaryColor font-medium">
+//               {doctor.specialty}
+//             </p>
+//           </div>
+//         </div>
+//         <div className="flex items-center gap-1.5 text-sm text-gray-600 flex-shrink-0">
+//           <Star className="w-5 h-5 text-amber-400 fill-amber-400" />
+//           <span className="font-bold">{doctor.rating.toFixed(1)}</span>
+//           <span className="text-gray-400">({doctor.totalRatings})</span>
+//         </div>
+//       </div>
+
+//       {/* ====== الكلمات المفتاحية ====== */}
+
+//       {/* ====== فاصل ====== */}
+//       <hr className="my-2 border-gray-100" />
+
+//       {/* ====== القسم السفلي: التفاصيل والأزرار ====== */}
+//       <div className="">
+//         {/* معلومات الطبيب */}
+//         <div className="space-y-3 text-gray-700 pb-3 border-b">
+//           <div className="flex items-center gap-2">
+//             <GraduationCap className="w-5 h-5 text-primaryColor" />
+//             <span>خبرة {doctor.experience} سنة طب قلب</span>
+//           </div>
+//           <div className="flex items-center gap-2">
+//             <MapPin className="w-5 h-5 text-primaryColor" />
+//             <span>{doctor.location}</span>
+//           </div>
+//           <div className="flex items-center gap-2">
+//             <CircleDollarSign className="w-5 h-5 text-primaryColor" />
+//             <span className="font-semibold">
+//               مبلغ الاستشارة: {doctor.fee} دج
+//             </span>
+//           </div>
+//         </div>
+
+//         {/* الموعد والأزرار */}
+//         <div className="flex flex-col items-stretch md:items-end gap-3 flex-shrink-0 pt-3">
+//           <div className="flex items-stretch gap-2 w-full">
+//             <Link to={`/doctors/${doctor.id}/profile`} className="flex-1">
+//               <Button color="light" theme={flowbit.button} className="w-full">
+//                 زيارة الملف الشخصي
+//               </Button>
+//             </Link>
+//             <Link to={`/doctors/${doctor.id}/booking`} className="flex-1">
+//               <Button color="primary" theme={flowbit.button} className="w-full">
+//                 حجز موعد
+//               </Button>
+//             </Link>
+//           </div>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// }

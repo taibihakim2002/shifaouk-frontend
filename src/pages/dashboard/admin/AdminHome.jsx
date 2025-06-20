@@ -231,6 +231,7 @@ export default function AdminHome() {
                 value: statesData?.data?.totalPatients || 0,
                 percentage: statesData?.data?.patientChangePercent || 0,
                 percentageText: "مقارنة بالشهر الماضي",
+                link: "/dashboard/patients",
               },
               {
                 title: "الاطباء النشطين",
@@ -239,6 +240,7 @@ export default function AdminHome() {
                 value: statesData?.data?.approvedDoctors || 0,
                 percentage: statesData?.data?.doctorChangePercent || 0,
                 percentageText: "مقارنة بالشهر الماضي",
+                link: "/dashboard/patients",
               },
               {
                 title: "الاطباء في الانتظار",
@@ -247,6 +249,7 @@ export default function AdminHome() {
                 value: statesData?.data?.pendingDoctors || 0,
                 percentage: statesData?.data?.doctorChangePercent || 0,
                 percentageText: "مقارنة بالشهر الماضي",
+                link: "/dashboard/doctors/requests",
               },
               {
                 title: "الاستشارات التي تمت",
@@ -255,6 +258,7 @@ export default function AdminHome() {
                 value: statesData?.data?.completedConsultations || 0,
                 percentage: statesData?.data?.consultationChangePercent || 0,
                 percentageText: "مقارنة بالشهر الماضي",
+                link: "/dashboard/appointments",
               },
               {
                 title: "الاستشارات المجدولة",
@@ -263,6 +267,7 @@ export default function AdminHome() {
                 value: statesData?.data?.ConfirmedConsultations || 0,
                 percentage: statesData?.data?.appointmentChangePercent || 0,
                 percentageText: "مقارنة بالشهر الماضي",
+                link: "/dashboard/appointments",
               },
               {
                 title: "الارباح",
@@ -272,6 +277,7 @@ export default function AdminHome() {
                 valueText: "دج",
                 percentage: statesData?.data?.revenueChangePercent || 0,
                 percentageText: "مقارنة بالشهر الماضي",
+                link: "/dashboard/wallet",
               },
             ].map((card, index) => (
               <InfoCard
@@ -283,6 +289,7 @@ export default function AdminHome() {
                 valueText={card.valueText}
                 percentage={card.percentage}
                 percentageText={card.percentageText}
+                link={card.link}
               />
             ))}
       </div>

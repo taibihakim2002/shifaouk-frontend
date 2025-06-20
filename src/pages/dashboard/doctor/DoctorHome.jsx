@@ -483,6 +483,7 @@ export default function DoctorHome() {
                 value: statesData?.data?.totalPatients,
                 percentage: 8,
                 percentageText: "مقارنة بالشهر الماضي",
+                link: "/dashboard/patients",
               },
               {
                 title: "طلبات بانتظار المراجعة",
@@ -491,6 +492,7 @@ export default function DoctorHome() {
                 value: statesData?.data?.pendingRequests,
                 percentage: 4,
                 percentageText: "مقارنة بالشهر الماضي",
+                link: "/dashboard/appointments",
               },
               {
                 title: "طلبات مقبولة",
@@ -499,6 +501,7 @@ export default function DoctorHome() {
                 value: statesData?.data?.confirmedConsultationsCount,
                 percentage: 4,
                 percentageText: "مقارنة بالشهر الماضي",
+                link: "/dashboard/appointments",
               },
               {
                 title: "المحفظة ",
@@ -508,6 +511,7 @@ export default function DoctorHome() {
                 valueText: "دج",
                 percentage: -11,
                 percentageText: "مقارنة بالشهر الماضي",
+                link: "/dashboard/wallet",
               },
             ].map((card, index) => (
               <InfoCard
@@ -519,6 +523,7 @@ export default function DoctorHome() {
                 valueText={card.valueText}
                 percentage={card.percentage}
                 percentageText={card.percentageText}
+                link={card.link}
               />
             ))}
       </div>
@@ -678,7 +683,7 @@ export default function DoctorHome() {
                 لا توجد مواعيد قادمة
               </h3>
               <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 mb-4">
-                جميع مواعيدك مكتملة. هل ترغب في حجز موعد جديد؟
+                جميع مواعيدك مكتملة.
               </p>
             </div>
           )}

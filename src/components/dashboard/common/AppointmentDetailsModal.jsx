@@ -316,7 +316,7 @@ export default function AppointmentDetailsModal({
           </section>
           {appointment.status === "completed" ? (
             <Button
-              href={`/appointments/${appointment._id}/report`}
+              href={`/dashboard/appointments/${appointment._id}/report`}
               color="gray"
               outline
               theme={flowbit.button}
